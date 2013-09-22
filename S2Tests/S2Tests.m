@@ -2,13 +2,20 @@
 //  S2Tests.m
 //  S2Tests
 //
-//  Created by sassembla on 2013/09/22.
+//  Created by sassembla on 2013/09/21.
 //  Copyright (c) 2013年 sassembla. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>
 
-@interface S2Tests : XCTestCase
+#import "KSMessenger.h"
+
+
+#define TEST_MASTER (@"TEST_MASTER")
+
+@interface S2Tests : XCTestCase {
+    KSMessenger * messenger;
+}
 
 @end
 
@@ -17,15 +24,25 @@
 - (void)setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
+    
+    
+    // Set-up code here.
 }
 
 - (void)tearDown
 {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    // Tear-down code here.
+    [messenger closeConnection];
     [super tearDown];
 }
 
+/**
+ 初期化、起動時の処理
+ */
+- (void) testIgnite {
+    
+}
 - (void)testExample
 {
     XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);

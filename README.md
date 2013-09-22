@@ -5,17 +5,18 @@ Input部分の取り付けが終わったので、挙動を一通り移装しよ
 * ステップ式にしようか、それとも完全羃的にするか
 * WebSocketのon-off周りが電源と一緒
 * 接続してきたやつがいたら、ポジションを聞いてpullを行う(このへんはSRがやるべきことなので、イベントのキックだけをS2から行う。connected。)
-* out ignited
-* out connected
 
-* in codeUpdated
-* out pulling
-* out pulled (chamber start)
-* out tick
-* in codeUpdate ..
+* out ignited 起動完了
+* out connected 接続完了、受付開始
 
-* in reset
-* out unleashed
+* in codeUpdated 入力
+* out pulling プル
+* out pulled (chamber start) プルの完了(update内容に対するものなので、個別になる)
+* out tick イベントの送付(フィルタは無いが、idはある)
+* in codeUpdate ..continue.
+
+* in reset リセット要求の入力
+* out 
 
 * 
 
