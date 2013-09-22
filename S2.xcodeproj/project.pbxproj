@@ -18,6 +18,16 @@
 		B7987EB317EE82FB008F21F4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7987E9217EE82FB008F21F4 /* Cocoa.framework */; };
 		B7987EBB17EE82FB008F21F4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B7987EB917EE82FB008F21F4 /* InfoPlist.strings */; };
 		B7987EBD17EE82FB008F21F4 /* S2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987EBC17EE82FB008F21F4 /* S2Tests.m */; };
+		B7987ECE17EE831F008F21F4 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987EC817EE831F008F21F4 /* GCDAsyncSocket.m */; };
+		B7987ECF17EE831F008F21F4 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987EC817EE831F008F21F4 /* GCDAsyncSocket.m */; };
+		B7987ED017EE831F008F21F4 /* MBWebSocketServer.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987ECA17EE831F008F21F4 /* MBWebSocketServer.m */; };
+		B7987ED117EE831F008F21F4 /* MBWebSocketServer.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987ECA17EE831F008F21F4 /* MBWebSocketServer.m */; };
+		B7987ED217EE831F008F21F4 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B7987ECB17EE831F008F21F4 /* README.md */; };
+		B7987ED317EE831F008F21F4 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B7987ECB17EE831F008F21F4 /* README.md */; };
+		B7987ED417EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987ECD17EE831F008F21F4 /* WebSocketConnectionOperation.m */; };
+		B7987ED517EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987ECD17EE831F008F21F4 /* WebSocketConnectionOperation.m */; };
+		B7987F2517EE835D008F21F4 /* KSMessenger.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987F2417EE835D008F21F4 /* KSMessenger.m */; };
+		B7987F2617EE835D008F21F4 /* KSMessenger.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987F2417EE835D008F21F4 /* KSMessenger.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +60,15 @@
 		B7987EB817EE82FB008F21F4 /* S2Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "S2Tests-Info.plist"; sourceTree = "<group>"; };
 		B7987EBA17EE82FB008F21F4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B7987EBC17EE82FB008F21F4 /* S2Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = S2Tests.m; sourceTree = "<group>"; };
+		B7987EC717EE831F008F21F4 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
+		B7987EC817EE831F008F21F4 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
+		B7987EC917EE831F008F21F4 /* MBWebSocketServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBWebSocketServer.h; sourceTree = "<group>"; };
+		B7987ECA17EE831F008F21F4 /* MBWebSocketServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBWebSocketServer.m; sourceTree = "<group>"; };
+		B7987ECB17EE831F008F21F4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		B7987ECC17EE831F008F21F4 /* WebSocketConnectionOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebSocketConnectionOperation.h; sourceTree = "<group>"; };
+		B7987ECD17EE831F008F21F4 /* WebSocketConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebSocketConnectionOperation.m; sourceTree = "<group>"; };
+		B7987F2317EE835D008F21F4 /* KSMessenger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KSMessenger.h; sourceTree = "<group>"; };
+		B7987F2417EE835D008F21F4 /* KSMessenger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KSMessenger.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +95,8 @@
 		B7987E8617EE82FB008F21F4 = {
 			isa = PBXGroup;
 			children = (
+				B7987F2217EE835D008F21F4 /* KSMessenger */,
+				B7987EC617EE831F008F21F4 /* MBWebSocketServer */,
 				B7987E9817EE82FB008F21F4 /* S2 */,
 				B7987EB617EE82FB008F21F4 /* S2Tests */,
 				B7987E9117EE82FB008F21F4 /* Frameworks */,
@@ -152,6 +173,29 @@
 				B7987EB917EE82FB008F21F4 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		B7987EC617EE831F008F21F4 /* MBWebSocketServer */ = {
+			isa = PBXGroup;
+			children = (
+				B7987EC717EE831F008F21F4 /* GCDAsyncSocket.h */,
+				B7987EC817EE831F008F21F4 /* GCDAsyncSocket.m */,
+				B7987EC917EE831F008F21F4 /* MBWebSocketServer.h */,
+				B7987ECA17EE831F008F21F4 /* MBWebSocketServer.m */,
+				B7987ECB17EE831F008F21F4 /* README.md */,
+				B7987ECC17EE831F008F21F4 /* WebSocketConnectionOperation.h */,
+				B7987ECD17EE831F008F21F4 /* WebSocketConnectionOperation.m */,
+			);
+			path = MBWebSocketServer;
+			sourceTree = "<group>";
+		};
+		B7987F2217EE835D008F21F4 /* KSMessenger */ = {
+			isa = PBXGroup;
+			children = (
+				B7987F2317EE835D008F21F4 /* KSMessenger.h */,
+				B7987F2417EE835D008F21F4 /* KSMessenger.m */,
+			);
+			path = KSMessenger;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -232,6 +276,7 @@
 			files = (
 				B7987E9D17EE82FB008F21F4 /* InfoPlist.strings in Resources */,
 				B7987EAB17EE82FB008F21F4 /* Images.xcassets in Resources */,
+				B7987ED217EE831F008F21F4 /* README.md in Resources */,
 				B7987EA317EE82FB008F21F4 /* Credits.rtf in Resources */,
 				B7987EA917EE82FB008F21F4 /* MainMenu.xib in Resources */,
 			);
@@ -241,6 +286,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B7987ED317EE831F008F21F4 /* README.md in Resources */,
 				B7987EBB17EE82FB008F21F4 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -252,8 +298,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B7987ECE17EE831F008F21F4 /* GCDAsyncSocket.m in Sources */,
+				B7987ED417EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
 				B7987EA617EE82FB008F21F4 /* AppDelegate.m in Sources */,
+				B7987F2517EE835D008F21F4 /* KSMessenger.m in Sources */,
 				B7987E9F17EE82FB008F21F4 /* main.m in Sources */,
+				B7987ED017EE831F008F21F4 /* MBWebSocketServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,7 +311,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B7987ECF17EE831F008F21F4 /* GCDAsyncSocket.m in Sources */,
+				B7987ED517EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
+				B7987ED117EE831F008F21F4 /* MBWebSocketServer.m in Sources */,
 				B7987EBD17EE82FB008F21F4 /* S2Tests.m in Sources */,
+				B7987F2617EE835D008F21F4 /* KSMessenger.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -387,6 +441,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "S2/S2-Prefix.pch";
 				INFOPLIST_FILE = "S2/S2-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -400,6 +455,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "S2/S2-Prefix.pch";
 				INFOPLIST_FILE = "S2/S2-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
