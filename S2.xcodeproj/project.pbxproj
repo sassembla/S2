@@ -32,6 +32,9 @@
 		B7FCE9FF17EF17D100C6B41A /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCE9FD17EF17D100C6B41A /* TimeMine.m */; };
 		B7FCEA0217EF1EB900C6B41A /* S2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0117EF1EB900C6B41A /* S2Controller.m */; };
 		B7FCEA0317EF1EB900C6B41A /* S2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0117EF1EB900C6B41A /* S2Controller.m */; };
+		B7FCEA0517EFEC7D00C6B41A /* ChamberTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0417EFEC7D00C6B41A /* ChamberTests.m */; };
+		B7FCEA0717EFEC9800C6B41A /* CompilerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0617EFEC9800C6B41A /* CompilerTests.m */; };
+		B7FCEA0917EFECC500C6B41A /* EmitterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0817EFECC500C6B41A /* EmitterTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +80,9 @@
 		B7FCE9FD17EF17D100C6B41A /* TimeMine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeMine.m; sourceTree = "<group>"; };
 		B7FCEA0017EF1EB900C6B41A /* S2Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = S2Controller.h; sourceTree = "<group>"; };
 		B7FCEA0117EF1EB900C6B41A /* S2Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = S2Controller.m; sourceTree = "<group>"; };
+		B7FCEA0417EFEC7D00C6B41A /* ChamberTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChamberTests.m; sourceTree = "<group>"; };
+		B7FCEA0617EFEC9800C6B41A /* CompilerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerTests.m; sourceTree = "<group>"; };
+		B7FCEA0817EFECC500C6B41A /* EmitterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmitterTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +182,9 @@
 			children = (
 				B7987EBC17EE82FB008F21F4 /* S2Tests.m */,
 				B7987EB717EE82FB008F21F4 /* Supporting Files */,
+				B7FCEA0417EFEC7D00C6B41A /* ChamberTests.m */,
+				B7FCEA0617EFEC9800C6B41A /* CompilerTests.m */,
+				B7FCEA0817EFECC500C6B41A /* EmitterTests.m */,
 			);
 			path = S2Tests;
 			sourceTree = "<group>";
@@ -338,8 +347,11 @@
 				B7987ED517EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
 				B7987ED117EE831F008F21F4 /* MBWebSocketServer.m in Sources */,
 				B7987EBD17EE82FB008F21F4 /* S2Tests.m in Sources */,
+				B7FCEA0917EFECC500C6B41A /* EmitterTests.m in Sources */,
 				B7FCEA0317EF1EB900C6B41A /* S2Controller.m in Sources */,
 				B7987F2617EE835D008F21F4 /* KSMessenger.m in Sources */,
+				B7FCEA0517EFEC7D00C6B41A /* ChamberTests.m in Sources */,
+				B7FCEA0717EFEC9800C6B41A /* CompilerTests.m in Sources */,
 				B7FCE9FF17EF17D100C6B41A /* TimeMine.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
