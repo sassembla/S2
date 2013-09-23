@@ -14,18 +14,14 @@
 #define KS_WEBSOCKETCONNECTIONOPERATION (@"KS_WEBSOCKETCONNECTIONOPERATION")
 
 #define KEY_WEBSOCKET_TYPE  (@"type")
-
-#define OPTION_TYPE_CLIENT  (@"client")
 #define OPTION_TYPE_SERVER  (@"server")
 
 
 
 typedef enum {
-    KS_WEBSOCKETCONNECTIONOPERATION_OPEN = 0,
+    KS_WEBSOCKETCONNECTIONOPERATION_OPENED = 0,
     KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED,
-    KS_WEBSOCKETCONNECTIONOPERATION_INPUT,
     KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED,
-    KS_WEBSOCKETCONNECTIONOPERATION_CLOSE
 } TYPE_KS_WEBSOCKETCONNECTIONOPERATION;
 
 
@@ -35,6 +31,6 @@ typedef enum {
 
 @interface WebSocketConnectionOperation : NSObject <MBWebSocketServerDelegate>
 
-- (id) initWebSocketConnectionOperationWithMaster:(NSString * )masterNameAndId withConnectionTarget:(NSString * )targetAddr withConnectionIdentity:(NSString * )connectionIdentity withOption:(NSDictionary * )opt;
-- (void) received:(id)message;
+- (id) initWebSocketConnectionOperationWithMaster:(NSString * )masterNameAndId withAddressAndPort:(NSString * )addr;
+- (void) shutDown;
 @end

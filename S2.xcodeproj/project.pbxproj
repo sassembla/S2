@@ -28,6 +28,10 @@
 		B7987F2517EE835D008F21F4 /* KSMessenger.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987F2417EE835D008F21F4 /* KSMessenger.m */; };
 		B7987F2617EE835D008F21F4 /* KSMessenger.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987F2417EE835D008F21F4 /* KSMessenger.m */; };
 		B7DCEB7317EF126800E28C5C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7DCEB7217EF126800E28C5C /* Security.framework */; };
+		B7FCE9FE17EF17D100C6B41A /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCE9FD17EF17D100C6B41A /* TimeMine.m */; };
+		B7FCE9FF17EF17D100C6B41A /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCE9FD17EF17D100C6B41A /* TimeMine.m */; };
+		B7FCEA0217EF1EB900C6B41A /* S2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0117EF1EB900C6B41A /* S2Controller.m */; };
+		B7FCEA0317EF1EB900C6B41A /* S2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0117EF1EB900C6B41A /* S2Controller.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +73,10 @@
 		B7987F2317EE835D008F21F4 /* KSMessenger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KSMessenger.h; sourceTree = "<group>"; };
 		B7987F2417EE835D008F21F4 /* KSMessenger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KSMessenger.m; sourceTree = "<group>"; };
 		B7DCEB7217EF126800E28C5C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		B7FCE9FC17EF17D100C6B41A /* TimeMine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeMine.h; sourceTree = "<group>"; };
+		B7FCE9FD17EF17D100C6B41A /* TimeMine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeMine.m; sourceTree = "<group>"; };
+		B7FCEA0017EF1EB900C6B41A /* S2Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = S2Controller.h; sourceTree = "<group>"; };
+		B7FCEA0117EF1EB900C6B41A /* S2Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = S2Controller.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +105,7 @@
 		B7987E8617EE82FB008F21F4 = {
 			isa = PBXGroup;
 			children = (
+				B7FCE9FB17EF17D100C6B41A /* TimeAssert */,
 				B7987F2217EE835D008F21F4 /* KSMessenger */,
 				B7987EC617EE831F008F21F4 /* MBWebSocketServer */,
 				B7987E9817EE82FB008F21F4 /* S2 */,
@@ -144,6 +153,8 @@
 				B7987EA717EE82FB008F21F4 /* MainMenu.xib */,
 				B7987EAA17EE82FB008F21F4 /* Images.xcassets */,
 				B7987E9917EE82FB008F21F4 /* Supporting Files */,
+				B7FCEA0017EF1EB900C6B41A /* S2Controller.h */,
+				B7FCEA0117EF1EB900C6B41A /* S2Controller.m */,
 			);
 			path = S2;
 			sourceTree = "<group>";
@@ -198,6 +209,16 @@
 				B7987F2417EE835D008F21F4 /* KSMessenger.m */,
 			);
 			path = KSMessenger;
+			sourceTree = "<group>";
+		};
+		B7FCE9FB17EF17D100C6B41A /* TimeAssert */ = {
+			isa = PBXGroup;
+			children = (
+				B7FCE9FC17EF17D100C6B41A /* TimeMine.h */,
+				B7FCE9FD17EF17D100C6B41A /* TimeMine.m */,
+			);
+			name = TimeAssert;
+			path = ../TimeAssert;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -300,8 +321,10 @@
 			files = (
 				B7987ECE17EE831F008F21F4 /* GCDAsyncSocket.m in Sources */,
 				B7987ED417EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
+				B7FCEA0217EF1EB900C6B41A /* S2Controller.m in Sources */,
 				B7987EA617EE82FB008F21F4 /* AppDelegate.m in Sources */,
 				B7987F2517EE835D008F21F4 /* KSMessenger.m in Sources */,
+				B7FCE9FE17EF17D100C6B41A /* TimeMine.m in Sources */,
 				B7987E9F17EE82FB008F21F4 /* main.m in Sources */,
 				B7987ED017EE831F008F21F4 /* MBWebSocketServer.m in Sources */,
 			);
@@ -315,7 +338,9 @@
 				B7987ED517EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
 				B7987ED117EE831F008F21F4 /* MBWebSocketServer.m in Sources */,
 				B7987EBD17EE82FB008F21F4 /* S2Tests.m in Sources */,
+				B7FCEA0317EF1EB900C6B41A /* S2Controller.m in Sources */,
 				B7987F2617EE835D008F21F4 /* KSMessenger.m in Sources */,
+				B7FCE9FF17EF17D100C6B41A /* TimeMine.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
