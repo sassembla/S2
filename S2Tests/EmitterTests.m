@@ -26,9 +26,15 @@
     [super tearDown];
 }
 
-- (void)testExample
-{
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+/**
+ 接続されているclientに対して、特定のメッセージを投げる
+ */
+- (void) testEmitSpecificMessageToClient {
+    XCTFail(@"not yet implemented");
+}
+
+- (void) testEmitMessageToClient {
+    XCTFail(@"not yet implemented");    
 }
 
 @end

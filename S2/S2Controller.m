@@ -13,10 +13,16 @@
 #import "WebSocketConnectionOperation.h"
 #import "TimeMine.h"
 
-
+enum STATE {
+    STATE_IGNITED,
+    STATE_CONNECTED
+};
 
 @implementation S2Controller {
+    int m_state;
+    
     KSMessenger * messenger;
+    
     
     WebSocketConnectionOperation * serverOperation;
 }
@@ -60,7 +66,13 @@
     
     switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
         case KS_WEBSOCKETCONNECTIONOPERATION_OPENED:{
-            [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:51:41" withLimitSec:10000 withComment:@"開いた通知が来たので、準備完了している筈"];
+            m_state = STATE_IGNITED;
+            
+            break;
+        }
+        case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
+            m_state = STATE_CONNECTED;
+            
             break;
         }
         case KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED:{
@@ -78,7 +90,6 @@
 
 - (void) shutDown {
     [serverOperation shutDown];
-    [TimeMine setTimeMineLocalizedFormat:@"2013/09/22 21:57:25" withLimitSec:100000 withComment:@"WebSocketServerを閉じる処理"];
     [messenger closeConnection];
 }
 
