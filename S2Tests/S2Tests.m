@@ -11,6 +11,7 @@
 #import "KSMessenger.h"
 
 #import "S2Controller.h"
+#import "<#header#>"
 
 #import "TimeMine.h"
 
@@ -34,8 +35,6 @@
 {
     [super setUp];
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
-    
-    cont = [[S2Controller alloc]initWithMaster:TEST_MASTER];
 }
 
 - (void)tearDown
@@ -62,9 +61,8 @@
     /*
      WebSocketServerの起動
      */
-    [messenger call:S2_MASTER withExec:EXEC_INITIALIZE,
-     [messenger tag:@"url" val:TEST_SERVER_URL],
-     nil];
+    NSDictionary * dict = @{@"url", TEST_SERVER_URL};
+    [cont initWithDict:dict];
 }
 
 - (void) testIgnite2 {
@@ -75,6 +73,7 @@
      [messenger tag:@"url" val:TEST_SERVER_URL],
      nil];
     
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/02 9:02:33" withLimitSec:1000 withComment:@""];
     
 }
 

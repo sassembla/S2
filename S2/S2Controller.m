@@ -14,6 +14,7 @@
 #import "TimeMine.h"
 
 enum STATE {
+    STATE_NONE,
     STATE_IGNITED,
     STATE_CONNECTED
 };
@@ -25,16 +26,6 @@ enum STATE {
     
     
     WebSocketConnectionOperation * serverOperation;
-}
-
-- (id) initWithMaster:(NSString * )masterNameAndId {
-
-    if (self = [super init]) {
-        messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:S2_MASTER];
-        [messenger connectParent:masterNameAndId];
-    }
-    
-    return self;
 }
 
 - (id) initWithDict:(NSDictionary * )data {
@@ -52,38 +43,57 @@ enum STATE {
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
     switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
-        case EXEC_INITIALIZE:{
-            NSAssert(dict[@"url"], @"url required");
-            
-            serverOperation = [[WebSocketConnectionOperation alloc]initWebSocketConnectionOperationWithMaster:[messenger myNameAndMID] withAddressAndPort:dict[@"url"]];
-            
+        default:{
+            NSLog(@"from parent default %@", dict);
 			break;
-		}
-			
-		default:
-			break;
+        }
 	}
     
-    switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
-        case KS_WEBSOCKETCONNECTIONOPERATION_OPENED:{
-            m_state = STATE_IGNITED;
-            
+    switch (m_state) {
+        case STATE_NONE:{
+            switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
+                case KS_WEBSOCKETCONNECTIONOPERATION_OPENED:{
+                    m_state = STATE_IGNITED;
+                    break;
+                }
+                default:{
+                    break;
+                }
+            }
             break;
         }
-        case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
-            m_state = STATE_CONNECTED;
-            
+        case STATE_IGNITED:{
+            switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
+                case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
+                    m_state = STATE_CONNECTED;
+                    
+                    break;
+                }
+                default:{
+                    break;
+                }
+            }
             break;
         }
-        case KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED:{
-            [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:15:10" withLimitSec:1000 withComment:@"データの受け取りが完了したので、チャンバーへと回す。idとかを取り出すことが出来る筈。"];
+        case STATE_CONNECTED:{
+            switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
+                    
+                case KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED:{
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:15:10" withLimitSec:1000 withComment:@"データの受け取りが完了したので、チャンバーへと回す。idとかを取り出すことが出来る筈。"];
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
+
             break;
         }
             
         default:
             break;
     }
-
+    
 }
 
 
