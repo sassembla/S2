@@ -11,7 +11,6 @@
 #import "KSMessenger.h"
 
 #import "S2Controller.h"
-#import "<#header#>"
 
 #import "TimeMine.h"
 
@@ -21,7 +20,10 @@
 #define TEST_SERVER_URL (@"ws://test:8824")
 
 
-
+/**
+ S2全体の挙動に関わるテスト
+ usecase的な書き方をするのがいいんだろうなー。
+ */
 @interface S2Tests : XCTestCase {
     KSMessenger * messenger;
     S2Controller * cont;
@@ -42,8 +44,6 @@
     [cont shutDown];
     
     [messenger closeConnection];
-    
-    [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:45:27" withLimitSec:1000 withComment:@"WebSocketServerの終了に時間がかかったイメージ。"];
     [super tearDown];
 }
 
@@ -57,25 +57,20 @@
 /**
  初期化、起動時の処理
  */
-- (void) testIgnite {
+- (void) testIgniteThenDown {
     /*
      WebSocketServerの起動
      */
-    NSDictionary * dict = @{@"url", TEST_SERVER_URL};
-    [cont initWithDict:dict];
+    NSDictionary * dict = @{@"url": TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:dict withMasterName:TEST_MASTER];
 }
 
-- (void) testIgnite2 {
-    /*
-     起動後、仮clientから接続
-     */
-    [messenger call:S2_MASTER withExec:EXEC_INITIALIZE,
-     [messenger tag:@"url" val:TEST_SERVER_URL],
-     nil];
-    
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/02 9:02:33" withLimitSec:1000 withComment:@""];
+/**
+ 連続した挙動のテスト
+ */
+- (void) testIgniteThenConnectDummyClient {
     
 }
-
 
 @end

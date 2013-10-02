@@ -18,7 +18,7 @@ enum S2_EXEC {
 
 @interface S2Controller : NSObject
 
-- (id) initWithDict:(NSDictionary * )data;
+- (id) initWithDict:(NSDictionary * )params withMasterName:(NSString * )masterNameAndId;
 
 - (void) shutDown;
 @end

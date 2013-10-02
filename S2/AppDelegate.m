@@ -31,7 +31,7 @@
     NSDictionary * paramDict = @{};
     
 //    App main controller
-    S2Controller * cont = [[S2Controller alloc]initWithDict:paramDict];
+    S2Controller * cont = [[S2Controller alloc]initWithDict:paramDict withMasterName:[messenger myNameAndMID]];
 }
 
 

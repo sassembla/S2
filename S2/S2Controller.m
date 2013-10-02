@@ -24,14 +24,18 @@ enum STATE {
     
     KSMessenger * messenger;
     
-    
+    NSDictionary * paramDict;
     WebSocketConnectionOperation * serverOperation;
 }
 
-- (id) initWithDict:(NSDictionary * )data {
+/**
+ 値と親がある状態で初期化
+ */
+- (id) initWithDict:(NSDictionary * )params withMasterName:(NSString * )masterNameAndId {
     if (self = [super init]) {
+        paramDict = [[NSDictionary alloc]initWithDictionary:params];
+
         messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:S2_MASTER];
-        [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:19:09" withLimitSec:1000 withComment:@"コマンドラインからのパラメータとかを入れる"];
     }
     return self;
 }
