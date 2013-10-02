@@ -67,15 +67,14 @@
 /**
  delegate act as server
  */
-- (void)webSocketServer:(MBWebSocketServer *)webSocketServer didAcceptConnection:(GCDAsyncSocket *)connection {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:10:35" withLimitSec:1000 withComment:@"接続確認、通達する"];
-    
+- (void)webSocketServer:(MBWebSocketServer * )webSocketServer didAcceptConnection:(GCDAsyncSocket *)connection {
+    [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED, nil];
 }
-- (void)webSocketServer:(MBWebSocketServer *)webSocketServer clientDisconnected:(GCDAsyncSocket *)connection {
+- (void)webSocketServer:(MBWebSocketServer * )webSocketServer clientDisconnected:(GCDAsyncSocket *)connection {
     
     [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:10:35" withLimitSec:1000 withComment:@"切断確認、通達する"];
 }
-- (void)webSocketServer:(MBWebSocketServer *)webSocket didReceiveData:(NSData *)data fromConnection:(GCDAsyncSocket *)connection {
+- (void)webSocketServer:(MBWebSocketServer * )webSocket didReceiveData:(NSData *)data fromConnection:(GCDAsyncSocket *)connection {
    [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED,
      [messenger tag:@"data" val:data],
      nil];

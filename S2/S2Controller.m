@@ -13,11 +13,8 @@
 #import "WebSocketConnectionOperation.h"
 #import "TimeMine.h"
 
-enum STATE {
-    STATE_NONE,
-    STATE_IGNITED,
-    STATE_CONNECTED
-};
+#define KEY_XCTEST  (@"-XCTest")
+
 
 @implementation S2Controller {
     int m_state;
@@ -32,10 +29,21 @@ enum STATE {
  値と親がある状態で初期化
  */
 - (id) initWithDict:(NSDictionary * )params withMasterName:(NSString * )masterNameAndId {
+    
+    if (params[KEY_XCTEST]) {
+        return nil;
+    }
+    
     if (self = [super init]) {
+        NSAssert1(params[KEY_WEBSOCKETSERVER_ADDRESS], @"%@ required", KEY_WEBSOCKETSERVER_ADDRESS);
+        
         paramDict = [[NSDictionary alloc]initWithDictionary:params];
 
         messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:S2_MASTER];
+        [messenger connectParent:masterNameAndId];
+        
+        
+        serverOperation = [[WebSocketConnectionOperation alloc]initWebSocketConnectionOperationWithMaster:[messenger myNameAndMID] withAddressAndPort:paramDict[KEY_WEBSOCKETSERVER_ADDRESS]];
     }
     return self;
 }
@@ -67,6 +75,7 @@ enum STATE {
             break;
         }
         case STATE_IGNITED:{
+            // 1 first only
             switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
                 case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
                     m_state = STATE_CONNECTED;
@@ -83,7 +92,8 @@ enum STATE {
             switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
                     
                 case KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED:{
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:15:10" withLimitSec:1000 withComment:@"データの受け取りが完了したので、チャンバーへと回す。idとかを取り出すことが出来る筈。"];
+                    NSAssert(dict[@"data"], @"data required");
+                    
                     break;
                 }
                     
@@ -98,6 +108,10 @@ enum STATE {
             break;
     }
     
+}
+
+- (int) state {
+    return m_state;
 }
 
 

@@ -11,14 +11,19 @@
 
 #define S2_MASTER   (@"S2_MASTER")
 
-enum S2_EXEC {
-    EXEC_INITIALIZED,
+enum S2_STATE {
+    STATE_NONE,
+    STATE_IGNITED,
+    STATE_CONNECTED
 };
+
+#define KEY_WEBSOCKETSERVER_ADDRESS (@"-s")
 
 
 @interface S2Controller : NSObject
 
 - (id) initWithDict:(NSDictionary * )params withMasterName:(NSString * )masterNameAndId;
 
+- (int) state;
 - (void) shutDown;
 @end
