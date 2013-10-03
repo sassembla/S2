@@ -80,9 +80,7 @@
     cont = [[S2Controller alloc]initWithDict:dict withMasterName:TEST_MASTER];
 }
 
-/**
- 連続した挙動のテスト
- */
+
 - (void) testIgniteThenConnectDummyClient {
     // 起動する
     NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
@@ -97,7 +95,7 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    // クライアントから接続する
+    // クライアントから接続、メッセージを送付
     [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
     
     // 接続を待つ
@@ -107,6 +105,10 @@
         }
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
+}
+
+- (void) test {
+    
 }
 
 
