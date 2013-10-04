@@ -61,6 +61,9 @@
     NSTask * wsclient = [[NSTask alloc]init];
     [wsclient setLaunchPath:TEST_PATH_NSWS];
     [wsclient setArguments:@[@"-m", message, @"-t", url]];
+    
+    [wsclient setStandardInput:input];
+    
     [wsclient launch];
     
     return input;
@@ -96,7 +99,7 @@
     }
     
     // クライアントから接続、メッセージを送付
-    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
+    NSPipe * pipe = [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
     
     // 接続を待つ
     while (true) {
@@ -107,8 +110,41 @@
     }
 }
 
+/**
+ この時点で欠けているのは、connected後の動作、
+ updated が来るところから先。
+ */
 - (void) test {
+    // 起動する
+    NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
+    cont = [[S2Controller alloc]initWithDict:dict withMasterName:TEST_MASTER];
+    
+    
+    while (true) {
+        if ([cont state] == STATE_IGNITED) {
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    // クライアントから接続、メッセージを送付
+    NSPipe * pipe = [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
+    
+    // 接続を待つ
+    while (true) {
+        if ([cont state] == STATE_CONNECTED) {
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    NSFileHandle * writeHandle = [pipe fileHandleForWriting];
+    NSMutableData * data = [[NSMutableData alloc]init];
+    [data appendBytes:( const void * )"abcd" length:4];
+    
+    [writeHandle writeData:data];
+    NSLog(@"hereCom");
 }
 
 

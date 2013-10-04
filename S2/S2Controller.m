@@ -54,12 +54,12 @@
     
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
-    switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
-        default:{
-            NSLog(@"from parent default %@", dict);
-			break;
-        }
-	}
+//    switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
+//        default:{
+//            NSLog(@"from parent default %@", dict);
+//			break;
+//        }
+//	}
     
     switch (m_state) {
         case STATE_NONE:{
@@ -93,7 +93,8 @@
                     
                 case KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED:{
                     NSAssert(dict[@"data"], @"data required");
-                    
+                    NSString * dataStr = [[NSString alloc]initWithData:dict[@"data"] encoding:NSUTF8StringEncoding];
+                    NSLog(@"dataStr %@", dataStr);
                     break;
                 }
                     
