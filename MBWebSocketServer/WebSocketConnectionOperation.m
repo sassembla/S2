@@ -68,7 +68,11 @@
  delegate act as server
  */
 - (void)webSocketServer:(MBWebSocketServer * )webSocketServer didAcceptConnection:(GCDAsyncSocket *)connection {
-    [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED, nil];
+    
+    NSString * addrAndPort = [[NSString alloc]initWithFormat:@"%@:%hu", [connection connectedHost], [connection connectedPort]];
+    [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED,
+     [messenger tag:@"clientAddr:port" val:addrAndPort],
+     nil];
 }
 - (void)webSocketServer:(MBWebSocketServer * )webSocketServer clientDisconnected:(GCDAsyncSocket *)connection {
     

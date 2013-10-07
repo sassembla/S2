@@ -13,8 +13,11 @@
 
 enum S2_STATE {
     STATE_NONE,
-    STATE_IGNITED,
-    STATE_CONNECTED
+    STATE_IGNITED
+};
+
+enum S2_EXEC {
+    EXEC_CONNECTED,
 };
 
 #define KEY_WEBSOCKETSERVER_ADDRESS (@"-s")
@@ -25,5 +28,11 @@ enum S2_STATE {
 - (id) initWithDict:(NSDictionary * )params withMasterName:(NSString * )masterNameAndId;
 
 - (int) state;
+
+
+- (NSDictionary * ) connections;
+- (void) callToMaster:(int)exec withMessageDict:(NSDictionary * )messageDict;
+- (int) updatedCount;
+
 - (void) shutDown;
 @end

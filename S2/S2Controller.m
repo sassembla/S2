@@ -23,6 +23,8 @@
     
     NSDictionary * paramDict;
     WebSocketConnectionOperation * serverOperation;
+    
+    NSDictionary * m_connectionDict;
 }
 
 /**
@@ -44,6 +46,7 @@
         
         
         serverOperation = [[WebSocketConnectionOperation alloc]initWebSocketConnectionOperationWithMaster:[messenger myNameAndMID] withAddressAndPort:paramDict[KEY_WEBSOCKETSERVER_ADDRESS]];
+        
     }
     return self;
 }
@@ -74,23 +77,36 @@
             }
             break;
         }
+            
         case STATE_IGNITED:{
             // 1 first only
             switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
                 case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
-                    m_state = STATE_CONNECTED;
+                    
+                    // only one can connect
+                    if (m_connectionDict) {
+                        NSLog(@"already connected by one client.");
+                        return;
+                    }
+                    
+                    NSAssert(dict[@"clientAddr:port"], @"clientAddr:port required");
+                    NSLog(@"connection established with %@", dict[@"clientAddr:port"]);
+                    
+                    
+                    NSString * conUUID = [KSMessenger generateMID];
+                    NSMutableDictionary * connectionDict = [[NSMutableDictionary alloc]init];
+                    connectionDict[@"connectionAddr"] = dict[@"clientAddr:port"];
+                    connectionDict[@"updatedCount"] = [NSNumber numberWithInteger:0];
+                    
+                   
+                    // initialize
+                    m_connectionDict = @{conUUID:connectionDict};
+                    
+                    
+                    [self callToMaster:EXEC_CONNECTED withMessageDict:m_connectionDict];
                     
                     break;
                 }
-                default:{
-                    break;
-                }
-            }
-            break;
-        }
-        case STATE_CONNECTED:{
-            switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
-                    
                 case KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED:{
                     NSAssert(dict[@"data"], @"data required");
                     NSString * dataStr = [[NSString alloc]initWithData:dict[@"data"] encoding:NSUTF8StringEncoding];
@@ -98,21 +114,50 @@
                     break;
                 }
                     
-                default:
+                default:{
                     break;
+                }
             }
-
             break;
         }
             
-        default:
+        default:{
             break;
+        }
     }
     
 }
 
 - (int) state {
     return m_state;
+}
+
+- (NSDictionary * ) connection {
+    for (NSDictionary * dict in m_connectionDict) {
+        return dict;
+    }
+    
+    return nil;
+}
+
+
+- (int) updatedCount {
+    for (NSDictionary * dict in m_connectionDict) {
+        return [dict[@"updatedCount"] intValue];
+    }
+    
+    return -1;
+}
+
+
+
+// for test
+- (void) callToMaster:(int)exec withMessageDict:(NSDictionary * )messageDict {
+    if ([messenger hasParent]) {
+        [messenger callParent:exec,
+         [messenger tag:@"messageDict" val:messageDict],
+         nil];
+    }
 }
 
 

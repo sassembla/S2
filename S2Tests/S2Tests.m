@@ -23,6 +23,8 @@
 /**
  S2全体の挙動に関わるテスト
  usecase的な書き方をするのがいいんだろうなー。
+ 
+ 
  */
 @interface S2Tests : XCTestCase {
     KSMessenger * messenger;
@@ -60,7 +62,7 @@
     
     NSTask * wsclient = [[NSTask alloc]init];
     [wsclient setLaunchPath:TEST_PATH_NSWS];
-    [wsclient setArguments:@[@"-m", message, @"-t", url]];
+    [wsclient setArguments:@[@"-m", message, @"-t", url, @"-q"]];
     
     [wsclient setStandardInput:input];
     
@@ -84,7 +86,7 @@
 }
 
 
-- (void) testIgniteThenConnectDummyClient {
+- (void) testWaitIgnited {
     // 起動する
     NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
@@ -93,28 +95,13 @@
     
     while (true) {
         if ([cont state] == STATE_IGNITED) {
-            break;
-        }
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    }
-    
-    // クライアントから接続、メッセージを送付
-    NSPipe * pipe = [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
-    
-    // 接続を待つ
-    while (true) {
-        if ([cont state] == STATE_CONNECTED) {
             break;
         }
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
 }
 
-/**
- この時点で欠けているのは、connected後の動作、
- updated が来るところから先。
- */
-- (void) test {
+- (void) testConnectionCountAppend {
     // 起動する
     NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
@@ -129,23 +116,45 @@
     }
     
     // クライアントから接続、メッセージを送付
-    NSPipe * pipe = [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
-    
-    // 接続を待つ
+    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
+   
+    // update count up
     while (true) {
-        if ([cont state] == STATE_CONNECTED) {
+        if (0 < [cont updatedCount]) {
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+}
+
+
+- (void) testUpdated {
+    // 起動する
+    NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:dict withMasterName:TEST_MASTER];
+    
+    
+    while (true) {
+        if ([cont state] == STATE_IGNITED) {
             break;
         }
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    NSFileHandle * writeHandle = [pipe fileHandleForWriting];
-    NSMutableData * data = [[NSMutableData alloc]init];
-    [data appendBytes:( const void * )"abcd" length:4];
+    // クライアントから接続、メッセージを送付
+    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
     
-    [writeHandle writeData:data];
-    NSLog(@"hereCom");
+    // connected
+    while (true) {
+        if (0 < [[cont connections] count]) {
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
 }
+
+
 
 
 
