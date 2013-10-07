@@ -42,6 +42,10 @@
         return nil;
     }
     
+    if ([params count] == 0) {
+        return nil;
+    }
+    
     if (self = [super init]) {
         NSAssert1(params[KEY_WEBSOCKETSERVER_ADDRESS], @"%@ required", KEY_WEBSOCKETSERVER_ADDRESS);
         
@@ -68,12 +72,6 @@
     
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
-//    switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
-//        default:{
-//            NSLog(@"from parent default %@", dict);
-//			break;
-//        }
-//	}
     
     switch (m_state) {
         case STATE_NONE:{
