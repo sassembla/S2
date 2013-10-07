@@ -96,7 +96,7 @@
                     NSString * conUUID = [KSMessenger generateMID];
                     NSMutableDictionary * connectionDict = [[NSMutableDictionary alloc]init];
                     connectionDict[@"connectionAddr"] = dict[@"clientAddr:port"];
-                    connectionDict[@"updatedCount"] = [NSNumber numberWithInteger:0];
+                    connectionDict[@"updatedCount"] = [NSNumber numberWithInteger:1];
                     
                    
                     // initialize
@@ -132,18 +132,15 @@
     return m_state;
 }
 
-- (NSDictionary * ) connection {
-    for (NSDictionary * dict in m_connectionDict) {
-        return dict;
-    }
-    
+- (NSDictionary * ) connections {
+    if (m_connectionDict) return m_connectionDict;
     return nil;
 }
 
 
 - (int) updatedCount {
-    for (NSDictionary * dict in m_connectionDict) {
-        return [dict[@"updatedCount"] intValue];
+    for (NSString * key in m_connectionDict) {
+        return [m_connectionDict[key][@"updatedCount"] intValue];
     }
     
     return -1;
@@ -161,7 +158,9 @@
 }
 
 
-
+/**
+ 
+ */
 - (void) shutDown {
     [serverOperation shutDown];
     [messenger closeConnection];

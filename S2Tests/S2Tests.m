@@ -82,7 +82,7 @@
      */
     NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
-    cont = [[S2Controller alloc]initWithDict:dict withMasterName:TEST_MASTER];
+    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
 }
 
 
@@ -90,7 +90,7 @@
     // 起動する
     NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
-    cont = [[S2Controller alloc]initWithDict:dict withMasterName:TEST_MASTER];
+    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
     
     
     while (true) {
@@ -105,7 +105,7 @@
     // 起動する
     NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
-    cont = [[S2Controller alloc]initWithDict:dict withMasterName:TEST_MASTER];
+    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
     
     
     while (true) {
@@ -125,6 +125,8 @@
         }
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
+    
+    
 }
 
 
@@ -132,7 +134,7 @@
     // 起動する
     NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
-    cont = [[S2Controller alloc]initWithDict:dict withMasterName:TEST_MASTER];
+    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
     
     
     while (true) {

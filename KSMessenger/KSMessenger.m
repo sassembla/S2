@@ -751,7 +751,7 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:OBSERVER_ID object:nil];//ノーティフィケーションから外す
 	
 	if ([self hasChild]) [self removeAllChildren];
-	NSAssert([[self childrenDict] count] == 0, @"childDict_%d",[[self childrenDict] count]);
+	NSAssert([[self childrenDict] count] == 0, @"childDict_%lu",(unsigned long)[[self childrenDict] count]);
 	
 	if ([self hasParent]) [self removeFromParent];
 	NSAssert([myParentName isEqualToString:MS_DEFAULT_PARENTNAME], @"myParentName is not MS_DEFAULT_PARENTNAME");
