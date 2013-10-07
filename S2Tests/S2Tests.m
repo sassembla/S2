@@ -12,6 +12,9 @@
 
 #import "S2Controller.h"
 
+#import "S2Token.h"
+#import "S2TestSupportDefines.h"
+
 #import "TimeMine.h"
 
 #define TEST_MASTER     (@"TEST_MASTER")
@@ -19,6 +22,9 @@
 #define TEST_MESSAGE    (@"TEST_MESSAGE")
 
 #define TEST_PATH_NSWS  (@"./S2Tests/TestResource/tool/nsws")
+
+
+
 
 /**
  S2全体の挙動に関わるテスト
@@ -147,13 +153,51 @@
     // クライアントから接続、メッセージを送付
     [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
     
-    // connected
+    
+    // update count up
     while (true) {
-        if (0 < [[cont connections] count]) {
+        if (0 < [cont updatedCount]) {
             break;
         }
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
+    
+//    // listUpdate送付
+//    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
+    
+}
+
+
+
+
+/*
+ connectとは無関係に、クライアントからのコード一覧の送付、コード断片のアップデートに対応する
+ */
+- (void) testReceiveCodeList {
+
+    // リストを受け取ると、その後Pullを発生させる(チャンバーとは関係ないけどスケールするのかなここ。先にテスト書いちゃった方がいいな。)
+    // messagingで送った方が無難なんだが、connectionContのフリをするのは大変かなあ？誘発するアクションを実行すれば良いよね。
+//    [self connectClientTo:TEST_SERVER_URL withMessage:pulledMessage withPipe:nil];
+    
+    
+    
+    // まとまってないので後回し
+    
+    
+    
+//    NSArray * pullingLists = [self pulling]
+//    
+//    
+//    // 擬似的にpulledを二件送る
+//    for (NSString * pullingId in pullingLists) {
+//        // デリミタもろとも、update扱いでいいんじゃねーの？って気がしてきた。syncに替わるsyncみたいな概念について考えると楽しそう。
+//        NSString * pulledMessage = [[NSString alloc]initWithFormat:@"%@%@", TEST_PULLED, @"somecode"];
+//        [self connectClientTo:TEST_SERVER_URL withMessage:pulledMessage withPipe:nil];
+//    }
+    
+    
+    // 対応するpulledの後、CompileChamberControllerへと装填
+    
 }
 
 

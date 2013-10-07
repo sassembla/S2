@@ -16,6 +16,10 @@
 #define KEY_XCTEST  (@"-XCTest")
 
 
+#import "PullUpController.h"
+
+
+
 @implementation S2Controller {
     int m_state;
     
@@ -25,6 +29,8 @@
     WebSocketConnectionOperation * serverOperation;
     
     NSDictionary * m_connectionDict;
+    
+    PullUpController * pullUpCont;
 }
 
 /**
@@ -46,6 +52,11 @@
         
         
         serverOperation = [[WebSocketConnectionOperation alloc]initWebSocketConnectionOperationWithMaster:[messenger myNameAndMID] withAddressAndPort:paramDict[KEY_WEBSOCKETSERVER_ADDRESS]];
+        
+        
+        // pull
+        pullUpCont = [[PullUpController alloc] initWithMasterNameAndId:[messenger myNameAndMID]];
+        
         
     }
     return self;
@@ -103,30 +114,63 @@
                     m_connectionDict = @{conUUID:connectionDict};
                     
                     
-                    [self callToMaster:EXEC_CONNECTED withMessageDict:m_connectionDict];
+                    [self callToMaster:S2_EXEC_CONNECTED withMessageDict:m_connectionDict];
                     
                     break;
                 }
                 case KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED:{
                     NSAssert(dict[@"data"], @"data required");
-                    NSString * dataStr = [[NSString alloc]initWithData:dict[@"data"] encoding:NSUTF8StringEncoding];
-                    NSLog(@"dataStr %@", dataStr);
+                    [self routing:dict[@"data"]];
                     break;
                 }
+            }
+            
+            switch ([messenger execFrom:S2_PULLUPCONT viaNotification:notif]) {
+                case PULLUPCONT_PULLING:{
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 0:24:53" withLimitSec:100 withComment:@"pullを実行する"];
                     
-                default:{
                     break;
                 }
             }
             break;
         }
-            
-        default:{
-            break;
-        }
     }
     
 }
+
+
+- (void) routing:(NSData * )data {
+    // stringに分解、になるのかなー。
+    // messagePack使うならココかな。送付側に負荷が無ければ良いけど、ありそうだよなー。
+    
+    NSString * dataStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+    // returnがあるかどうか、っての、頭にuuid着ければ解決しない？　っていうのはあるけど、一時認識するためにここでのexec分解は必須。
+    if ([dataStr hasPrefix:TRIGGER_PREFIX_LISTED]) {
+        [messenger call:S2_PULLUPCONT withExec:PULLUPCONT_LISTED,
+         [messenger tag:@"listOfSources" val:dataStr],
+         nil];
+        return;
+    }
+    
+    if ([dataStr hasPrefix:TRIGGER_PREFIX_PULLED]) {
+        [messenger call:S2_PULLUPCONT withExec:PULLUPCONT_PULLED,
+         [messenger tag:@"pulledSource" val:dataStr],
+         nil];
+        return;
+    }
+
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 0:58:03" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
+//    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
+//        [messenger call:S2_COMPCHAMBERCONT withExec:COMPCHAMBERCONT_UPDATED,
+//         [messenger tag:@"updatedSource" val:dataStr],
+//         nil];
+//        return;
+//    }
+}
+
+
+
+
 
 - (int) state {
     return m_state;
@@ -158,10 +202,12 @@
 }
 
 
+
 /**
- 
+ 終了
  */
 - (void) shutDown {
+    [pullUpCont close];
     [serverOperation shutDown];
     [messenger closeConnection];
 }

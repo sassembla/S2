@@ -6,26 +6,27 @@ Input部分の取り付けが終わったので、挙動を一通り移装しよ
 * WebSocketのon-off周りが電源と一緒
 * 接続してきたやつがいたら、ポジションを聞いてpullを行う(このへんはSRがやるべきことなので、イベントのキックだけをS2から行う。connected。)
 
-* out ignited 起動完了
-* out connected 接続完了、受付開始
+* out ignited 起動完了、あとは羃的。listとかも結局pullに繋がるだけ、って感じで良いのでは。保存時にリストの更新ができればいいや。
 
-* in codeUpdated 入力
-* out pulling プル
-* out pulled (chamber start) プルの完了(update内容に対するものなので、個別になる)
-* out tick イベントの送付(フィルタは無いが、idはある)
-* in codeUpdate ..continue.
+* in listed 入力、リスト
+* out pulling プル xN
+* in pulled (chamber start) プルの完了(update内容に対するものなので、個別になる)xN
+* in updated 入力、コード更新　
+* out tick 今コンパイルしてますよイベントの送付(フィルタ有り、id有り)  
+
+* in updated ..continue.
 
 
 * 部分入力をサポートするなら、in codeUpdatedで分岐、メモリ上の特定の位置に書き出す
 * 同期する時の動作から、、ああ、めんどうくさい。置換もあるしな。pullしてしまおう。
 
 
-* in reset リセット要求の入力
+* in reset キャッシュしてるファイルのリセット要求
 * out 
 
 * 
 
-Terminalの機能限定版を実装できればそのまま行けるじゃん。serveされなきゃいけないけど、インターフェースはWebSocket(待ち)よりはラク。ST3だけを書き換える算段を進めるか。
+
 
 
 ##S2PP spec

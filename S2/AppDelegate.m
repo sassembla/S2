@@ -13,6 +13,7 @@
 
 
 
+
 #define S2_DELEGATE	(@"S2_DELEGATE")
 
 
@@ -30,8 +31,11 @@
 	
     NSDictionary * paramDict = @{};
     
-//    App main controller
+    // App main controller with WebSocketServer
     S2Controller * cont = [[S2Controller alloc]initWithDict:paramDict withMasterName:[messenger myNameAndMID]];
+
+    
+    
 }
 
 

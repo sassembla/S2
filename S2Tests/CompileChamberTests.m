@@ -1,18 +1,18 @@
 //
-//  ChamberTests.m
+//  CompileChamberTests.m
 //  S2
 //
-//  Created by sassembla on 2013/09/23.
+//  Created by sassembla on 2013/10/07.
 //  Copyright (c) 2013年 sassembla. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>
 
-@interface ChamberTests : XCTestCase
+@interface CompileChamberTests : XCTestCase
 
 @end
 
-@implementation ChamberTests
+@implementation CompileChamberTests
 
 - (void)setUp
 {
@@ -26,8 +26,9 @@
     [super tearDown];
 }
 
-- (void)testAddChamber1 {
-    XCTFail(@"not yet implemented");
+- (void)testExample
+{
+    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 @end

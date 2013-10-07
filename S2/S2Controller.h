@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
+
 #define S2_MASTER   (@"S2_MASTER")
 
 enum S2_STATE {
@@ -17,10 +18,20 @@ enum S2_STATE {
 };
 
 enum S2_EXEC {
-    EXEC_CONNECTED,
+    S2_EXEC_CONNECTED,
 };
 
 #define KEY_WEBSOCKETSERVER_ADDRESS (@"-s")
+
+
+
+// S2 specific triggers
+#define TRIGGER_PREFIX_LISTED   (@"listed")
+#define TRIGGER_PREFIX_PULLED   (@"pulled")
+#define TRIGGER_PREFIX_UPDATED  (@"updated")
+
+
+
 
 
 @interface S2Controller : NSObject
