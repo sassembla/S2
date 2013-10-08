@@ -49,6 +49,7 @@
 
 - (void)tearDown
 {
+    NSLog(@"over, will close");
     [cont shutDown];
     
     [messenger closeConnection];
@@ -89,83 +90,85 @@
     NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
     cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
+//    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];//うーーん待つ事で解消できるってことはどこか非同期な状態が紛れ込んでる。
 }
 
 
-- (void) testWaitIgnited {
-    // 起動する
-    NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
-    
-    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
-    
-    
-    while (true) {
-        if ([cont state] == STATE_IGNITED) {
-            break;
-        }
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    }
-}
+//- (void) testWaitIgnited {
+//    // 起動する
+//    NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+//    
+//    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
+//    
+//    
+//    while (true) {
+//        if ([cont state] == STATE_IGNITED) {
+//            break;
+//        }
+//        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+//    }
+//}
 
-- (void) testConnectionCountAppend {
-    // 起動する
-    NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
-    
-    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
-    
-    
-    while (true) {
-        if ([cont state] == STATE_IGNITED) {
-            break;
-        }
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    }
-    
-    // クライアントから接続、メッセージを送付
-    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
-   
-    // update count up
-    while (true) {
-        if (0 < [cont updatedCount]) {
-            break;
-        }
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    }
-    
-    
-}
-
-
-- (void) testUpdated {
-    // 起動する
-    NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
-    
-    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
-    
-    
-    while (true) {
-        if ([cont state] == STATE_IGNITED) {
-            break;
-        }
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    }
-    
-    // クライアントから接続、メッセージを送付
-    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
-    
-    
-    // update count up
-    while (true) {
-        if (0 < [cont updatedCount]) {
-            break;
-        }
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    }
-    
-//    // listUpdate送付
+//- (void) testConnectionCountAppend {
+//    // 起動する
+//    NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+//    
+//    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
+//    
+//    
+//    while (true) {
+//        if ([cont state] == STATE_IGNITED) {
+//            break;
+//        }
+//        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+//    }
+//    
+//    // クライアントから接続、メッセージを送付
 //    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
-    
-}
+//   
+//    // update count up
+//    while (true) {// コレを満たすのが速すぎるのか。
+//        if (0 < [cont updatedCount]) {
+//            break;
+//        }
+//        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+//    }
+//    
+//    
+//}
+
+
+//- (void) testListUpdated {
+//    // 起動する
+//    NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+//    
+//    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
+//    
+//    
+//    while (true) {
+//        if ([cont state] == STATE_IGNITED) {
+//            break;
+//        }
+//        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+//    }
+//    
+//    // クライアントから接続、メッセージを送付
+//    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
+//    
+//    
+//    // update count up
+//    while (true) {
+//        if (0 < [cont updatedCount]) {
+//            break;
+//        }
+//        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+//    }
+//    
+//    XCTFail(@"not yet implemented");
+////    // listUpdate送付
+////    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
+//    
+//}
 
 
 
@@ -194,6 +197,8 @@
 //        NSString * pulledMessage = [[NSString alloc]initWithFormat:@"%@%@", TEST_PULLED, @"somecode"];
 //        [self connectClientTo:TEST_SERVER_URL withMessage:pulledMessage withPipe:nil];
 //    }
+    
+    XCTFail(@"not yet implemented");
     
     
     // 対応するpulledの後、CompileChamberControllerへと装填

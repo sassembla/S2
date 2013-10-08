@@ -54,14 +54,13 @@
         messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:S2_MASTER];
         [messenger connectParent:masterNameAndId];
         
-        
-        serverOperation = [[WebSocketConnectionOperation alloc]initWebSocketConnectionOperationWithMaster:[messenger myNameAndMID] withAddressAndPort:paramDict[KEY_WEBSOCKETSERVER_ADDRESS]];
-        
-        
         // pull
         pullUpCont = [[PullUpController alloc] initWithMasterNameAndId:[messenger myNameAndMID]];
         
+        // serve
+        serverOperation = [[WebSocketConnectionOperation alloc]initWebSocketConnectionOperationWithMaster:[messenger myNameAndMID] withAddressAndPort:paramDict[KEY_WEBSOCKETSERVER_ADDRESS]];
         
+        NSLog(@"done, return");
     }
     return self;
 }
@@ -157,7 +156,7 @@
         return;
     }
 
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 0:58:03" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 9:24:03" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
 //    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
 //        [messenger call:S2_COMPCHAMBERCONT withExec:COMPCHAMBERCONT_UPDATED,
 //         [messenger tag:@"updatedSource" val:dataStr],
@@ -205,8 +204,11 @@
  終了
  */
 - (void) shutDown {
-    [pullUpCont close];
+    
     [serverOperation shutDown];
+    
+    [pullUpCont close];
+    
     [messenger closeConnection];
 }
 
