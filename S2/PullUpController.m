@@ -59,7 +59,7 @@
  */
 - (NSDictionary * ) listed:(NSArray * )sourcesPathArray {
     // 特定のカウントずつpullする
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 0:17:18" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/09 9:13:46" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
     
     // renew
     m_pullingIdList = [[NSMutableArray alloc]init];
