@@ -12,6 +12,7 @@
 #import "S2Controller.h"
 
 
+#define KEY_XCTEST  (@"-XCTest")
 
 
 #define S2_DELEGATE	(@"S2_DELEGATE")
@@ -23,6 +24,20 @@
  */
 @implementation AppDelegate {
 	KSMessenger * messenger;
+}
+
+- (id) initWithParams:(NSDictionary * )params {
+    
+    if (params[KEY_XCTEST]) {
+        return nil;
+    }
+    
+    
+    if (self = [super init]) {
+        
+    }
+    
+    return self;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification

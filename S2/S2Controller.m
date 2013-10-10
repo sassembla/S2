@@ -9,13 +9,9 @@
 #import "S2Controller.h"
 #import "KSMessenger.h"
 
-
-#import "WebSocketConnectionOperation.h"
 #import "TimeMine.h"
 
-#define KEY_XCTEST  (@"-XCTest")
-
-
+#import "WebSocketConnectionOperation.h"
 #import "PullUpController.h"
 
 
@@ -37,15 +33,7 @@
  値と親がある状態で初期化
  */
 - (id) initWithDict:(NSDictionary * )params withMasterName:(NSString * )masterNameAndId {
-    
-    if (params[KEY_XCTEST]) {
-        return nil;
-    }
-    
-    if ([params count] == 0) {
-        return nil;
-    }
-    
+        
     if (self = [super init]) {
         NSAssert1(params[KEY_WEBSOCKETSERVER_ADDRESS], @"%@ required", KEY_WEBSOCKETSERVER_ADDRESS);
         
@@ -59,9 +47,6 @@
         
         // pull
         pullUpCont = [[PullUpController alloc] initWithMasterNameAndId:[messenger myNameAndMID]];
-
-        
-        NSLog(@"done, return");
     }
     return self;
 }
@@ -98,6 +83,8 @@
                         return;
                     }
                     
+                    NSDictionary * a = @{@"key":@"value"};
+                    
                     NSAssert(dict[@"clientAddr:port"], @"clientAddr:port required");
                     NSLog(@"connection established with %@", dict[@"clientAddr:port"]);
                     
@@ -109,7 +96,7 @@
                     
                    
                     // initialize
-                    m_connectionDict = @{conUUID:connectionDict};
+                    m_connectionDict = [[NSDictionary alloc]initWithObjectsAndKeys:connectionDict, conUUID, nil];
                     
                     
                     [self callToMaster:S2_EXEC_CONNECTED withMessageDict:m_connectionDict];
@@ -157,7 +144,7 @@
         return;
     }
 
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 9:24:03" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/10 3:09:43" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
 //    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
 //        [messenger call:S2_COMPCHAMBERCONT withExec:COMPCHAMBERCONT_UPDATED,
 //         [messenger tag:@"updatedSource" val:dataStr],
