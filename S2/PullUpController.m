@@ -7,6 +7,7 @@
 //
 
 #import "PullUpController.h"
+#import "S2Token.h"
 
 #import "KSMessenger.h"
 
@@ -31,16 +32,21 @@
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
     switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
+            
+        // 内容のセット
         case PULLUPCONT_LISTED:{
             NSAssert(dict[@"listOfSources"], @"listOfSources required");
             
-            NSString * listOfSources = dict[@"listOfSources"];
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 0:10:44" withLimitSec:1000 withComment:@"arrayの内容セットが終わってない。"];
             
-            NSArray * sourcesPathArray = @[];
+            NSString * keyAndListOfSourcesStr = dict[@"listOfSources"];
             
+            // keyデリミタvalueデリミタ...ってなってるので、デリミタで割る。
+            int keyAndDelimLength = [[NSString stringWithFormat:@"%@%@", TRIGGER_PREFIX_LISTED, TRIGGER_DELIM]intValue];
+            NSString * listOfSourcesStr = [keyAndListOfSourcesStr substringFromIndex:keyAndDelimLength];
             
-            [self listed:sourcesPathArray];
+            NSArray * keyAndListOfSourcesArray = [listOfSourcesStr componentsSeparatedByString:KEY_LISTED_DELIM];
+            
+            [self listed:keyAndListOfSourcesArray];
             break;
         }
             
@@ -58,8 +64,10 @@
  listを補完、pullUpContに伝達する
  */
 - (NSDictionary * ) listed:(NSArray * )sourcesPathArray {
+    NSAssert(0 < [sourcesPathArray count], @"empty sourcesPathArray.");
+    
     // 特定のカウントずつpullする
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/09 9:13:46" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/10 20:25:39" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
     
     // renew
     m_pullingIdList = [[NSMutableArray alloc]init];

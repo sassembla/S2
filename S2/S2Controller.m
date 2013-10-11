@@ -83,7 +83,6 @@
                         return;
                     }
                     
-                    NSDictionary * a = @{@"key":@"value"};
                     
                     NSAssert(dict[@"clientAddr:port"], @"clientAddr:port required");
                     NSLog(@"connection established with %@", dict[@"clientAddr:port"]);
@@ -130,6 +129,7 @@
     
     NSString * dataStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
     // returnがあるかどうか、っての、頭にuuid着ければ解決しない？　っていうのはあるけど、一時認識するためにここでのexec分解は必須。
+    
     if ([dataStr hasPrefix:TRIGGER_PREFIX_LISTED]) {
         [messenger call:S2_PULLUPCONT withExec:PULLUPCONT_LISTED,
          [messenger tag:@"listOfSources" val:dataStr],
@@ -144,7 +144,7 @@
         return;
     }
 
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/10 3:09:43" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/10 20:25:17" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
 //    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
 //        [messenger call:S2_COMPCHAMBERCONT withExec:COMPCHAMBERCONT_UPDATED,
 //         [messenger tag:@"updatedSource" val:dataStr],
@@ -160,12 +160,6 @@
 - (int) state {
     return m_state;
 }
-
-- (NSDictionary * ) connections {
-    if (m_connectionDict) return m_connectionDict;
-    return nil;
-}
-
 
 - (int) updatedCount {
     for (NSString * key in m_connectionDict) {

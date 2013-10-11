@@ -19,16 +19,13 @@ enum S2_STATE {
 
 enum S2_EXEC {
     S2_EXEC_CONNECTED,
+    S2_EXEC_PULLINGSTARTED,
 };
 
 #define KEY_WEBSOCKETSERVER_ADDRESS (@"-s")
 
 
-
-// S2 specific triggers
-#define TRIGGER_PREFIX_LISTED   (@"listed")
-#define TRIGGER_PREFIX_PULLED   (@"pulled")
-#define TRIGGER_PREFIX_UPDATED  (@"updated")
+#import "S2Token.h"
 
 
 
@@ -40,8 +37,6 @@ enum S2_EXEC {
 
 - (int) state;
 
-
-- (NSDictionary * ) connections;
 - (void) callToMaster:(int)exec withMessageDict:(NSDictionary * )messageDict;
 - (int) updatedCount;
 

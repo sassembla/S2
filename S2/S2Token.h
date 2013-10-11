@@ -6,9 +6,11 @@
 //  Copyright (c) 2013年 sassembla. All rights reserved.
 //
 
+// S2 specific API triggers
+#define TRIGGER_PREFIX_LISTED   (@"listed")
+#define TRIGGER_PREFIX_PULLED   (@"pulled")
+#define TRIGGER_PREFIX_UPDATED  (@"updated")
 
-#define TEST_LISTED     (@"listed")
+#define TRIGGER_DELIM   (@"@")
 
-#define TEST_PULLED     (@"pulled")
-
-#define TEST_UPDATED    (@"updated")
+#define KEY_LISTED_DELIM    (@",")

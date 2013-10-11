@@ -35,6 +35,8 @@
 @interface S2Tests : XCTestCase {
     KSMessenger * messenger;
     S2Controller * cont;
+    
+    NSMutableDictionary * m_pullingDict;
 }
 
 @end
@@ -45,6 +47,8 @@
 {
     [super setUp];
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
+    
+    m_pullingDict = [[NSMutableDictionary alloc]init];
 }
 
 - (void)tearDown
@@ -53,11 +57,24 @@
     [cont shutDown];
     
     [messenger closeConnection];
+    
+    [m_pullingDict removeAllObjects];
+    
     [super tearDown];
 }
 
 - (void) receiver:(NSNotification * )notif {
+    NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
+    switch ([messenger execFrom:S2_MASTER viaNotification:notif]) {
+        case S2_EXEC_PULLINGSTARTED:{
+            
+            break;
+        }
+            
+        default:
+            break;
+    }
 }
 
 
@@ -151,22 +168,17 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    // クライアントから接続、メッセージを送付
-    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
     
+    NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                          TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          TEST_LISTED_1, KEY_LISTED_DELIM,
+                          TEST_LISTED_2];
     
-    // update count up
-    while (true) {
-        if (0 < [cont updatedCount]) {
-            break;
-        }
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    }
+    // listUpdate送付
+    [self connectClientTo:TEST_SERVER_URL withMessage:message withPipe:nil];
     
-    XCTFail(@"not yet implemented");
-//    // listUpdate送付
-//    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
-    
+    // 2件のpulling状態になる。このテスト内での辞書を数えよう。
+    XCTAssertTrue([m_pullingDict count] == 2, @"not match, %d", [m_pullingDict count]);
 }
 
 
