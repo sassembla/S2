@@ -144,12 +144,20 @@
         NSLog(@"%@ killed!", task);
     }];
     
+    
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:47:06" withLimitSec:10000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
     
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:47:06" withLimitSec:10000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:47:06" withLimitSec:1000 withComment:@"まだコンパイルできない。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:07:19" withLimitSec:1000 withComment:@"まだコンパイルできない。"];
 //    [compileTask launch];
+    
+    
+    
+    m_state = statesArray[STATE_COMPILING];
+    [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
+     [messenger tag:@"id" val:m_chamberId],
+     nil];
 }
 
 
@@ -158,11 +166,13 @@
  中断
  */
 - (void) abort {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:49:46" withLimitSec:1000 withComment:@"中断処理、taskを強制的にterminateする。"];
     if ([m_compileTask isRunning]) {
-        
+        [m_compileTask terminate];
+        // たぶん非同期でシグナルが来るような気がする。
     }
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:49:46" withLimitSec:10000 withComment:@"中断処理、taskを強制的にterminateする。"];
     
+    m_state = statesArray[STATE_ABORTED];
 }
 
 

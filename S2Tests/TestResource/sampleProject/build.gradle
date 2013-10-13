@@ -1,0 +1,27 @@
+apply plugin: 'scala'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.8'
+}
+
+ext {
+  scalaVersion = '2.10'
+}
+
+repositories {
+  mavenCentral()
+  maven {
+    url 'http://repo.typesafe.com/typesafe/releases/'
+  }
+}
+
+dependencies {
+  compile 'org.scala-lang:scala-library:2.10.2'
+}
+
+// コンパイル開始の直前にプロセスを停める、とかすれば、ストックが可能な筈。
+
+// using zinc
+// tasks.withType(ScalaCompile) {
+//     scalaCompileOptions.useAnt = false
+// }

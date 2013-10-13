@@ -15,5 +15,7 @@
 
 
 // サンプルのScalaプロジェクト
-#define TEST_COMPILEBASEPATH    (@"TEST_COMPILEBASEPATH")
-#define TEST_SCALA_1    (@"./")
+#define TEST_SAMPLEPROJECTPATH  ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"sampleProject/")
+
+#define TEST_COMPILEBASEPATH    ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"build.gradle")
+#define TEST_SCALA_1            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"build.gradle")

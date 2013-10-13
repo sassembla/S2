@@ -66,8 +66,10 @@
     NSArray * states = STATE_STR_ARRAY;
     
     int count = 0;
-    for (NSDictionary * chamberDict in m_chamberDict) {
-        if (chamberDict[@"state"] == states[STATE_SPINUPPED]) count++;
+    for (NSString * chamberId in [m_chamberDict keyEnumerator]) {
+        NSDictionary * chamberInfoDict = m_chamberDict[chamberId];
+        NSAssert(chamberInfoDict[@"state"], @"state required");
+        if ([chamberInfoDict[@"state"] isEqualToString:states[STATE_SPINUPPED]]) count++;
     }
     return count;
 }
@@ -84,7 +86,7 @@
             break;
         }
         case S2_COMPILECHAMBERCONT_EXEC_INPUT:{
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 15:51:08" withLimitSec:10000 withComment:@"S2_COMPILECHAMBERCONT_EXEC_INPUT の受け、待ち受け状態のチャンバーへの投入開始"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:13:16" withLimitSec:10000 withComment:@"S2_COMPILECHAMBERCONT_EXEC_INPUT の受け、待ち受け状態のチャンバーへの投入開始"];
             break;
         }
     }
