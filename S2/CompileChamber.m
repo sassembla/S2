@@ -20,7 +20,7 @@
     NSArray * statesArray;
     
     // 今のところは普通のコンパイラ。
-    NSTask * compileTask;
+    NSTask * m_compileTask;
     
     NSString * m_state;
 }
@@ -92,7 +92,9 @@
  スピンアップ
  */
 - (void) spinup {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:22:15" withLimitSec:10000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではロックしてOK。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 18:22:15" withLimitSec:10000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではロックしてOK。今回は即SpinUpしたことにする。"];
+    
+    m_state = statesArray[STATE_SPINUPPED];
     
     [messenger callParent:S2_COMPILECHAMBER_EXEC_SPINUPPED,
      [messenger tag:@"id" val:m_chamberId],
@@ -107,7 +109,7 @@
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 17:24:14" withLimitSec:10000 withComment:@"プールから現状のコードを取得する。最小の更新箇所だけを貰う感じ、とかが出来なくても良いので、現在充填されてるコード群を丸っと持ってくる。ポインタだけとかで良いかな。ignite時に渡されれば良い。"];
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 17:33:37" withLimitSec:10000 withComment:@"プールに入れた時点で、情報を纏めておくと良いと思うので、ここでは特にgradleのパスと、コード集の辞書を丸っと渡す。"];
     
-    compileTask = [[NSTask alloc] init];
+    m_compileTask = [[NSTask alloc] init];
     
     
 //    NSString * currentCompileBasePath;
@@ -132,17 +134,21 @@
     
     NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
     
-    [compileTask setLaunchPath:@"/usr/local/bin/gradle"];
-    [compileTask setArguments:currentParams];
+    [m_compileTask setLaunchPath:@"/usr/local/bin/gradle"];
+    [m_compileTask setArguments:currentParams];
     
     NSPipe * currentOut = [[NSPipe alloc]init];
     
-    [compileTask setStandardOutput:currentOut];
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 17:40:25" withLimitSec:1000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
+    [m_compileTask setStandardOutput:currentOut];
+    [m_compileTask setTerminationHandler:^(NSTask * task) {
+        NSLog(@"%@ killed!", task);
+    }];
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 17:46:52" withLimitSec:10000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:47:06" withLimitSec:10000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 17:56:07" withLimitSec:1000 withComment:@"まだコンパイルできない。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:47:06" withLimitSec:10000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
+    
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:47:06" withLimitSec:1000 withComment:@"まだコンパイルできない。"];
 //    [compileTask launch];
 }
 
@@ -152,6 +158,10 @@
  中断
  */
 - (void) abort {
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:49:46" withLimitSec:1000 withComment:@"中断処理、taskを強制的にterminateする。"];
+    if ([m_compileTask isRunning]) {
+        
+    }
     
 }
 
