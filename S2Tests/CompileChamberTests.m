@@ -49,9 +49,6 @@
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
     switch ([messenger execFrom:S2_COMPILECHAMBER viaNotification:notif]) {
-        case S2_COMPILECHAMBER_EXEC_SPAWNED:{
-            break;
-        }
         case S2_COMPILECHAMBER_EXEC_IGNITED:{
             break;
         }

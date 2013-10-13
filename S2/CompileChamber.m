@@ -36,13 +36,6 @@
         m_chamberId = [[NSString alloc]initWithFormat:@"chamber_%@", [KSMessenger generateMID]];
         m_state = statesArray[STATE_SPINUPPING];
         
-        
-
-        
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_SPAWNED,
-         [messenger tag:@"id" val:m_chamberId],
-         nil];
-        
         [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUP,
 //         [messenger withDelay:DEFAULT_SPINUP_TIME],
          nil];
@@ -108,9 +101,6 @@
  着火
  */
 - (void) ignite:(NSString * )compileBasePath withCodes:(NSDictionary * )idsAndContents {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 17:24:14" withLimitSec:10000 withComment:@"プールから現状のコードを取得する。最小の更新箇所だけを貰う感じ、とかが出来なくても良いので、現在充填されてるコード群を丸っと持ってくる。ポインタだけとかで良いかな。ignite時に渡されれば良い。"];
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 17:33:37" withLimitSec:10000 withComment:@"プールに入れた時点で、情報を纏めておくと良いと思うので、ここでは特にgradleのパスと、コード集の辞書を丸っと渡す。"];
-    
     m_compileTask = [[NSTask alloc] init];
     
     

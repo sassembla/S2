@@ -113,10 +113,8 @@
     
     // チャンバーからのメッセージ
     switch ([messenger execFrom:S2_COMPILECHAMBER viaNotification:notif]) {
-        case S2_COMPILECHAMBER_EXEC_SPAWNED:{
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:19:59" withLimitSec:10000 withComment:@"chamber初期化完了時の処理"];
-            break;
-        }
+            
+            
         case S2_COMPILECHAMBER_EXEC_SPINUPPED:{
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:28:54" withLimitSec:10000 withComment:@"スピンアップ完了なので、statusを更新する。"];
             break;
