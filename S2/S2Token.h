@@ -14,3 +14,6 @@
 #define TRIGGER_DELIM   (@"@")
 
 #define KEY_LISTED_DELIM    (@",")
+
+
+#define S2_DEFAULT_CHAMBER_COUNT    (8)

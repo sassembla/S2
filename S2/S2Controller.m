@@ -13,7 +13,10 @@
 
 #import "WebSocketConnectionOperation.h"
 #import "PullUpController.h"
+#import "CompileChamberController.h"
 
+
+#import "S2Token.h"
 
 
 @implementation S2Controller {
@@ -27,6 +30,8 @@
     NSDictionary * m_connectionDict;
     
     PullUpController * pullUpCont;
+    
+    CompileChamberController * cChamberCont;
 }
 
 /**
@@ -47,6 +52,9 @@
         
         // pull
         pullUpCont = [[PullUpController alloc] initWithMasterNameAndId:[messenger myNameAndMID]];
+        
+        // compile
+        cChamberCont = [[CompileChamberController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
     }
     return self;
 }
@@ -96,6 +104,10 @@
                    
                     // initialize
                     m_connectionDict = [[NSDictionary alloc]initWithObjectsAndKeys:connectionDict, conUUID, nil];
+                    
+                    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INITIALIZE,
+                     [messenger tag:@"chamberCount" val:@S2_DEFAULT_CHAMBER_COUNT],
+                     nil];
                     
                     
                     [self callToMaster:S2_EXEC_CONNECTED withMessageDict:m_connectionDict];

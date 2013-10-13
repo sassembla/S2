@@ -90,7 +90,7 @@
  通信を投げてそのまま死ぬかと思ったら、そうでもなくてつらい。
  
  */
-- (void) connectClientTo:(NSString * )url withMessage:(NSString * )message withPipe:(NSPipe * )pipe {
+- (void) connectClientTo:(NSString * )url withMessage:(NSString * )message {
 
     // kill all nsws before
     NSTask * killAllNsws = [[NSTask alloc] init];
@@ -99,16 +99,12 @@
     [killAllNsws launch];
     [killAllNsws waitUntilExit];
     
-    NSPipe * input = [[NSPipe alloc]init];
-    if (pipe) input = pipe;
-    
     NSTask * wsclient = [[NSTask alloc]init];
     [wsclient setLaunchPath:TEST_PATH_NSWS];
     [wsclient setArguments:@[@"-m", message, @"-t", url, @"-q"]];
-    [wsclient setStandardInput:input];
     [wsclient launch];
     
-    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     
     // kill all nsws
     NSTask * killAllNsws2 = [[NSTask alloc] init];
@@ -163,7 +159,7 @@
     }
     
     // クライアントから接続、メッセージを送付
-    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE withPipe:nil];
+    [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE];
    
     // update count up
     while (true) {
@@ -198,7 +194,7 @@
                           ];
     
     // listUpdate送付
-    [self connectClientTo:TEST_SERVER_URL withMessage:message withPipe:nil];
+    [self connectClientTo:TEST_SERVER_URL withMessage:message];
     
     while ([m_pullingDict count] < [pullArray count]) {
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
@@ -208,6 +204,44 @@
     XCTAssertTrue([m_pullingDict count] == [pullArray count], @"not match, %lu vs %lu", (unsigned long)[pullArray count], (unsigned long)[m_pullingDict count]);
 }
 
+
+
+/**
+ pull後のpulledを発生させる。idとかも勝手に入力。
+ */
+- (void) testPulledPartial {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
+    
+    while (true) {
+        if ([cont state] == STATE_IGNITED) {
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+
+    NSArray * pullArray = @[TEST_LISTED_1, TEST_LISTED_2];
+    NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
+                          TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
+                          ];
+                          
+    // listUpdate送付
+    [self connectClientTo:TEST_SERVER_URL withMessage:message];
+    
+    while ([m_pullingDict count] < [pullArray count]) {
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+
+    for (NSString * key in m_pullingDict) {
+        NSString * message = @"";
+        [self connectClientTo:TEST_SERVER_URL withMessage:message];
+    }
+    
+}
 
 
 
