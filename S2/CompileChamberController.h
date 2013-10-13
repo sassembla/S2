@@ -14,6 +14,10 @@
 enum S2_COMPILECHAMBERCONT_EXEC {
     S2_COMPILECHAMBERCONT_EXEC_INITIALIZE,
     S2_COMPILECHAMBERCONT_EXEC_INPUT,
+    
+    S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
+    S2_COMPILECHAMBERCONT_EXEC_CHAMBER_ABORTED,
+    
 };
 
 
@@ -23,7 +27,7 @@ enum S2_COMPILECHAMBERCONT_EXEC {
 
 - (void) readyChamber:(int)count;
 
-- (int) countOfReadyChamber;
+- (int) countOfSpinuppedChamber;
 
 - (void) close;
 

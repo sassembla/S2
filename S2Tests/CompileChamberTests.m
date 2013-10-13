@@ -9,15 +9,11 @@
 #import <XCTest/XCTest.h>
 #import "KSMessenger.h"
 
-#import "CompileChamberController.h"
+#import "CompileChamber.h"
 
 #define TEST_MASTER (@"TEST_MASTER")
 
-#define TEST_CHAMBER_NUM_2  (2)
-
-
 #import "S2TestSupportDefines.h"
-
 
 @interface CompileChamberTests : XCTestCase
 
@@ -25,52 +21,103 @@
 
 @implementation CompileChamberTests {
     KSMessenger * messenger;
-    CompileChamberController * cChambCont;
+    CompileChamber * cChamber;
+    
+    NSMutableDictionary * m_chamberResponseDict;
 }
 
 - (void) setUp
 {
     [super setUp];
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
-    cChambCont = [[CompileChamberController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
+    cChamber = [[CompileChamber alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
+    
+    m_chamberResponseDict = [[NSMutableDictionary alloc]init];
 }
 
 - (void) tearDown
 {
-    [cChambCont close];
+    [m_chamberResponseDict removeAllObjects];
+    
+    [cChamber close];
     [messenger closeConnection];
     [super tearDown];
 }
 
-- (void) testCheckChambersStatus {
-    [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
+
+- (void) receiver:(NSNotification * )notif {
+    NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
-    XCTAssertTrue([cChambCont countOfReadyChamber] == TEST_CHAMBER_NUM_2, @"not match, %d", [cChambCont countOfReadyChamber]);
+    switch ([messenger execFrom:S2_COMPILECHAMBER viaNotification:notif]) {
+        case S2_COMPILECHAMBER_EXEC_SPAWNED:{
+            break;
+        }
+        case S2_COMPILECHAMBER_EXEC_IGNITED:{
+            break;
+        }
+        case S2_COMPILECHAMBER_EXEC_ABORTED:{
+            break;
+        }
+            
+        default:
+            break;
+    }
 }
 
-- (void) testSourceInputted
-{
-    [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
-    
-    // データの受け口へとコードを送る。
-    // ファイル名と内容
-    NSString * fileName = TEST_LISTED_1;
-    NSString * contents = @"test source code content";
 
-    
-    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
-     [messenger tag:@"id" val:fileName],
-     [messenger tag:@"contents" val:contents],
-     nil];
-    
-    // チャンバーに装填できる形で用意しておく??
-    
-    
+// util
+- (NSString * )targetState:(int)index {
+    NSArray * targetStates = STATE_STR_ARRAY;
+    return targetStates[index];
 }
 
-//- (void) {
+
+- (void) testGetStatusDefaultIsSpinupped {
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_SPINUPPED], @"not match, %@", [cChamber state]);
+}
+
+
+/**
+ 開始命令が出たら、要素と一緒に現在のプールからモノを引っ張ってきてcompileに入る。
+ 疑似プールをこの辺に持とう。
+ */
+- (void) testIgniteThenStart {
+    NSDictionary * testDict = @{@"a":@"b"};
+    
+    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILING], @"not match, %@", [cChamber state]);
+}
+
+- (void) testIgniteAndAbortThenAborted {
+    
+    NSDictionary * testDict = @{@"a":@"b"};
+    
+    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+    [cChamber abort];
+    
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_ABORTED], @"not match, %@", [cChamber state]);
+}
+
+
+//- (void) testAbortedChamberResponseContainsPrecompiling {
+//    [CompileChamber abort];
 //    
+//    NSString * precompiling_result = [NSString stringWithFormat:@"", CompileChamber, STATE_PRECOMPILING];
+//    XCTAssertTrue([m_chamberResponseDict :precompiling_result], @"not contained, %@", m_chamberResponseArray);
 //}
+//
+//
+//- (void) testRe_IgnitedChamberResponseContainsCompiling {
+//    [CompileChamber abort];
+//    [CompileChamber ignite];
+//    
+//    NSString * precompiling_result = [NSString stringWithFormat:@"", CompileChamber, STATE_COMPILING];
+//    XCTAssertTrue([m_chamberResponseArray containsObject:precompiling_result], @"not contained, %@", m_chamberResponseArray);
+//}
+
+
+
 
 
 @end

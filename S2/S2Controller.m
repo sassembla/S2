@@ -120,7 +120,8 @@
                     break;
                 }
                 case KS_WEBSOCKETCONNECTIONOPERATION_DISCONNECTED:{
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 13:39:49" withLimitSec:10000 withComment:@"切断時のアクション"];
+                    
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 16:30:38" withLimitSec:100000 withComment:@"切断時のアクション、なんらか表示する必要があるなー、、、ビューになんか出せるかな。チャンバー情報とかも筒抜けで出せれば。良い事あるかもな。"];
                     break;
                 }
             }
@@ -151,8 +152,8 @@
 
 
 - (void) routing:(NSData * )data {
-    // stringに分解、になるのかなー。
-    // messagePack使うならココかな。送付側に負荷が無ければ良いけど、ありそうだよなー。
+
+    // messagePack使うならココかな。送付側に負荷が無ければ良いけど、ありそうだよなー。でも使ってみないと解らない。使うと速いし軽いかも知れない。文字よりは軽そう。
     
     NSString * dataStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
     // returnがあるかどうか、っての、頭にuuid着ければ解決しない？　っていうのはあるけど、一時認識するためにここでのexec分解は必須。
