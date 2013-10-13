@@ -23,7 +23,7 @@
 
 #define TEST_PATH_NSWS  (@"./S2Tests/TestResource/tool/nsws")
 
-
+#define TEST_REPEAT_COUNT   (2)
 
 
 /**
@@ -37,6 +37,8 @@
     S2Controller * cont;
     
     NSMutableDictionary * m_pullingDict;
+    
+    int m_repeatCount;
 }
 
 @end
@@ -49,6 +51,8 @@
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
     
     m_pullingDict = [[NSMutableDictionary alloc]init];
+    
+    m_repeatCount = 0;
 }
 
 - (void)tearDown
@@ -114,6 +118,14 @@
     [killAllNsws2 waitUntilExit];
 }
 
+- (bool) countupThenFail {
+    m_repeatCount++;
+    if (TEST_REPEAT_COUNT < m_repeatCount) {
+        XCTFail(@"too long wait");
+        return true;
+    }
+    return false;
+}
 
 
 /**
@@ -140,6 +152,7 @@
         if ([cont state] == STATE_IGNITED) {
             break;
         }
+        if ([self countupThenFail]) break;
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
 }
@@ -155,6 +168,7 @@
         if ([cont state] == STATE_IGNITED) {
             break;
         }
+        if ([self countupThenFail]) break;
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
@@ -166,6 +180,7 @@
         if (0 < [cont updatedCount]) {
             break;
         }
+        if ([self countupThenFail]) break;
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
@@ -184,6 +199,7 @@
         if ([cont state] == STATE_IGNITED) {
             break;
         }
+        if ([self countupThenFail]) break;
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
@@ -197,6 +213,7 @@
     [self connectClientTo:TEST_SERVER_URL withMessage:message];
     
     while ([m_pullingDict count] < [pullArray count]) {
+        if ([self countupThenFail]) break;
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
@@ -220,6 +237,7 @@
         if ([cont state] == STATE_IGNITED) {
             break;
         }
+        if ([self countupThenFail]) break;
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
 
@@ -233,6 +251,7 @@
     [self connectClientTo:TEST_SERVER_URL withMessage:message];
     
     while ([m_pullingDict count] < [pullArray count]) {
+        if ([self countupThenFail]) break;
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
 

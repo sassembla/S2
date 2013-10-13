@@ -46,7 +46,7 @@
 - (void) readyChamber:(int)count {
     NSAssert(0 < count, @"count is negative or 0.");
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:06:58" withLimitSec:10000 withComment:@"既存チャンバーを破棄"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 20:55:41" withLimitSec:10000 withComment:@"既存チャンバーを破棄"];
     
     
     // 初期化
@@ -65,7 +65,7 @@
         [m_chamberDict setValue:chamberInfoDict forKey:currentChamberId];
     }
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:18:36" withLimitSec:10000 withComment:@"もし辞書型にする場合は、一度ここで開くとかする必要がある。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 21:08:25" withLimitSec:10000 withComment:@"もし辞書型にする場合は、一度ここで開くとかする必要がある。"];
 }
 
 
@@ -94,18 +94,7 @@
             // インプットがあったので、プール上のコードを編集、編集完了と同時に暇なchamberへとGoを出す。
             
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:30:33" withLimitSec:10000 withComment:@"暇なチャンバーへとGo!"];
-            
-            for (NSString * chamberId in [m_chamberDict keyEnumerator]) {
-                NSDictionary * chamberInfoDict = m_chamberDict[chamberId];
-                
-                if ([chamberInfoDict[@"state"] isEqualToString:static_chamber_states[STATE_SPINUPPED]]) {
-                    [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_IGNITE,
-                     [messenger tag:@"id" val:chamberId],
-                     nil];
-                    break;
-                }
-            }
-            
+            [self igniteIdleChamber];
             
             break;
         }
@@ -133,6 +122,18 @@
     
 }
 
+- (void) igniteIdleChamber {
+    for (NSString * chamberId in [m_chamberDict keyEnumerator]) {
+        NSDictionary * chamberInfoDict = m_chamberDict[chamberId];
+
+        if ([chamberInfoDict[@"state"] isEqualToString:static_chamber_states[STATE_SPINUPPED]]) {
+            [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_IGNITE,
+             [messenger tag:@"id" val:chamberId],
+             nil];
+            break;
+        }
+    }
+}
 
 
 - (void) close {
