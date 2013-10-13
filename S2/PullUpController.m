@@ -82,7 +82,7 @@
         [m_pullingIdList addObject:pullingId];
         
         [messenger callParent:PULLUPCONT_PULLING,
-         [messenger tag:@"path" val:pullingPath],
+         [messenger tag:@"sourcePath" val:pullingPath],
          [messenger tag:@"connectionId" val:pullingId],
          nil];
         

@@ -65,10 +65,16 @@
 
 - (void) receiver:(NSNotification * )notif {
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
+
+    XCTAssertNotNil(dict[@"wrappedDict"], @"wrappedDict required");
+    NSDictionary * wrappedDict = dict[@"wrappedDict"];
     
     switch ([messenger execFrom:S2_MASTER viaNotification:notif]) {
         case S2_EXEC_PULLINGSTARTED:{
+            XCTAssertNotNil(wrappedDict[@"connectionId"], @"connectionId required");
+            XCTAssertNotNil(wrappedDict[@"sourcePath"], @"sourcePath required");
             
+            [m_pullingDict setObject:wrappedDict[@"sourcePath"] forKey:wrappedDict[@"connectionId"]];
             break;
         }
             
@@ -86,20 +92,30 @@
  */
 - (void) connectClientTo:(NSString * )url withMessage:(NSString * )message withPipe:(NSPipe * )pipe {
 
+    // kill all nsws before
+    NSTask * killAllNsws = [[NSTask alloc] init];
+    [killAllNsws setLaunchPath:@"/usr/bin/killall"];
+    [killAllNsws setArguments:@[@"-9", @"nsws"]];
+    [killAllNsws launch];
+    [killAllNsws waitUntilExit];
+    
     NSPipe * input = [[NSPipe alloc]init];
     if (pipe) input = pipe;
     
     NSTask * wsclient = [[NSTask alloc]init];
     [wsclient setLaunchPath:TEST_PATH_NSWS];
     [wsclient setArguments:@[@"-m", message, @"-t", url, @"-q"]];
-    
     [wsclient setStandardInput:input];
-    
     [wsclient launch];
+    
     [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    [wsclient terminate];
-    [wsclient waitUntilExit];
-    NSLog(@"over");
+    
+    // kill all nsws
+    NSTask * killAllNsws2 = [[NSTask alloc] init];
+    [killAllNsws2 setLaunchPath:@"/usr/bin/killall"];
+    [killAllNsws2 setArguments:@[@"-9", @"nsws"]];
+    [killAllNsws2 launch];
+    [killAllNsws2 waitUntilExit];
 }
 
 
@@ -163,9 +179,9 @@
 
 - (void) testListUpdated {
     // 起動する
-    NSDictionary * dict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
-    cont = [[S2Controller alloc]initWithDict:dict withMasterName:[messenger myNameAndMID]];
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
     
     
     while (true) {
@@ -175,20 +191,21 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    
-    NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+    NSArray * pullArray = @[TEST_LISTED_1, TEST_LISTED_2];
+    NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
                           TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
-                          TEST_LISTED_1, KEY_LISTED_DELIM,
-                          TEST_LISTED_2];
+                          [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
+                          ];
     
     // listUpdate送付
     [self connectClientTo:TEST_SERVER_URL withMessage:message withPipe:nil];
     
-    while (0 < [m_pullingDict count]) {
+    while ([m_pullingDict count] < [pullArray count]) {
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
+    
     // 2件のpulling状態になる。このテスト内での辞書を数えよう。
-    XCTAssertTrue([m_pullingDict count] == 2, @"not match, %lu", (unsigned long)[m_pullingDict count]);
+    XCTAssertTrue([m_pullingDict count] == [pullArray count], @"not match, %lu vs %lu", (unsigned long)[pullArray count], (unsigned long)[m_pullingDict count]);
 }
 
 

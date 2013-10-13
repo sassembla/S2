@@ -1165,7 +1165,7 @@
 		return nil;
 	}
 	
-	NSAssert(false, @"親設定が無い");
+	NSAssert1(false, @"親設定が無い, %@", [self myName]);
     return nil;
 }
 

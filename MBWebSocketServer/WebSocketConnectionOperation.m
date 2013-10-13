@@ -46,6 +46,7 @@
         m_server = [[MBWebSocketServer alloc]initWithPort:port delegate:self];
         NSAssert(m_server, @"failed to start serving, @ %@", addr);
         
+        
         [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_OPENED, nil];
     }
     return self;
@@ -56,8 +57,15 @@
 
 - (void) receiver:(NSNotification * )notif {
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
-    [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:09:37" withLimitSec:1000 withComment:@"受け取ったデータをWSから発射"];
-//    [m_server send:dict[@"message"]];
+    
+    switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
+        case KS_WEBSOCKETCONNECTIONOPERATION_PUSH:{
+            NSAssert(dict[@"message"], @"message required");
+            [m_server send:dict[@"message"]];
+            //どうかなーsend時に対応しないと行けないよなー
+            break;
+        }
+    }
 }
 
 
@@ -75,8 +83,9 @@
      nil];
 }
 - (void)webSocketServer:(MBWebSocketServer * )webSocketServer clientDisconnected:(GCDAsyncSocket *)connection {
-    
-    [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_DISCONNECTED, nil];
+    if ([messenger hasParent]) {
+        [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_DISCONNECTED, nil];
+    }
 }
 - (void)webSocketServer:(MBWebSocketServer * )webSocket didReceiveData:(NSData *)data fromConnection:(GCDAsyncSocket *)connection {
    [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED,

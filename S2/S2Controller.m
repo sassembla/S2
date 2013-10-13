@@ -115,8 +115,19 @@
             
             switch ([messenger execFrom:S2_PULLUPCONT viaNotification:notif]) {
                 case PULLUPCONT_PULLING:{
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 13:42:50" withLimitSec:1000 withComment:@"pullを実行する"];
+                    NSAssert(dict[@"connectionId"], @"connectionId required");
+                    NSAssert(dict[@"sourcePath"], @"sourcePath required");
                     
+                    NSString * sourcePath = dict[@"sourcePath"];
+                    NSString * identity = dict[@"connectionId"];
+                    
+                    NSString * message = [[NSString alloc]initWithFormat:@"ss@readFileData:{\"path\":\"%@\"}->(data|message)monocastMessage:{\"target\":\"S2Client\",\"message\":\"replace\",\"header\":\"-update:%@ \"}->showAtLog:{\"message\":\"pulled:%@\"}->showStatusMessage:{\"message\":\"pulled:%@\"}", sourcePath, identity, sourcePath, sourcePath];
+                    
+                    [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
+                     [messenger tag:@"message" val:message],
+                     nil];
+                    
+                    [self callToMaster:S2_EXEC_PULLINGSTARTED withMessageDict:dict];
                     break;
                 }
             }
@@ -179,7 +190,7 @@
 - (void) callToMaster:(int)exec withMessageDict:(NSDictionary * )messageDict {
     if ([messenger hasParent]) {
         [messenger callParent:exec,
-         [messenger tag:@"messageDict" val:messageDict],
+         [messenger tag:@"wrappedDict" val:messageDict],
          nil];
     }
 }
