@@ -76,7 +76,6 @@
 
 /**
  開始命令が出たら、要素と一緒に現在のプールからモノを引っ張ってきてcompileに入る。
- 疑似プールをこの辺に持とう。
  */
 - (void) testIgniteThenStart {
     NSDictionary * testDict = @{@"a":@"b"};

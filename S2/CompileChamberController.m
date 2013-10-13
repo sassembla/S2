@@ -40,14 +40,17 @@
 /**
  チャンバーを初期化する
  
- 既存チャンバーは全て破棄、
+ 既存チャンバーを全て破棄、
  新規にチャンバーを一定数作成
  */
 - (void) readyChamber:(int)count {
     NSAssert(0 < count, @"count is negative or 0.");
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 20:55:41" withLimitSec:10000 withComment:@"既存チャンバーを破棄"];
-    
+    for (NSString * currentChamberId in m_chamberDict) {
+        [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_PURGE,
+         [messenger tag:@"id" val:currentChamberId],
+         nil];
+    }
     
     // 初期化
     m_count = count;
@@ -65,7 +68,7 @@
         [m_chamberDict setValue:chamberInfoDict forKey:currentChamberId];
     }
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 21:08:25" withLimitSec:10000 withComment:@"もし辞書型にする場合は、一度ここで開くとかする必要がある。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 21:08:25" withLimitSec:100000 withComment:@"もし辞書型にする場合は、一度ここで開くとかする必要がある。"];
 }
 
 
@@ -92,9 +95,23 @@
         }
         case S2_COMPILECHAMBERCONT_EXEC_INPUT:{
             // インプットがあったので、プール上のコードを編集、編集完了と同時に暇なchamberへとGoを出す。
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 22:30:24" withLimitSec:10000 withComment:@"プールからの現在のデータ取得"];
             
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:30:33" withLimitSec:10000 withComment:@"暇なチャンバーへとGo!"];
-            [self igniteIdleChamber];
+            NSDictionary * poolInfoDict = [[NSDictionary alloc]initWithObjectsAndKeys:@"a", @"b", nil];
+            
+            NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
+            NSDictionary * idsAndContents = poolInfoDict[@"idsAndContents"];
+            
+            if (!compileBasePath) {
+                [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 22:32:43" withLimitSec:10000 withComment:@"プールからの条件未達成時の挙動"];
+                break;
+            }
+            if (!idsAndContents) {
+                [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 22:25:54" withLimitSec:10000 withComment:@"プールからの条件未達成時の挙動2"];
+                break;
+            }
+            
+            [self igniteIdleChamber:compileBasePath withContents:idsAndContents];
             
             break;
         }
@@ -105,34 +122,61 @@
             
             
         case S2_COMPILECHAMBER_EXEC_SPINUPPED:{
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:28:54" withLimitSec:10000 withComment:@"スピンアップ完了なので、statusを更新する。"];
+            NSAssert(dict[@"id"], @"id required");
+            [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_SPINUPPED]];
             break;
         }
         
             
         case S2_COMPILECHAMBER_EXEC_COMPILED:{
+            NSAssert(dict[@"id"], @"id required");
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"スピンアップを行う"];
             break;
         }
         case S2_COMPILECHAMBER_EXEC_ABORTED:{
+            NSAssert(dict[@"id"], @"id required");
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"スピンアップを行う2"];
+            break;
+        }
+            
+        case S2_COMPILECHAMBER_EXEC_TICK:{
+            
             break;
         }
     }
     
 }
 
-- (void) igniteIdleChamber {
+
+- (void) changeChamberStatus:(NSString * )chamberId to:(NSString * )state {
+    NSDictionary * currentChamberInfoDict =  m_chamberDict[chamberId];
+    
+    NSMutableDictionary * updatedChamberInfoDict = [[NSMutableDictionary alloc]initWithDictionary:currentChamberInfoDict];
+    updatedChamberInfoDict[@"state"] = state;
+    
+    [m_chamberDict setValue:updatedChamberInfoDict forKey:chamberId];
+}
+
+- (NSString * ) igniteIdleChamber:(NSString * )compileBasePath withContents:(NSDictionary * )idsAndContents {
+    NSString * ignitedChamberId = nil;
+    
     for (NSString * chamberId in [m_chamberDict keyEnumerator]) {
         NSDictionary * chamberInfoDict = m_chamberDict[chamberId];
 
         if ([chamberInfoDict[@"state"] isEqualToString:static_chamber_states[STATE_SPINUPPED]]) {
+            
+            ignitedChamberId = [[NSString alloc]initWithFormat:@"%@", chamberId];
+            
             [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_IGNITE,
              [messenger tag:@"id" val:chamberId],
+             [messenger tag:@"compileBasePath" val:compileBasePath],
+             [messenger tag:@"idsAndContents" val:idsAndContents],
              nil];
             break;
         }
     }
+    
+    return ignitedChamberId;
 }
 
 
