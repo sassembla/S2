@@ -32,6 +32,9 @@
 		B7B6D44D1802F176007AE06E /* PullUpControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7B6D44C1802F176007AE06E /* PullUpControllerTests.m */; };
 		B7B6D4501802F99C007AE06E /* PullUpController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7B6D44F1802F99C007AE06E /* PullUpController.m */; };
 		B7B6D4511802F99C007AE06E /* PullUpController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7B6D44F1802F99C007AE06E /* PullUpController.m */; };
+		B7CA8979180AAFCF008B6C40 /* ContentsPoolController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7CA8978180AAFCF008B6C40 /* ContentsPoolController.m */; };
+		B7CA897A180AAFCF008B6C40 /* ContentsPoolController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7CA8978180AAFCF008B6C40 /* ContentsPoolController.m */; };
+		B7CA897C180AAFE9008B6C40 /* ContentsPoolControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7CA897B180AAFE9008B6C40 /* ContentsPoolControllerTests.m */; };
 		B7DCEB7317EF126800E28C5C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7DCEB7217EF126800E28C5C /* Security.framework */; };
 		B7EB771C180A78C800FF959D /* CompileChamberController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7EB771B180A78C800FF959D /* CompileChamberController.m */; };
 		B7EB771D180A78C800FF959D /* CompileChamberController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7EB771B180A78C800FF959D /* CompileChamberController.m */; };
@@ -89,6 +92,9 @@
 		B7B6D44F1802F99C007AE06E /* PullUpController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PullUpController.m; sourceTree = "<group>"; };
 		B7B6D4521802FBD8007AE06E /* S2Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = S2Token.h; sourceTree = "<group>"; };
 		B7B6D4531802FBFD007AE06E /* S2TestSupportDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = S2TestSupportDefines.h; sourceTree = "<group>"; };
+		B7CA8977180AAFCF008B6C40 /* ContentsPoolController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContentsPoolController.h; sourceTree = "<group>"; };
+		B7CA8978180AAFCF008B6C40 /* ContentsPoolController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContentsPoolController.m; sourceTree = "<group>"; };
+		B7CA897B180AAFE9008B6C40 /* ContentsPoolControllerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContentsPoolControllerTests.m; sourceTree = "<group>"; };
 		B7DCEB7217EF126800E28C5C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		B7EB771A180A78C800FF959D /* CompileChamberController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompileChamberController.h; sourceTree = "<group>"; };
 		B7EB771B180A78C800FF959D /* CompileChamberController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompileChamberController.m; sourceTree = "<group>"; };
@@ -184,6 +190,8 @@
 				B7EB771B180A78C800FF959D /* CompileChamberController.m */,
 				B7EB771E180A78D300FF959D /* CompileChamber.h */,
 				B7EB771F180A78D300FF959D /* CompileChamber.m */,
+				B7CA8977180AAFCF008B6C40 /* ContentsPoolController.h */,
+				B7CA8978180AAFCF008B6C40 /* ContentsPoolController.m */,
 			);
 			path = S2;
 			sourceTree = "<group>";
@@ -210,6 +218,7 @@
 				B7B6D44A1802EE06007AE06E /* CompileChamberControllerTests.m */,
 				B7B6D44C1802F176007AE06E /* PullUpControllerTests.m */,
 				B7B6D4531802FBFD007AE06E /* S2TestSupportDefines.h */,
+				B7CA897B180AAFE9008B6C40 /* ContentsPoolControllerTests.m */,
 			);
 			path = S2Tests;
 			sourceTree = "<group>";
@@ -356,6 +365,7 @@
 				B7987ECE17EE831F008F21F4 /* GCDAsyncSocket.m in Sources */,
 				B7987ED417EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
 				B7FCEA0217EF1EB900C6B41A /* S2Controller.m in Sources */,
+				B7CA8979180AAFCF008B6C40 /* ContentsPoolController.m in Sources */,
 				B7987EA617EE82FB008F21F4 /* AppDelegate.m in Sources */,
 				B7EB771C180A78C800FF959D /* CompileChamberController.m in Sources */,
 				B7EB7720180A78D300FF959D /* CompileChamber.m in Sources */,
@@ -378,8 +388,10 @@
 				B7EB7721180A78D300FF959D /* CompileChamber.m in Sources */,
 				B7987EBD17EE82FB008F21F4 /* S2Tests.m in Sources */,
 				B7B6D44B1802EE06007AE06E /* CompileChamberControllerTests.m in Sources */,
+				B7CA897C180AAFE9008B6C40 /* ContentsPoolControllerTests.m in Sources */,
 				B7FCEA0917EFECC500C6B41A /* EmitterTests.m in Sources */,
 				B7FCEA0317EF1EB900C6B41A /* S2Controller.m in Sources */,
+				B7CA897A180AAFCF008B6C40 /* ContentsPoolController.m in Sources */,
 				B7EB771D180A78C800FF959D /* CompileChamberController.m in Sources */,
 				B7987F2617EE835D008F21F4 /* KSMessenger.m in Sources */,
 				B7B6D44D1802F176007AE06E /* PullUpControllerTests.m in Sources */,

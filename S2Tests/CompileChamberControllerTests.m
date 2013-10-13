@@ -66,12 +66,12 @@
         case S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED:{
             // chamberにidとか振るよねきっと。
             //            [m_chamberResponseArray addObject:<#(id)#>]
-            XCTFail(@"not yet applied");
+            XCTFail(@"not yet implemented");
             break;
         }
             
         case S2_COMPILECHAMBERCONT_EXEC_CHAMBER_ABORTED:{
-            XCTFail(@"not yet applied");
+            XCTFail(@"not yet implemented2");
             break;
         }
             

@@ -13,9 +13,14 @@
 #define TEST_LISTED_2   ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"codes/TEST_LISTED_2.txt"])
 
 
+// サンプルのScalaプロジェクト No.1
+#define TEST_SAMPLEPROJECTPATH  ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"sampleProject/"])
 
-// サンプルのScalaプロジェクト
-#define TEST_SAMPLEPROJECTPATH  ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"sampleProject/")
+#define TEST_COMPILEBASEPATH    ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"build.gradle"])
+#define TEST_SCALA_1            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"src/main/scala/com/kissaki/TestProject/Sample.scala"])
+#define TEST_SCALA_2            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"src/main/scala/com/kissaki/TestProject/Sample2.scala"])
+#define TEST_SCALA_3            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"src/main/scala/com/kissaki/TestProject/TestProject.scala"])
 
-#define TEST_COMPILEBASEPATH    ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"build.gradle")
-#define TEST_SCALA_1            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"build.gradle")
+///Users/highvision/Desktop/S2/S2Tests/TestResource/sampleProject/src/test/scala/MyTest.scala
+
+

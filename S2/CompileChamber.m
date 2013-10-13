@@ -28,7 +28,7 @@
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
     if (self = [super init]) {
         messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:S2_COMPILECHAMBER];
-        
+        [messenger connectParent:masterNameAndId];
         
         statesArray = STATE_STR_ARRAY;
         
@@ -37,7 +37,7 @@
         m_state = statesArray[STATE_SPINUPPING];
         
         
-        [messenger connectParent:masterNameAndId];
+
         
         [messenger callParent:S2_COMPILECHAMBER_EXEC_SPAWNED,
          [messenger tag:@"id" val:m_chamberId],
@@ -61,21 +61,23 @@
     }
     
     // 自分以外からのmessageは、chamberIdのチェックを行う
-    NSAssert(dict[@"chamberId"], @"chamberId required");
+    NSAssert(dict[@"id"], @"id required");
     
-    if (dict[@"chamberId"] != m_chamberId) {
+    if (dict[@"id"] != m_chamberId) {
         return;
     }
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 16:41:21" withLimitSec:10000 withComment:@"受け取るものを考え中。起動命令、中止命令"];
-//    switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
-//        case <#constant#>:
-//            <#statements#>
-//            break;
-//            
-//        default:
-//            break;
-//    }
+    
+    // controllerからのmessage
+    switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
+        case S2_COMPILECHAMBER_EXEC_IGNITE:{
+            NSAssert(dict[@"compileBasePath"], @"compileBasePath required");
+            NSAssert(dict[@"idsAndContents"], @"idsAndContents required");
+            
+            [self ignite:dict[@"compileBasePath"] withCodes:dict[@"idsAndContents"]];
+            break;
+        }
+    }
 }
 
 - (NSString * ) state {
@@ -141,7 +143,7 @@
     
     [m_compileTask setStandardOutput:currentOut];
     [m_compileTask setTerminationHandler:^(NSTask * task) {
-        NSLog(@"%@ killed!", task);
+        [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:28:16" withLimitSec:1000000 withComment:@"killされ時にすることがあれば。むしろここに来ない事の方が重要っぽい。"];
     }];
     
     
@@ -149,9 +151,9 @@
     
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:47:06" withLimitSec:10000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:07:19" withLimitSec:1000 withComment:@"まだコンパイルできない。"];
-//    [compileTask launch];
     
+    // compile start
+    [m_compileTask launch];
     
     
     m_state = statesArray[STATE_COMPILING];

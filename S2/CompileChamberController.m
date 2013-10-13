@@ -19,6 +19,9 @@
     NSMutableDictionary * m_chamberDict;
     
     int m_count;
+    
+    
+    NSArray * static_chamber_states;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
@@ -28,6 +31,8 @@
         
         m_count = 0;
         m_chamberDict = [[NSMutableDictionary alloc]init];
+        
+        static_chamber_states = STATE_STR_ARRAY;
     }
     return self;
 }
@@ -50,12 +55,14 @@
     
     for (int i = 0; i < m_count; i++) {
         CompileChamber * chamber = [[CompileChamber alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
-        NSString * chamberId = [chamber chamberId];
+
+        NSString * currentChamberId = [NSString stringWithFormat:@"%@", [chamber chamberId]];
+        NSString * currentChamberState = [NSString stringWithFormat:@"%@", [chamber state]];
         
         NSMutableDictionary * chamberInfoDict = [[NSMutableDictionary alloc]init];
-        [chamberInfoDict setValue:[chamber state] forKey:@"state"];
+        [chamberInfoDict setValue:currentChamberState forKey:@"state"];
         
-        [m_chamberDict setValue:chamberInfoDict forKey:chamberId];
+        [m_chamberDict setValue:chamberInfoDict forKey:currentChamberId];
     }
     
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:18:36" withLimitSec:10000 withComment:@"もし辞書型にする場合は、一度ここで開くとかする必要がある。"];
@@ -63,13 +70,11 @@
 
 
 - (int) countOfSpinuppedChamber {
-    NSArray * states = STATE_STR_ARRAY;
-    
     int count = 0;
     for (NSString * chamberId in [m_chamberDict keyEnumerator]) {
         NSDictionary * chamberInfoDict = m_chamberDict[chamberId];
         NSAssert(chamberInfoDict[@"state"], @"state required");
-        if ([chamberInfoDict[@"state"] isEqualToString:states[STATE_SPINUPPED]]) count++;
+        if ([chamberInfoDict[@"state"] isEqualToString:static_chamber_states[STATE_SPINUPPED]]) count++;
     }
     return count;
 }
@@ -86,11 +91,27 @@
             break;
         }
         case S2_COMPILECHAMBERCONT_EXEC_INPUT:{
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:13:16" withLimitSec:10000 withComment:@"S2_COMPILECHAMBERCONT_EXEC_INPUT の受け、待ち受け状態のチャンバーへの投入開始"];
+            // インプットがあったので、プール上のコードを編集、編集完了と同時に暇なchamberへとGoを出す。
+            
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:30:33" withLimitSec:10000 withComment:@"暇なチャンバーへとGo!"];
+            
+            for (NSString * chamberId in [m_chamberDict keyEnumerator]) {
+                NSDictionary * chamberInfoDict = m_chamberDict[chamberId];
+                
+                if ([chamberInfoDict[@"state"] isEqualToString:static_chamber_states[STATE_SPINUPPED]]) {
+                    [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_IGNITE,
+                     [messenger tag:@"id" val:chamberId],
+                     nil];
+                    break;
+                }
+            }
+            
+            
             break;
         }
     }
     
+    // チャンバーからのメッセージ
     switch ([messenger execFrom:S2_COMPILECHAMBER viaNotification:notif]) {
         case S2_COMPILECHAMBER_EXEC_SPAWNED:{
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:19:59" withLimitSec:10000 withComment:@"chamber初期化完了時の処理"];
@@ -98,6 +119,16 @@
         }
         case S2_COMPILECHAMBER_EXEC_SPINUPPED:{
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 18:28:54" withLimitSec:10000 withComment:@"スピンアップ完了なので、statusを更新する。"];
+            break;
+        }
+        
+            
+        case S2_COMPILECHAMBER_EXEC_COMPILED:{
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"スピンアップを行う"];
+            break;
+        }
+        case S2_COMPILECHAMBER_EXEC_ABORTED:{
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"スピンアップを行う2"];
             break;
         }
     }
