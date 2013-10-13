@@ -107,11 +107,15 @@
                     [self routing:dict[@"data"]];
                     break;
                 }
+                case KS_WEBSOCKETCONNECTIONOPERATION_DISCONNECTED:{
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 13:39:49" withLimitSec:10000 withComment:@"切断時のアクション"];
+                    break;
+                }
             }
             
             switch ([messenger execFrom:S2_PULLUPCONT viaNotification:notif]) {
                 case PULLUPCONT_PULLING:{
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 0:24:53" withLimitSec:100 withComment:@"pullを実行する"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 13:42:50" withLimitSec:1000 withComment:@"pullを実行する"];
                     
                     break;
                 }
@@ -144,7 +148,7 @@
         return;
     }
 
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/10 20:25:17" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 20:33:05" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
 //    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
 //        [messenger call:S2_COMPCHAMBERCONT withExec:COMPCHAMBERCONT_UPDATED,
 //         [messenger tag:@"updatedSource" val:dataStr],

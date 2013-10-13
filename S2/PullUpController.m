@@ -41,12 +41,15 @@
             NSString * keyAndListOfSourcesStr = dict[@"listOfSources"];
             
             // keyデリミタvalueデリミタ...ってなってるので、デリミタで割る。
-            int keyAndDelimLength = [[NSString stringWithFormat:@"%@%@", TRIGGER_PREFIX_LISTED, TRIGGER_DELIM]intValue];
-            NSString * listOfSourcesStr = [keyAndListOfSourcesStr substringFromIndex:keyAndDelimLength];
+            NSArray * keyAndListOfSourcesArray = [keyAndListOfSourcesStr componentsSeparatedByString:KEY_LISTED_DELIM];
+
+            NSRange theRange;
             
-            NSArray * keyAndListOfSourcesArray = [listOfSourcesStr componentsSeparatedByString:KEY_LISTED_DELIM];
+            theRange.location = 1;
+            theRange.length = [keyAndListOfSourcesArray count]-1;
+            NSArray * listOfSourcesArray = [keyAndListOfSourcesArray subarrayWithRange:theRange];
             
-            [self listed:keyAndListOfSourcesArray];
+            [self listed:listOfSourcesArray];
             break;
         }
             
@@ -67,7 +70,7 @@
     NSAssert(0 < [sourcesPathArray count], @"empty sourcesPathArray.");
     
     // 特定のカウントずつpullする
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/10 20:25:39" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 13:36:03" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
     
     // renew
     m_pullingIdList = [[NSMutableArray alloc]init];

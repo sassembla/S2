@@ -80,7 +80,12 @@
 
 
 // utility
-- (NSPipe * ) connectClientTo:(NSString * )url withMessage:(NSString * )message withPipe:(NSPipe * )pipe {
+/**
+ 通信を投げてそのまま死ぬかと思ったら、そうでもなくてつらい。
+ 
+ */
+- (void) connectClientTo:(NSString * )url withMessage:(NSString * )message withPipe:(NSPipe * )pipe {
+
     NSPipe * input = [[NSPipe alloc]init];
     if (pipe) input = pipe;
     
@@ -91,8 +96,10 @@
     [wsclient setStandardInput:input];
     
     [wsclient launch];
-    
-    return input;
+    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    [wsclient terminate];
+    [wsclient waitUntilExit];
+    NSLog(@"over");
 }
 
 
@@ -177,8 +184,11 @@
     // listUpdate送付
     [self connectClientTo:TEST_SERVER_URL withMessage:message withPipe:nil];
     
+    while (0 < [m_pullingDict count]) {
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
     // 2件のpulling状態になる。このテスト内での辞書を数えよう。
-    XCTAssertTrue([m_pullingDict count] == 2, @"not match, %d", [m_pullingDict count]);
+    XCTAssertTrue([m_pullingDict count] == 2, @"not match, %lu", (unsigned long)[m_pullingDict count]);
 }
 
 

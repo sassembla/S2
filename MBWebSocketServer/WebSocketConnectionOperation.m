@@ -76,7 +76,7 @@
 }
 - (void)webSocketServer:(MBWebSocketServer * )webSocketServer clientDisconnected:(GCDAsyncSocket *)connection {
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/09/23 10:10:35" withLimitSec:1000 withComment:@"切断確認、通達する"];
+    [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_DISCONNECTED, nil];
 }
 - (void)webSocketServer:(MBWebSocketServer * )webSocket didReceiveData:(NSData *)data fromConnection:(GCDAsyncSocket *)connection {
    [messenger callParent:KS_WEBSOCKETCONNECTIONOPERATION_RECEIVED,
