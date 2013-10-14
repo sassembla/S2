@@ -98,10 +98,17 @@
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 18:22:15" withLimitSec:10000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではロックしてOK。今回は即SpinUpしたことにする。"];
     
     m_state = statesArray[STATE_SPINUPPED];
-    
-    [messenger callParent:S2_COMPILECHAMBER_EXEC_SPINUPPED,
-     [messenger tag:@"id" val:m_chamberId],
-     nil];
+
+    // スピンアップ中に親が消えているパターンがあり得る。
+    // この後、自分も消える。
+    if ([messenger hasParent]) {
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_SPINUPPED,
+         [messenger tag:@"id" val:m_chamberId],
+         nil];
+    } else {
+        [self abort];
+        [self close];
+    }
 }
 
 
@@ -145,9 +152,9 @@
     }];
     
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 0:52:21" withLimitSec:10000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 16:42:28" withLimitSec:10000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 0:52:32" withLimitSec:10000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 16:42:31" withLimitSec:10000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
     
     
     // compile start

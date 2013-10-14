@@ -69,8 +69,8 @@
 }
 
 
-- (void) testGetStatusDefaultIsSpinupped {
-    XCTAssertTrue([cChamber state] == [self targetState:STATE_SPINUPPED], @"not match, %@", [cChamber state]);
+- (void) testGetStatusDefaultIsSpinupping {
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_SPINUPPING], @"not match, %@", [cChamber state]);
 }
 
 

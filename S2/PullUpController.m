@@ -70,7 +70,7 @@
     NSAssert(0 < [sourcesPathArray count], @"empty sourcesPathArray.");
     
     // 特定のカウントずつpullする
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 13:36:03" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 17:29:24" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
     
     // renew
     m_pullingIdList = [[NSMutableArray alloc]init];

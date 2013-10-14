@@ -10,7 +10,9 @@
 
 #define S2_CONTENTSPOOLCONT (@"S2_CONTENTSPOOLCONT")
 
-
+enum S2_CONTENTSPOOLCONT_EXEC {
+    S2_CONTENTSPOOLCONT_EXEC_DRAIN,
+};
 @interface ContentsPoolController : NSObject
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId;

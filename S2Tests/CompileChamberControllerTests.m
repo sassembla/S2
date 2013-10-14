@@ -83,11 +83,17 @@
 - (void) testResetChamberThenSpinupped {
     [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
     
+    // wait for spinup
+    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    
     XCTAssertTrue([cChambCont countOfSpinuppedChamber] == TEST_CHAMBER_NUM_2, @"not match, %d", [cChambCont countOfSpinuppedChamber]);
 }
 
 - (void) testSourceInputted {
     [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
+    
+    // wait for spinup
+    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     
     // データの受け口へとコードを送る。
     // ファイル名と内容

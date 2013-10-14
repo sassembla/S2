@@ -11,6 +11,8 @@
 
 #import "CompileChamber.h"
 
+#import "ContentsPoolController.h"
+
 #import "TimeMine.h"
 
 @implementation CompileChamberController {
@@ -20,8 +22,9 @@
     
     int m_count;
     
-    
     NSArray * static_chamber_states;
+    
+    ContentsPoolController * contentsPoolCont;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
@@ -33,6 +36,9 @@
         m_chamberDict = [[NSMutableDictionary alloc]init];
         
         static_chamber_states = STATE_STR_ARRAY;
+        
+        
+        contentsPoolCont = [[ContentsPoolController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
     }
     return self;
 }
@@ -67,8 +73,6 @@
         
         [m_chamberDict setValue:chamberInfoDict forKey:currentChamberId];
     }
-    
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 21:08:25" withLimitSec:100000 withComment:@"もし辞書型にする場合は、一度ここで開くとかする必要がある。"];
 }
 
 
@@ -95,19 +99,18 @@
         }
         case S2_COMPILECHAMBERCONT_EXEC_INPUT:{
             // インプットがあったので、プール上のコードを編集、編集完了と同時に暇なchamberへとGoを出す。
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 22:30:24" withLimitSec:10000 withComment:@"プールからの現在のデータ取得"];
             
-            NSDictionary * poolInfoDict = [[NSDictionary alloc]initWithObjectsAndKeys:@"a", @"b", nil];
+            NSDictionary * poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN, nil];
             
             NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
             NSDictionary * idsAndContents = poolInfoDict[@"idsAndContents"];
             
             if (!compileBasePath) {
-                [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 22:32:43" withLimitSec:10000 withComment:@"プールからの条件未達成時の挙動"];
+                [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 11:10:57" withLimitSec:10000 withComment:@"プールからの条件未達成時の挙動"];
                 break;
             }
             if (!idsAndContents) {
-                [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 22:25:54" withLimitSec:10000 withComment:@"プールからの条件未達成時の挙動2"];
+                [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 11:11:07" withLimitSec:10000 withComment:@"プールからの条件未達成時の挙動2"];
                 break;
             }
             
