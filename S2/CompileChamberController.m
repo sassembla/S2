@@ -184,6 +184,15 @@
 
 
 - (void) close {
+    
+    for (NSString * chamberId in m_chamberDict) {
+        [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_PURGE,
+         [messenger tag:@"id" val:chamberId],
+         nil];
+    }
+    
+    [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_PURGE, nil];
+    
     [messenger closeConnection];
 }
 

@@ -46,7 +46,15 @@
     switch ([messenger execFrom:[messenger myName] viaNotification:notif]) {
         case S2_COMPILECHAMBER_EXEC_SPINUP:{
             m_state = statesArray[STATE_SPINUPPING];
-            [self performSelector:@selector(spinup) withObject:nil afterDelay:S2_DEFAULT_SPINUP_TIME];
+            
+            // 非同期でspinupを行う
+            [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUPPING,
+             [messenger withDelay:S2_DEFAULT_SPINUP_TIME],
+             nil];
+            return;
+        }
+        case S2_COMPILECHAMBER_EXEC_SPINUPPING:{
+            [self spinup];
             return;
         }
     }
@@ -75,7 +83,6 @@
         case S2_COMPILECHAMBER_EXEC_PURGE:{
             [self abort];
             [self close];
-            [messenger callMyself:0, nil];
             break;
         }
     }
@@ -99,16 +106,9 @@
     
     m_state = statesArray[STATE_SPINUPPED];
 
-    // スピンアップ中に親が消えているパターンがあり得る。
-    // この後、自分も消える。
-    if ([messenger hasParent]) {
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_SPINUPPED,
-         [messenger tag:@"id" val:m_chamberId],
-         nil];
-    } else {
-        [self abort];
-        [self close];
-    }
+    [messenger callParent:S2_COMPILECHAMBER_EXEC_SPINUPPED,
+     [messenger tag:@"id" val:m_chamberId],
+     nil];
 }
 
 

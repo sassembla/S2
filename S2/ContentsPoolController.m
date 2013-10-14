@@ -31,6 +31,10 @@
             [self drain:notif];
             break;
         }
+        case S2_CONTENTSPOOLCONT_EXEC_PURGE:{
+            [self close];
+            break;
+        }
     }
 }
 
