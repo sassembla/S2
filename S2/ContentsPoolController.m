@@ -39,7 +39,7 @@
 }
 
 - (void) drain:(NSNotification * )notif {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 16:41:43" withLimitSec:10000 withComment:@"drain時のパラメータを返す。まるっと渡す"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:01:19" withLimitSec:10000 withComment:@"drain時のパラメータを返す。まるっと渡す"];
     NSDictionary * dict = [[NSDictionary alloc]init];
     
     [messenger callback:notif,

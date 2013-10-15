@@ -169,7 +169,7 @@
         return;
     }
 
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 16:48:31" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 23:47:18" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
 //    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
 //        [messenger call:S2_COMPCHAMBERCONT withExec:COMPCHAMBERCONT_UPDATED,
 //         [messenger tag:@"updatedSource" val:dataStr],

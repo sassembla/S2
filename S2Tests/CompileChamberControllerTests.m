@@ -17,6 +17,7 @@
 
 
 #import "S2TestSupportDefines.h"
+#import "TimeMine.h"
 
 
 /**
@@ -64,9 +65,8 @@
     
     switch ([messenger execFrom:S2_COMPILECHAMBERCONT viaNotification:notif]) {
         case S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED:{
-            // chamberにidとか振るよねきっと。
-            //            [m_chamberResponseArray addObject:<#(id)#>]
-            XCTFail(@"not yet implemented");
+            NSAssert(dict[@"ignitedChamberId"], @"ignitedChamberId required");
+            [m_chamberResponseArray addObject:dict[@"ignitedChamberId"]];
             break;
         }
             
@@ -83,8 +83,10 @@
 - (void) testResetChamberThenSpinupped {
     [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
     
-    // wait for spinup
-    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    // wait for spinupped
+    while ([cChambCont countOfSpinuppedChamber] < TEST_CHAMBER_NUM_2) {
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    }
     
     XCTAssertTrue([cChambCont countOfSpinuppedChamber] == TEST_CHAMBER_NUM_2, @"not match, %d", [cChambCont countOfSpinuppedChamber]);
 }
@@ -92,8 +94,11 @@
 - (void) testSourceInputted {
     [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
     
+    
     // wait for spinup
-    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    while ([cChambCont countOfSpinuppedChamber] < TEST_CHAMBER_NUM_2) {
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    }
     
     // データの受け口へとコードを送る。
     // ファイル名と内容
@@ -109,6 +114,10 @@
     
     // 装填完了、ビルド開始、までを発行すればいいか。
     XCTAssertTrue([m_chamberResponseArray count] == 1, @"not match, %lu", (unsigned long)[m_chamberResponseArray count]);
+}
+
+- (void) testChambersStatus_1of2_Working {
+    XCTFail(@"not yet implemented");
 }
 
 /*

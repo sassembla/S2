@@ -33,6 +33,8 @@ enum STATE {
     STATE_SPINUPPING,
     STATE_SPINUPPED,
     STATE_COMPILING,
+    STATE_COMPILE_ABORTED,
+    STATE_COMPILE_FAILED,
     STATE_COMPILED,
     STATE_ABORTED
 };
@@ -46,6 +48,7 @@ enum STATE {
 - (NSString * ) state;
 - (NSString * ) chamberId;
 
+- (BOOL) isCompiling;
 
 - (void) ignite:(NSString * )compileBasePath withCodes:(NSDictionary * )idsAndContents;
 - (void) abort;

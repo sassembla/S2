@@ -23,6 +23,8 @@
     NSTask * m_compileTask;
     
     NSString * m_state;
+    
+    BOOL m_compiling;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
@@ -36,6 +38,8 @@
         m_chamberId = [[NSString alloc]initWithFormat:@"chamber_%@", [KSMessenger generateMID]];
         
         [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUP, nil];
+        
+        m_compiling = false;
     }
     return self;
 }
@@ -102,7 +106,9 @@
  スピンアップ
  */
 - (void) spinup {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 18:22:15" withLimitSec:10000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではロックしてOK。今回は即SpinUpしたことにする。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 18:22:15" withLimitSec:10000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではこのブロック内でロックしてOK。今回は瞬間でSpinUpしたことにする。"];
+    
+    // spinupping
     
     m_state = statesArray[STATE_SPINUPPED];
 
@@ -116,6 +122,8 @@
  着火
  */
 - (void) ignite:(NSString * )compileBasePath withCodes:(NSDictionary * )idsAndContents {
+    m_compiling = true;
+    
     m_compileTask = [[NSTask alloc] init];
     
     
@@ -149,12 +157,13 @@
     [m_compileTask setStandardOutput:currentOut];
     [m_compileTask setTerminationHandler:^(NSTask * task) {
         [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 0:52:26" withLimitSec:1000000 withComment:@"killされ時にすることがあれば。むしろここに来ない事の方が重要っぽい。"];
+        m_compiling = false;
     }];
     
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 16:42:28" withLimitSec:10000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:01:57" withLimitSec:10000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 16:42:31" withLimitSec:10000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:02:26" withLimitSec:100000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
     
     
     // compile start
@@ -167,6 +176,9 @@
      nil];
 }
 
+- (BOOL) isCompiling {
+    return m_compiling;
+}
 
 
 /**

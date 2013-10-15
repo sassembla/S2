@@ -28,13 +28,15 @@
 
 /**
  接続されているclientに対して、特定のメッセージを投げる
+ pullとかのメッセージを定型化する。
+ 
+ pull, tick
+ 
+ メッセンジャー持たないでも良さげだけど、フィルタ層として用意しておくとあとでメンテがラク。
+ こいつ自身がフィルタになる。
  */
-- (void) testEmitSpecificMessageToClient {
+
+- (void) testSomething {
     XCTFail(@"not yet implemented");
 }
-
-- (void) testEmitMessageToClient {
-    XCTFail(@"not yet implemented");    
-}
-
 @end

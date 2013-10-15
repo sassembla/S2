@@ -102,20 +102,16 @@
             
             NSDictionary * poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN, nil];
             
+            
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:01:37" withLimitSec:10000 withComment:@"ここでチェックしたほうがいいのかな。。ケースを洗い出そう。"];
+            
             NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
             NSDictionary * idsAndContents = poolInfoDict[@"idsAndContents"];
             
-            if (!compileBasePath) {
-                [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 11:10:57" withLimitSec:10000 withComment:@"プールからの条件未達成時の挙動"];
-                break;
-            }
-            if (!idsAndContents) {
-                [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 11:11:07" withLimitSec:10000 withComment:@"プールからの条件未達成時の挙動2"];
-                break;
-            }
-            
-            [self igniteIdleChamber:compileBasePath withContents:idsAndContents];
-            
+            NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath withContents:idsAndContents];
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
+             [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
+             nil];
             break;
         }
     }

@@ -15,6 +15,8 @@
 
 #import "S2TestSupportDefines.h"
 
+#import "TimeMine.h"
+
 @interface CompileChamberTests : XCTestCase
 
 @end
@@ -93,6 +95,55 @@
     [cChamber abort];
     
     XCTAssertTrue([cChamber state] == [self targetState:STATE_ABORTED], @"not match, %@", [cChamber state]);
+}
+
+
+- (void) testIgniteAndAbortThenCompiledPerfectly {
+    
+    NSString * contents1 = @"";
+    NSString * contents2 = @"";
+    
+    NSDictionary * testDict = @{TEST_SCALA_1:contents1,
+                                TEST_SCALA_2:contents2};
+    
+    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+    
+    while ([cChamber isCompiling]) {
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILED], @"not match, %@", [cChamber state]);
+}
+
+/**
+ 不十分なコンテンツを渡して、コンパイル成功しない
+ */
+- (void) testIgniteAndAbortThenCompileFailure {
+    
+    NSString * contents = @"";
+    NSDictionary * testDict = @{TEST_SCALA_1:contents};
+    
+    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+    
+    while ([cChamber isCompiling]) {
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILE_FAILED], @"not match, %@", [cChamber state]);
+}
+
+/**
+ 十分なコンテンツを渡して、abort
+ */
+- (void) testIgniteAndAbortThenCompileAbort {
+    
+    NSString * contents = @"";
+    NSDictionary * testDict = @{TEST_SCALA_1:contents};
+    
+    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+    
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILE_ABORTED], @"not match, %@", [cChamber state]);
 }
 
 
