@@ -83,6 +83,25 @@
     return false;
 }
 
+- (NSMutableDictionary * ) readSource:(NSString * )filePath withBaseDict:(NSDictionary * )base {
+    NSFileHandle * readHandle = [NSFileHandle fileHandleForReadingAtPath:filePath];
+    
+    if (readHandle) {
+        NSData * data = [readHandle readDataToEndOfFile];
+        NSString * fileContentsStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        
+        NSMutableDictionary * newBaseDict = [[NSMutableDictionary alloc]initWithDictionary:base];
+        [newBaseDict setValue:fileContentsStr forKey:filePath];
+        
+        return newBaseDict;
+    }
+    
+    return nil;
+}
+
+
+
+
 /**
  起動時にすでにスピンアップ中の筈
  */
@@ -110,7 +129,9 @@
     XCTAssertTrue([cChamber state] == [self targetState:STATE_ABORTED], @"not match, %@", [cChamber state]);
 }
 
-
+/**
+ 十分なコンテンツを渡して、コンパイル成功
+ */
 - (void) testIgniteAndAbortThenCompiledPerfectly {
     
     NSString * contents1 = @"";
@@ -140,7 +161,10 @@
     [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
     
     while ([cChamber isCompiling]) {
-        if ([self countupThenFail]) break;
+        if ([self countupThenFail]) {
+            XCTFail(@"too late");
+            break;
+        }
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
@@ -153,10 +177,13 @@
  */
 - (void) testIgniteAndAbortThenCompileAbort {
     
-    NSString * contents = @"";
-    NSDictionary * testDict = @{TEST_SCALA_1:contents};
+    NSMutableDictionary * testDict_1 = [self readSource:TEST_SCALA_1 withBaseDict:nil];
+    NSMutableDictionary * withTestDict_2 = [self readSource:TEST_SCALA_2 withBaseDict:testDict_1];
+    NSMutableDictionary * withCompileBasePathContents = [self readSource:TEST_COMPILEBASEPATH withBaseDict:withTestDict_2];
     
-    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:withCompileBasePathContents];
+    
+    [cChamber abort];
     
     XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILE_ABORTED], @"not match, %@", [cChamber state]);
 }

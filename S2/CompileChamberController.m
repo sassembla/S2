@@ -109,23 +109,23 @@
         }
         case S2_COMPILECHAMBERCONT_EXEC_INPUT:{
             // インプットがあったので、プール上のコードを編集、編集完了と同時に暇なchamberへとGoを出す。
-            
+            NSAssert(dict[@"path"], @"path required");
+            NSAssert(dict[@"source"], @"source required");
             NSDictionary * poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN,
                                            [messenger tag:@"path" val:dict[@"path"]],
                                            [messenger tag:@"source" val:dict[@"source"]],
                                            nil];
             
-            
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 0:04:35" withLimitSec:100000 withComment:@"ここでチェックしたほうがいいのかな。。ケースを洗い出そう。"];
-            
-            NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
-            NSDictionary * idsAndContents = poolInfoDict[@"idsAndContents"];
-            
-            // ひまそうなチャンバーを見つけて実行させる。結果が全て流れるまではチャンバーの答えは遮らない。
-            NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath withContents:idsAndContents];
-            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
-             [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
-             nil];
+            if (poolInfoDict) {
+                NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
+                NSDictionary * idsAndContents = poolInfoDict[@"idsAndContents"];
+                
+                // ひまそうなチャンバーを見つけて実行させる。結果が全て流れるまではチャンバーの答えは遮らない。
+                NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath withContents:idsAndContents];
+                [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
+                 [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
+                 nil];
+            }
             break;
         }
     }

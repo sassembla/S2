@@ -19,12 +19,10 @@
     
     NSArray * statesArray;
     
-    // 今のところは普通のコンパイラ。
-    NSTask * m_compileTask;
+    
+    MFTask * m_compileTask;
     
     NSString * m_state;
-    
-    BOOL m_compiling;
     
     NSArray * m_keywords;
 }
@@ -40,10 +38,9 @@
         m_chamberId = [[NSString alloc]initWithFormat:@"chamber_%@", [KSMessenger generateMID]];
         
         [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUP, nil];
-        
-        m_compiling = false;
-        
         m_keywords = S2_COMPILER_KEYWORDS;
+        
+        
     }
     return self;
 }
@@ -126,73 +123,38 @@
  着火
  */
 - (void) ignite:(NSString * )compileBasePath withCodes:(NSDictionary * )idsAndContents {
-    m_compiling = true;
     
-    m_compileTask = [[NSTask alloc] init];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 1:28:56" withLimitSec:10000 withComment:@"試験実装として、一カ所にフォルダをつくり、ファイルを吐き出す。"];
     
     
-//    NSString * currentCompileBasePath;
-//    //build.gradleを探し出す
-//    for (NSString * path in [codeDict allKeys]) {
-//        if ([[path lastPathComponent] isEqualToString:@"build.gradle"]) {
-//            currentCompileBasePath = [[NSString alloc]initWithString:path];
-//        }
-//    }
-//    
-//    if (currentCompileBasePath) {
-//        
-//    } else {
-//        [self writeLogLine:@"compile abort, no build targeting file"];
-//        return nil;
-//    }
-//    
-//    
-//    NSString * compileBasePath = [NSString stringWithFormat:@"%@%@", [self currentWorkPath], currentCompileBasePath];
-//    [self writeLogLine:compileBasePath];
+    [self generateFiles:idsAndContents];
 
+    
+    
+    
+    m_compileTask = [[MFTask alloc] init];
+    [m_compileTask setDelegate:self];
     
     NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
     
     [m_compileTask setLaunchPath:@"/usr/local/bin/gradle"];
     [m_compileTask setArguments:currentParams];
     
-    NSPipe * currentOut = [[NSPipe alloc]init];
-    
-    [m_compileTask setStandardOutput:currentOut];
-    [m_compileTask setStandardError:currentOut];
     
     // compile start
     [m_compileTask launch];
     
     // ファイルハンドラを作ってそこから読む、みたいな処理があったよねー確か。あれはなんだったか。EnteringOrbitだ
     
-    
     m_state = statesArray[STATE_COMPILING];
+    
     [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
      [messenger tag:@"id" val:m_chamberId],
      nil];
-    
-    NSFileHandle * publishHandle = [currentOut fileHandleForReading];
-    
-    
-    char buffer[BUFSIZ];
-    FILE * fp = fdopen([publishHandle fileDescriptor], "r");
-    
-    while(fgets(buffer, BUFSIZ, fp)) {
-        NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
-        NSLog(@"hereComes %@", message);
-        
-        [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 21:20:13" withLimitSec:100000 withComment:@"ここを使わないでもよくなった！"];
-        
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-         [messenger tag:@"id" val:m_chamberId],
-         [messenger tag:@"message" val:message],
-         nil];
-    }
 }
 
 - (BOOL) isCompiling {
-    return m_compiling;
+    return [m_compileTask isRunning];
 }
 
 
@@ -202,19 +164,70 @@
 - (void) abort {
     if ([m_compileTask isRunning]) {
         [m_compileTask terminate];
-        // たぶん非同期でシグナルが来るような気がする。
     }
     
     m_state = statesArray[STATE_ABORTED];
 }
 
 
-- (void) shutdownTask {
+- (void) taskDidRecieveData:(NSData * ) theData fromTask:(MFTask * )task {
+    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
     
+    [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+     [messenger tag:@"id" val:m_chamberId],
+     [messenger tag:@"message" val:message],
+     nil];
 }
+- (void) taskDidRecieveErrorData:(NSData * ) theData fromTask:(MFTask * )task {
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 1:26:03" withLimitSec:10000 withComment:@"いつ出るか解らないデータ"];
+}
+- (void) taskDidTerminate:(MFTask * ) theTask {}
+- (void) taskDidRecieveInvalidate:(MFTask * ) theTask {}
+- (void) taskDidLaunch:(MFTask * ) theTask {}
 
 - (void) close {
     [messenger closeConnection];
 }
+
+
+
+
+
+
+
+
+/**
+ ファイル作成(メモリ上のものを使う場合は不要)
+ */
+- (void) generateFiles:(NSDictionary * )pathAndSources {
+    NSString * currentBuildPath = @"/Users/highvision/1_36_38/";
+    
+    NSError * error;
+    NSFileManager * fMan = [[NSFileManager alloc]init];
+    [fMan createDirectoryAtPath:currentBuildPath withIntermediateDirectories:YES attributes:nil error:&error];
+    
+    //ファイル出力
+    NSString * targetPath;
+    for (NSString * path in [pathAndSources allKeys]) {
+        //フォルダ生成
+        targetPath = [NSString stringWithFormat:@"%@%@", currentBuildPath, path];
+        [fMan createDirectoryAtPath:[targetPath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error];
+        
+        //ファイル生成
+        bool result = [fMan createFileAtPath:targetPath contents:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
+        
+        if (result) {
+            NSLog(@"generated:%@", targetPath);
+        } else {
+            NSLog(@"fail to generate:%@", targetPath);
+        }
+        
+        NSFileHandle * writeHandle = [NSFileHandle fileHandleForUpdatingAtPath:targetPath];
+        [writeHandle writeData:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding]];
+    }
+}
+
+
+
 
 @end

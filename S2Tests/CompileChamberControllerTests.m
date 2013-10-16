@@ -134,13 +134,13 @@
     
     // データの受け口へとコードを送る。
     // ファイル名と内容
-    NSString * fileName = TEST_LISTED_1;
+    NSString * fileName = TEST_COMPILEBASEPATH;
     NSString * contents = @"test source code content";
     
     
     [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
-     [messenger tag:@"id" val:fileName],
-     [messenger tag:@"contents" val:contents],
+     [messenger tag:@"path" val:fileName],
+     [messenger tag:@"source" val:contents],
      nil];
     
     
