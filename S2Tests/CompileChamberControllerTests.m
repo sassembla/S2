@@ -37,6 +37,8 @@
     CompileChamberController * cChambCont;
     
     NSMutableArray * m_chamberResponseArray;
+    
+    int m_repeatCount;
 }
 
 - (void) setUp
@@ -46,6 +48,8 @@
     cChambCont = [[CompileChamberController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
     
     m_chamberResponseArray = [[NSMutableArray alloc] init];
+    
+    m_repeatCount = 0;
 }
 
 - (void) tearDown
@@ -80,23 +84,51 @@
     }
 }
 
+
+- (bool) countupThenFail {
+    m_repeatCount++;
+    if (TEST_REPEAT_COUNT < m_repeatCount) {
+        XCTFail(@"too long wait");
+        return true;
+    }
+    return false;
+}
+
+
+
+/**
+ スピンアップ中のchamberのid集を返す
+ */
+- (void) testGetSpinuppingChambers {
+    [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
+    
+    NSArray * chamberIds = [cChambCont spinuppingChambers];
+    
+    XCTAssertTrue([chamberIds count] == TEST_CHAMBER_NUM_2, @"not match, %lu", (unsigned long)[chamberIds count]);
+    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+}
+
+
 - (void) testResetChamberThenSpinupped {
     [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
     
     // wait for spinupped
-    while ([cChambCont countOfSpinuppedChamber] < TEST_CHAMBER_NUM_2) {
+    while ([[cChambCont spinuppedChambers] count] < TEST_CHAMBER_NUM_2) {
+        if ([self countupThenFail]) return;
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     }
     
-    XCTAssertTrue([cChambCont countOfSpinuppedChamber] == TEST_CHAMBER_NUM_2, @"not match, %d", [cChambCont countOfSpinuppedChamber]);
+    XCTAssertTrue([[cChambCont spinuppedChambers]count] == TEST_CHAMBER_NUM_2, @"not match, %lu", (unsigned long)[[cChambCont spinuppedChambers] count]);
 }
+
 
 - (void) testSourceInputted {
     [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
     
     
     // wait for spinup
-    while ([cChambCont countOfSpinuppedChamber] < TEST_CHAMBER_NUM_2) {
+    while ([[cChambCont spinuppedChambers] count] < TEST_CHAMBER_NUM_2) {
+        if ([self countupThenFail]) return;
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     }
     
@@ -115,6 +147,7 @@
     // 装填完了、ビルド開始、までを発行すればいいか。
     XCTAssertTrue([m_chamberResponseArray count] == 1, @"not match, %lu", (unsigned long)[m_chamberResponseArray count]);
 }
+
 
 - (void) testChambersStatus_1of2_Working {
     XCTFail(@"not yet implemented");

@@ -131,8 +131,7 @@
 		
 		//設定されたbodyのメソッドを実行
 		IMP func = [myBodyID methodForSelector:myBodySelector];
-		(*func)(myBodyID, myBodySelector, notification);
-		
+        ((void(*)(id, SEL, NSNotification * ))func)(myBodyID, myBodySelector, notification);
 		
 		return;
 	}
@@ -212,7 +211,7 @@
 				
 				//設定されたbodyのメソッドを実行
 				IMP func = [myBodyID methodForSelector:myBodySelector];
-				(*func)(myBodyID, myBodySelector, notification);
+                ((void(*)(id, SEL, NSNotification * ))func)(myBodyID, myBodySelector, notification);
 				return;
 			}
 		}

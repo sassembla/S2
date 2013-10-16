@@ -5,6 +5,8 @@
 //  Created by sassembla on 2013/10/07.
 //  Copyright (c) 2013年 sassembla. All rights reserved.
 //
+#define TEST_REPEAT_COUNT   (2)
+#define TEST_REPEAT_COUNT_2 (4)
 
 #define TEST_BASE_PATH  (@"./S2Tests/TestResource/")
 

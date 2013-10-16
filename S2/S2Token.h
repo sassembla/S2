@@ -18,3 +18,6 @@
 
 #define S2_DEFAULT_CHAMBER_COUNT    (8)
 #define S2_DEFAULT_SPINUP_TIME         (0.001)
+
+
+#define S2_COMPILER_KEYWORDS    (@[@"BUILD SUCCESSFUL", @"Total time: "])

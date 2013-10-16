@@ -25,6 +25,8 @@
     NSString * m_state;
     
     BOOL m_compiling;
+    
+    NSArray * m_keywords;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
@@ -40,6 +42,8 @@
         [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUP, nil];
         
         m_compiling = false;
+        
+        m_keywords = S2_COMPILER_KEYWORDS;
     }
     return self;
 }
@@ -50,14 +54,14 @@
     switch ([messenger execFrom:[messenger myName] viaNotification:notif]) {
         case S2_COMPILECHAMBER_EXEC_SPINUP:{
             m_state = statesArray[STATE_SPINUPPING];
-            
             // 非同期でspinupを行う
-            [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUPPING,
+            [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUP_WITH_ASYNC,
+             [messenger tag:@"identity" val:[messenger myMID]],
              [messenger withDelay:S2_DEFAULT_SPINUP_TIME],
              nil];
             return;
         }
-        case S2_COMPILECHAMBER_EXEC_SPINUPPING:{
+        case S2_COMPILECHAMBER_EXEC_SPINUP_WITH_ASYNC:{
             [self spinup];
             return;
         }
@@ -155,25 +159,36 @@
     NSPipe * currentOut = [[NSPipe alloc]init];
     
     [m_compileTask setStandardOutput:currentOut];
-    [m_compileTask setTerminationHandler:^(NSTask * task) {
-        [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 0:52:26" withLimitSec:1000000 withComment:@"killされ時にすることがあれば。むしろここに来ない事の方が重要っぽい。"];
-        m_compiling = false;
-    }];
-    
-    
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:01:57" withLimitSec:10000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
-    
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:02:26" withLimitSec:100000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
-    
+    [m_compileTask setStandardError:currentOut];
     
     // compile start
     [m_compileTask launch];
+    
+    // ファイルハンドラを作ってそこから読む、みたいな処理があったよねー確か。あれはなんだったか。EnteringOrbitだ
     
     
     m_state = statesArray[STATE_COMPILING];
     [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
      [messenger tag:@"id" val:m_chamberId],
      nil];
+    
+    NSFileHandle * publishHandle = [currentOut fileHandleForReading];
+    
+    
+    char buffer[BUFSIZ];
+    FILE * fp = fdopen([publishHandle fileDescriptor], "r");
+    
+    while(fgets(buffer, BUFSIZ, fp)) {
+        NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
+        NSLog(@"hereComes %@", message);
+        
+        [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 21:20:13" withLimitSec:100000 withComment:@"ここを使わないでもよくなった！"];
+        
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+         [messenger tag:@"id" val:m_chamberId],
+         [messenger tag:@"message" val:message],
+         nil];
+    }
 }
 
 - (BOOL) isCompiling {

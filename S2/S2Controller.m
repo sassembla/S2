@@ -107,7 +107,7 @@
                      nil];
                     
                     
-                    [self callToMaster:S2_EXEC_CONNECTED withMessageDict:m_connectionDict];
+                    [self callToMaster:S2_CONT_EXEC_CONNECTED withMessageDict:m_connectionDict];
                     
                     break;
                 }
@@ -117,8 +117,7 @@
                     break;
                 }
                 case KS_WEBSOCKETCONNECTIONOPERATION_DISCONNECTED:{
-                    
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 16:30:38" withLimitSec:100000 withComment:@"切断時のアクション、なんらか表示する必要があるなー、、、ビューになんか出せるかな。チャンバー情報とかも筒抜けで出せれば。良い事あるかもな。"];
+                    // do nothing
                     break;
                 }
             }
@@ -137,7 +136,7 @@
                      [messenger tag:@"message" val:message],
                      nil];
                     
-                    [self callToMaster:S2_EXEC_PULLINGSTARTED withMessageDict:dict];
+                    [self callToMaster:S2_CONT_EXEC_PULLINGSTARTED withMessageDict:dict];
                     break;
                 }
             }
@@ -169,7 +168,7 @@
         return;
     }
 
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 23:47:18" withLimitSec:10000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 20:18:33" withLimitSec:100000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
 //    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
 //        [messenger call:S2_COMPCHAMBERCONT withExec:COMPCHAMBERCONT_UPDATED,
 //         [messenger tag:@"updatedSource" val:dataStr],

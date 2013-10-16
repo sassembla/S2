@@ -76,14 +76,24 @@
 }
 
 
-- (int) countOfSpinuppedChamber {
-    int count = 0;
+- (NSArray * ) specificStateChambers:(NSString * )state {
+    NSMutableArray * array = [[NSMutableArray alloc]init];
     for (NSString * chamberId in [m_chamberDict keyEnumerator]) {
         NSDictionary * chamberInfoDict = m_chamberDict[chamberId];
         NSAssert(chamberInfoDict[@"state"], @"state required");
-        if ([chamberInfoDict[@"state"] isEqualToString:static_chamber_states[STATE_SPINUPPED]]) count++;
+        if ([chamberInfoDict[@"state"] isEqualToString:state]) {
+            [array addObject:chamberId];
+        }
     }
-    return count;
+    return array;
+}
+
+- (NSArray * ) spinuppingChambers {
+    return [self specificStateChambers:static_chamber_states[STATE_SPINUPPING]];
+}
+
+- (NSArray * ) spinuppedChambers {
+    return [self specificStateChambers:static_chamber_states[STATE_SPINUPPED]];
 }
 
 
@@ -103,11 +113,12 @@
             NSDictionary * poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN, nil];
             
             
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:01:37" withLimitSec:10000 withComment:@"ここでチェックしたほうがいいのかな。。ケースを洗い出そう。"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 0:04:35" withLimitSec:100000 withComment:@"ここでチェックしたほうがいいのかな。。ケースを洗い出そう。"];
             
             NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
             NSDictionary * idsAndContents = poolInfoDict[@"idsAndContents"];
             
+            // ひまそうなチャンバーを見つけて実行させる。結果が全て流れるまではチャンバーの答えは遮らない。
             NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath withContents:idsAndContents];
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
              [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
@@ -139,6 +150,8 @@
         }
             
         case S2_COMPILECHAMBER_EXEC_TICK:{
+            NSAssert(dict[@"id"], @"id required");
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 21:21:48" withLimitSec:10000 withComment:@"現在最新を走っていて、かつBANされていないchamberなら、受け取って話を聞く。現在コンパイル中のやつ一覧、のリストを作る必要があるな。"];
             
             break;
         }

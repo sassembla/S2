@@ -26,6 +26,8 @@
     CompileChamber * cChamber;
     
     NSMutableDictionary * m_chamberResponseDict;
+    
+    int m_repeatCount;
 }
 
 - (void) setUp
@@ -35,6 +37,8 @@
     cChamber = [[CompileChamber alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
     
     m_chamberResponseDict = [[NSMutableDictionary alloc]init];
+    
+    m_repeatCount = 0;
 }
 
 - (void) tearDown
@@ -70,11 +74,21 @@
     return targetStates[index];
 }
 
+- (bool) countupThenFail {
+    m_repeatCount++;
+    if (TEST_REPEAT_COUNT_2 < m_repeatCount) {
+        XCTFail(@"too long wait");
+        return true;
+    }
+    return false;
+}
 
+/**
+ 起動時にすでにスピンアップ中の筈
+ */
 - (void) testGetStatusDefaultIsSpinupping {
     XCTAssertTrue([cChamber state] == [self targetState:STATE_SPINUPPING], @"not match, %@", [cChamber state]);
 }
-
 
 /**
  開始命令が出たら、要素と一緒に現在のプールからモノを引っ張ってきてcompileに入る。
@@ -90,7 +104,6 @@
 - (void) testIgniteAndAbortThenAborted {
     
     NSDictionary * testDict = @{@"a":@"b"};
-    
     [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
     [cChamber abort];
     
@@ -109,6 +122,7 @@
     [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
     
     while ([cChamber isCompiling]) {
+        if ([self countupThenFail]) break;
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
@@ -126,6 +140,7 @@
     [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
     
     while ([cChamber isCompiling]) {
+        if ([self countupThenFail]) break;
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     

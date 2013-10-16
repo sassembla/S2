@@ -23,7 +23,6 @@
 
 #define TEST_PATH_NSWS  (@"./S2Tests/TestResource/tool/nsws")
 
-#define TEST_REPEAT_COUNT   (2)
 
 
 /**
@@ -74,7 +73,7 @@
     NSDictionary * wrappedDict = dict[@"wrappedDict"];
     
     switch ([messenger execFrom:S2_MASTER viaNotification:notif]) {
-        case S2_EXEC_PULLINGSTARTED:{
+        case S2_CONT_EXEC_PULLINGSTARTED:{
             XCTAssertNotNil(wrappedDict[@"connectionId"], @"connectionId required");
             XCTAssertNotNil(wrappedDict[@"sourcePath"], @"sourcePath required");
             
