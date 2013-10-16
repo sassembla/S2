@@ -11,7 +11,6 @@
 #define S2_CONTENTSPOOLCONT (@"S2_CONTENTSPOOLCONT")
 
 enum S2_CONTENTSPOOLCONT_EXEC {
-    S2_CONTENTSPOOLCONT_EXEC_FILL,
     S2_CONTENTSPOOLCONT_EXEC_DRAIN,
     S2_CONTENTSPOOLCONT_EXEC_PURGE,
 };
@@ -19,6 +18,9 @@ enum S2_CONTENTSPOOLCONT_EXEC {
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId;
 
+- (void) drain:(NSString * )index withContents:(NSString * )contents backTo:(NSNotification * )notif;
+
 - (void) close;
+
 
 @end

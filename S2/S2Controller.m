@@ -15,7 +15,6 @@
 #import "PullUpController.h"
 #import "CompileChamberController.h"
 
-
 #import "S2Token.h"
 
 
@@ -23,6 +22,7 @@
     int m_state;
     
     KSMessenger * messenger;
+    KSMessenger * poolMessenger;
     
     NSDictionary * paramDict;
     WebSocketConnectionOperation * serverOperation;
@@ -46,6 +46,7 @@
 
         messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:S2_MASTER];
         [messenger connectParent:masterNameAndId];
+        
         
         // serve
         serverOperation = [[WebSocketConnectionOperation alloc]initWebSocketConnectionOperationWithMaster:[messenger myNameAndMID] withAddressAndPort:paramDict[KEY_WEBSOCKETSERVER_ADDRESS]];
@@ -123,13 +124,14 @@
             }
             
             switch ([messenger execFrom:S2_PULLUPCONT viaNotification:notif]) {
-                case PULLUPCONT_PULLING:{
+                case S2_PULLUPCONT_PULLING:{
                     NSAssert(dict[@"connectionId"], @"connectionId required");
                     NSAssert(dict[@"sourcePath"], @"sourcePath required");
                     
                     NSString * sourcePath = dict[@"sourcePath"];
                     NSString * identity = dict[@"connectionId"];
                     
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 0:42:59" withLimitSec:10000 withComment:@"エミッタの成すべきコードがこの辺。ss@系の要素を、特定の種類に合わせて合成する。SQLみたいなもの。"];
                     NSString * message = [[NSString alloc]initWithFormat:@"ss@readFileData:{\"path\":\"%@\"}->(data|message)monocastMessage:{\"target\":\"S2Client\",\"message\":\"replace\",\"header\":\"-update:%@ \"}->showAtLog:{\"message\":\"pulled:%@\"}->showStatusMessage:{\"message\":\"pulled:%@\"}", sourcePath, identity, sourcePath, sourcePath];
                     
                     [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
@@ -137,6 +139,21 @@
                      nil];
                     
                     [self callToMaster:S2_CONT_EXEC_PULLINGSTARTED withMessageDict:dict];
+                    break;
+                }
+                case S2_PULLUPCONT_FROMPULL_UPDATED:{
+                    NSAssert(dict[@"path"], @"path required");
+                    NSAssert(dict[@"source"], @"source required");
+                    
+                    
+                    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
+                     [messenger tag:@"path" val:dict[@"path"]],
+                     [messenger tag:@"source" val:dict[@"source"]],
+                     nil];
+                    break;
+                }
+                case S2_PULLUPCONT_PULL_COMPLETED:{
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 0:19:30" withLimitSec:10000 withComment:@"pull完了後の通知。節目っぽい。"];
                     break;
                 }
             }
@@ -155,14 +172,14 @@
     // returnがあるかどうか、っての、頭にuuid着ければ解決しない？　っていうのはあるけど、一時認識するためにここでのexec分解は必須。
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_LISTED]) {
-        [messenger call:S2_PULLUPCONT withExec:PULLUPCONT_LISTED,
+        [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_LISTED,
          [messenger tag:@"listOfSources" val:dataStr],
          nil];
         return;
     }
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_PULLED]) {
-        [messenger call:S2_PULLUPCONT withExec:PULLUPCONT_PULLED,
+        [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_PULLED,
          [messenger tag:@"pulledSource" val:dataStr],
          nil];
         return;

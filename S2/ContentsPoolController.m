@@ -9,6 +9,8 @@
 #import "ContentsPoolController.h"
 #import "KSMessenger.h"
 
+#import "S2Token.h"
+
 #import "TimeMine.h"
 
 
@@ -16,11 +18,15 @@
     KSMessenger * messenger;
     
     NSString * m_compileBasePath;
+    NSMutableDictionary * m_contentsDict;
 }
+
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
     if (self = [super init]) {
         messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:S2_CONTENTSPOOLCONT];
         [messenger connectParent:masterNameAndId];
+        
+        m_contentsDict = [[NSMutableDictionary alloc]init];
     }
     return self;
 }
@@ -30,13 +36,11 @@
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
     switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
-        case S2_CONTENTSPOOLCONT_EXEC_FILL:{
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 0:02:17" withLimitSec:10000 withComment:@"fill要素を考える。テストが先だね。"];
-//            [self fill];
-            break;
-        }
         case S2_CONTENTSPOOLCONT_EXEC_DRAIN:{
-            [self drain:notif];
+            NSAssert(dict[@"path"], @"path required");
+            NSAssert(dict[@"source"], @"source required");
+        
+            [self drain:dict[@"path"] withContents:dict[@"source"] backTo:notif];
             break;
         }
         case S2_CONTENTSPOOLCONT_EXEC_PURGE:{
@@ -46,20 +50,26 @@
     }
 }
 
-- (void) fill {
-    
-}
 
-- (void) drain:(NSNotification * )notif {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/16 23:59:31" withLimitSec:10000 withComment:@"ファイルが存在していること、また、特定のBasePathが確定できていること、が条件"];
+- (void) drain:(NSString * )index withContents:(NSString * )contents backTo:(NSNotification * )notif {
+    if ([index hasSuffix:S2_BASEPATH_SUFFIX]) {
+        m_compileBasePath = [[NSString alloc]initWithString:index];
+    }
     
-    NSString * compileBasePath = m_compileBasePath;
-    NSDictionary * dict = [[NSDictionary alloc]init];
+    // ファイルとしてset/update
+    [m_contentsDict setValue:contents forKey:index];
     
-    [messenger callback:notif,
-     [messenger tag:@"compileBasePath" val:@"dummy"],
-     [messenger tag:@"idsAndContents" val:dict],
-     nil];
+    
+    // そのまま内容を返信 or 何もしない
+    if (m_compileBasePath) {
+        [messenger callback:notif,
+         [messenger tag:@"compileBasePath" val:m_compileBasePath],
+         [messenger tag:@"idsAndContents" val:m_contentsDict],
+         nil];
+    } else {
+        NSLog(@"basepath not yet appears in:%@", m_contentsDict);
+        return;
+    }
 }
 
 

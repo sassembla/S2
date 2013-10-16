@@ -34,7 +34,7 @@
     switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
             
         // 内容のセット
-        case PULLUPCONT_LISTED:{
+        case S2_PULLUPCONT_LISTED:{
             NSAssert(dict[@"listOfSources"], @"listOfSources required");
             
             
@@ -53,7 +53,7 @@
             break;
         }
             
-        case PULLUPCONT_PULLED:{
+        case S2_PULLUPCONT_PULLED:{
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 0:59:19" withLimitSec:0 withComment:@"pullしたのが帰ってきたとこ、作ってない。"];
 //            [self pulled:<#(NSString *)#> filePath:<#(NSString *)#> source:<#(NSString *)#>]
             break;
@@ -81,7 +81,7 @@
         
         [m_pullingIdList addObject:pullingId];
         
-        [messenger callParent:PULLUPCONT_PULLING,
+        [messenger callParent:S2_PULLUPCONT_PULLING,
          [messenger tag:@"sourcePath" val:pullingPath],
          [messenger tag:@"connectionId" val:pullingId],
          nil];
@@ -103,14 +103,14 @@
     [m_pullingIdList removeObject:pullingId];
     
     
-    [messenger callParent:PULLUPCONT_FROMPULL_UPDATED,
+    [messenger callParent:S2_PULLUPCONT_FROMPULL_UPDATED,
      [messenger tag:@"path" val:path],
      [messenger tag:@"source" val:source],
      nil];
     
     // pull完了通知、compilableになる筈。
     if ([self isCompleted]) {
-        [messenger callParent:PULLUPCONT_PULL_COMPLETED,
+        [messenger callParent:S2_PULLUPCONT_PULL_COMPLETED,
          nil];
     }
 }

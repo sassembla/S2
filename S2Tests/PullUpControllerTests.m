@@ -46,7 +46,7 @@
 
 - (void) receiver:(NSNotification * )notif {
     switch ([messenger execFrom:S2_PULLUPCONT viaNotification:notif]) {
-        case PULLUPCONT_PULLING:{
+        case S2_PULLUPCONT_PULLING:{
             
             break;
         }

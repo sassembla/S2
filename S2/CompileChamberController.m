@@ -110,7 +110,10 @@
         case S2_COMPILECHAMBERCONT_EXEC_INPUT:{
             // インプットがあったので、プール上のコードを編集、編集完了と同時に暇なchamberへとGoを出す。
             
-            NSDictionary * poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN, nil];
+            NSDictionary * poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN,
+                                           [messenger tag:@"path" val:dict[@"path"]],
+                                           [messenger tag:@"source" val:dict[@"source"]],
+                                           nil];
             
             
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 0:04:35" withLimitSec:100000 withComment:@"ここでチェックしたほうがいいのかな。。ケースを洗い出そう。"];

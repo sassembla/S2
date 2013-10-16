@@ -52,8 +52,8 @@
  */
 
 
-- (void) testSomething {
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+- (void) testFillContents {
+    
 }
 
 @end
