@@ -25,7 +25,12 @@
     NSString * m_state;
     
     BOOL m_compiling;
+    
+    
 }
+
+__weak typeof(CompileChamber * ) weakSelf;
+
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
     if (self = [super init]) {
@@ -40,6 +45,8 @@
         [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUP, nil];
         
         m_compiling = false;
+        
+        weakSelf = self;
     }
     return self;
 }
@@ -157,11 +164,11 @@
     [m_compileTask setStandardOutput:currentOut];
     [m_compileTask setTerminationHandler:^(NSTask * task) {
         [TimeMine setTimeMineLocalizedFormat:@"2013/10/14 0:52:26" withLimitSec:1000000 withComment:@"killされ時にすることがあれば。むしろここに来ない事の方が重要っぽい。"];
-        m_compiling = false;
+        weakSelf.m_compiling = false;
     }];
     
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:01:57" withLimitSec:10000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 13:24:03" withLimitSec:100000 withComment:@"currentOut の受けと、直上のマスターへの返答をしないといけないが、どうすれば良いかなー。tailを調べる"];
     
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:02:26" withLimitSec:100000 withComment:@"無視方法は、コントローラ側でcurrentでなければ無視する、みたいなので良い"];
     

@@ -103,7 +103,7 @@
             NSDictionary * poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN, nil];
             
             
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 9:01:37" withLimitSec:10000 withComment:@"ここでチェックしたほうがいいのかな。。ケースを洗い出そう。"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 13:23:25" withLimitSec:100000 withComment:@"ここでチェックしたほうがいいのかな。。ケースを洗い出そう。"];
             
             NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
             NSDictionary * idsAndContents = poolInfoDict[@"idsAndContents"];
