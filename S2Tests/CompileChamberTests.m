@@ -83,6 +83,15 @@
     return false;
 }
 
+- (bool) countupLongThenFail {
+    m_repeatCount++;
+    if (TEST_REPEAT_COUNT_5 < m_repeatCount) {
+        XCTFail(@"too long wait");
+        return true;
+    }
+    return false;
+}
+
 - (NSMutableDictionary * ) readSource:(NSString * )filePath withBaseDict:(NSDictionary * )base {
     NSFileHandle * readHandle = [NSFileHandle fileHandleForReadingAtPath:filePath];
     
@@ -134,16 +143,16 @@
  */
 - (void) testIgniteAndAbortThenCompiledPerfectly {
     
-    NSString * contents1 = @"";
-    NSString * contents2 = @"";
+    NSMutableDictionary * testDict_1 = [self readSource:TEST_SCALA_1 withBaseDict:nil];
+    NSMutableDictionary * withTestDict_2 = [self readSource:TEST_SCALA_2 withBaseDict:testDict_1];
+    NSMutableDictionary * withCompileBasePathContents = [self readSource:TEST_COMPILEBASEPATH withBaseDict:withTestDict_2];
     
-    NSDictionary * testDict = @{TEST_SCALA_1:contents1,
-                                TEST_SCALA_2:contents2};
+    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:withCompileBasePathContents];
     
-    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     
     while ([cChamber isCompiling]) {
-        if ([self countupThenFail]) break;
+        if ([self countupLongThenFail]) break;
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     

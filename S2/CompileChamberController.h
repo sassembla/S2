@@ -29,6 +29,7 @@ enum S2_COMPILECHAMBERCONT_EXEC {
 
 - (NSArray * ) spinuppingChambers;
 - (NSArray * ) spinuppedChambers;
+- (NSArray * ) ignitingChambers;
 
 - (void) changeChamberStatus:(NSString * )chamberId to:(NSString * )state;
 - (NSString * ) igniteIdleChamber:(NSString * )compileBasePath withContents:(NSDictionary * )idsAndContents;

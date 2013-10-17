@@ -7,6 +7,9 @@
 //
 #define TEST_REPEAT_COUNT   (2)
 #define TEST_REPEAT_COUNT_2 (4)
+#define TEST_REPEAT_COUNT_3 (8)
+#define TEST_REPEAT_COUNT_4 (16)
+#define TEST_REPEAT_COUNT_5 (32)
 
 #define TEST_BASE_PATH  (@"./S2Tests/TestResource/")
 

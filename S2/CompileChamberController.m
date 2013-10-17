@@ -96,6 +96,9 @@
     return [self specificStateChambers:static_chamber_states[STATE_SPINUPPED]];
 }
 
+- (NSArray * ) ignitingChambers {
+    return [self specificStateChambers:static_chamber_states[STATE_COMPILING]];
+}
 
 
 
@@ -140,15 +143,21 @@
             break;
         }
         
+        case S2_COMPILECHAMBER_EXEC_IGNITED:{
+            NSAssert(dict[@"id"], @"id required");
+            [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_COMPILING]];
+            
+            break;
+        }
             
         case S2_COMPILECHAMBER_EXEC_COMPILED:{
             NSAssert(dict[@"id"], @"id required");
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"スピンアップを行う"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"コンパイル後の処理"];
             break;
         }
         case S2_COMPILECHAMBER_EXEC_ABORTED:{
             NSAssert(dict[@"id"], @"id required");
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"スピンアップを行う2"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"abort後の処理"];
             break;
         }
             

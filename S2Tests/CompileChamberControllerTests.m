@@ -96,6 +96,8 @@
 
 
 
+
+
 /**
  スピンアップ中のchamberのid集を返す
  */
@@ -133,7 +135,7 @@
     }
     
     // データの受け口へとコードを送る。
-    // ファイル名と内容
+    // コンパイル可能なファイル名と内容
     NSString * fileName = TEST_COMPILEBASEPATH;
     NSString * contents = @"test source code content";
     
@@ -143,8 +145,11 @@
      [messenger tag:@"source" val:contents],
      nil];
     
+    // 連続投入ケースではないので一つだけが着火している筈だが、リアルタイムで動作が進んでいるので取得は無理
+//    NSArray * ignitingChambers = [cChambCont ignitingChamber];
+//    XCTAssertTrue([ignitingChambers count] == 1, @"not match, %d", se);
     
-    // 装填完了、ビルド開始、までを発行すればいいか。
+    // 装填完了、m_chamberResponseArrayにignitedChamberIdが　ひとつ　入る
     XCTAssertTrue([m_chamberResponseArray count] == 1, @"not match, %lu", (unsigned long)[m_chamberResponseArray count]);
 }
 

@@ -124,18 +124,21 @@
  */
 - (void) ignite:(NSString * )compileBasePath withCodes:(NSDictionary * )idsAndContents {
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 1:28:56" withLimitSec:10000 withComment:@"試験実装として、一カ所にフォルダをつくり、ファイルを吐き出す。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 7:55:46" withLimitSec:10000 withComment:@"試験実装として、一カ所にフォルダをつくり、ファイルを吐き出す。吐き出し先はべつにここで設定しないでも良い筈。プールが吐き出しててもいい。それが終わってから処理が走る、とか。"];
     
+    NSString * targetPath = @"/Users/highvision/1_36_38/";
     
-    [self generateFiles:idsAndContents];
+    [self generateFiles:idsAndContents to:targetPath];
+    
+    NSString * refinedCompileBasePath = @"S2Tests/TestResource/sampleProject/build.gradle";
 
-    
+    NSString * placeBasePathWithGradlePath = [[NSString alloc] initWithFormat:@"%@%@", targetPath, refinedCompileBasePath];
     
     
     m_compileTask = [[MFTask alloc] init];
     [m_compileTask setDelegate:self];
     
-    NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
+    NSArray * currentParams = @[@"--daemon", @"-b", placeBasePathWithGradlePath, @"build", @"-i"];
     
     [m_compileTask setLaunchPath:@"/usr/local/bin/gradle"];
     [m_compileTask setArguments:currentParams];
@@ -143,8 +146,6 @@
     
     // compile start
     [m_compileTask launch];
-    
-    // ファイルハンドラを作ってそこから読む、みたいな処理があったよねー確か。あれはなんだったか。EnteringOrbitだ
     
     m_state = statesArray[STATE_COMPILING];
     
@@ -172,7 +173,7 @@
 
 - (void) taskDidRecieveData:(NSData * ) theData fromTask:(MFTask * )task {
     NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
-    
+    NSLog(@"message %@", message);
     [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
      [messenger tag:@"id" val:m_chamberId],
      [messenger tag:@"message" val:message],
@@ -181,9 +182,13 @@
 - (void) taskDidRecieveErrorData:(NSData * ) theData fromTask:(MFTask * )task {
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 1:26:03" withLimitSec:10000 withComment:@"いつ出るか解らないデータ"];
 }
-- (void) taskDidTerminate:(MFTask * ) theTask {}
+- (void) taskDidTerminate:(MFTask * ) theTask {
+    NSLog(@"DONE");
+}
 - (void) taskDidRecieveInvalidate:(MFTask * ) theTask {}
-- (void) taskDidLaunch:(MFTask * ) theTask {}
+- (void) taskDidLaunch:(MFTask * ) theTask {
+    NSLog(@"STARTED");
+}
 
 - (void) close {
     [messenger closeConnection];
@@ -199,18 +204,18 @@
 /**
  ファイル作成(メモリ上のものを使う場合は不要)
  */
-- (void) generateFiles:(NSDictionary * )pathAndSources {
-    NSString * currentBuildPath = @"/Users/highvision/1_36_38/";
+- (void) generateFiles:(NSDictionary * )pathAndSources to:(NSString * )generateTargetPath {
     
     NSError * error;
     NSFileManager * fMan = [[NSFileManager alloc]init];
-    [fMan createDirectoryAtPath:currentBuildPath withIntermediateDirectories:YES attributes:nil error:&error];
+    [fMan createDirectoryAtPath:generateTargetPath withIntermediateDirectories:YES attributes:nil error:&error];
     
     //ファイル出力
-    NSString * targetPath;
     for (NSString * path in [pathAndSources allKeys]) {
+        NSString * targetPath;
+        
         //フォルダ生成
-        targetPath = [NSString stringWithFormat:@"%@%@", currentBuildPath, path];
+        targetPath = [NSString stringWithFormat:@"%@%@", generateTargetPath, path];
         [fMan createDirectoryAtPath:[targetPath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error];
         
         //ファイル生成
