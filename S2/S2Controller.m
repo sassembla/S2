@@ -131,7 +131,7 @@
                     NSString * sourcePath = dict[@"sourcePath"];
                     NSString * identity = dict[@"connectionId"];
                     
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 8:46:56" withLimitSec:10000 withComment:@"エミッタの成すべきコードがこの辺。ss@系の要素を、特定の種類に合わせて合成する。SQLみたいなもの。"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 19:13:58" withLimitSec:10000 withComment:@"エミッタの成すべきコードがこの辺。ss@系の要素を、特定の種類に合わせて合成する。SQLみたいなもの。"];
                     NSString * message = [[NSString alloc]initWithFormat:@"ss@readFileData:{\"path\":\"%@\"}->(data|message)monocastMessage:{\"target\":\"S2Client\",\"message\":\"replace\",\"header\":\"-update:%@ \"}->showAtLog:{\"message\":\"pulled:%@\"}->showStatusMessage:{\"message\":\"pulled:%@\"}", sourcePath, identity, sourcePath, sourcePath];
                     
                     [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,

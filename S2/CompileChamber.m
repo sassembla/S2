@@ -23,8 +23,6 @@
     MFTask * m_compileTask;
     
     NSString * m_state;
-    
-    NSArray * m_keywords;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
@@ -38,9 +36,6 @@
         m_chamberId = [[NSString alloc]initWithFormat:@"chamber_%@", [KSMessenger generateMID]];
         
         [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUP, nil];
-        m_keywords = S2_COMPILER_KEYWORDS;
-        
-        
     }
     return self;
 }
@@ -51,6 +46,7 @@
     switch ([messenger execFrom:[messenger myName] viaNotification:notif]) {
         case S2_COMPILECHAMBER_EXEC_SPINUP:{
             m_state = statesArray[STATE_SPINUPPING];
+            
             // 非同期でspinupを行う
             [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUP_WITH_ASYNC,
              [messenger tag:@"identity" val:[messenger myMID]],
@@ -113,9 +109,11 @@
     
     m_state = statesArray[STATE_SPINUPPED];
 
-    [messenger callParent:S2_COMPILECHAMBER_EXEC_SPINUPPED,
-     [messenger tag:@"id" val:m_chamberId],
-     nil];
+    if ([messenger hasParent]) {
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_SPINUPPED,
+         [messenger tag:@"id" val:m_chamberId],
+         nil];
+    }
 }
 
 
@@ -124,7 +122,7 @@
  */
 - (void) ignite:(NSString * )compileBasePath withCodes:(NSDictionary * )idsAndContents {
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 7:55:46" withLimitSec:10000 withComment:@"試験実装として、一カ所にフォルダをつくり、ファイルを吐き出す。吐き出し先はべつにここで設定しないでも良い筈。プールが吐き出しててもいい。それが終わってから処理が走る、とか。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 19:14:11" withLimitSec:10000 withComment:@"試験実装として、一カ所にフォルダをつくり、ファイルを吐き出す。吐き出し先はべつにここで設定しないでも良い筈。プールが吐き出しててもいい。それが終わってから処理が走る、とか。"];
     
     NSString * targetPath = @"/Users/highvision/1_36_38/";
     
@@ -146,16 +144,10 @@
     
     // compile start
     [m_compileTask launch];
-    
-    m_state = statesArray[STATE_COMPILING];
-    
-    [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
-     [messenger tag:@"id" val:m_chamberId],
-     nil];
 }
 
 - (BOOL) isCompiling {
-    return [m_compileTask isRunning];
+    return m_state == statesArray[STATE_COMPILING];
 }
 
 
@@ -171,23 +163,49 @@
 }
 
 
+/**
+ マスターへと経過を送付する
+ */
 - (void) taskDidRecieveData:(NSData * ) theData fromTask:(MFTask * )task {
     NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
-    NSLog(@"message %@", message);
-    [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-     [messenger tag:@"id" val:m_chamberId],
-     [messenger tag:@"message" val:message],
-     nil];
+    if ([messenger hasParent]) {
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+         [messenger tag:@"id" val:m_chamberId],
+         [messenger tag:@"message" val:message],
+         nil];
+    }
 }
+
 - (void) taskDidRecieveErrorData:(NSData * ) theData fromTask:(MFTask * )task {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 1:26:03" withLimitSec:10000 withComment:@"いつ出るか解らないデータ"];
+    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
+    if ([messenger hasParent]) {
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+         [messenger tag:@"id" val:m_chamberId],
+         [messenger tag:@"message" val:message],
+         nil];
+    }
 }
+
 - (void) taskDidTerminate:(MFTask * ) theTask {
-    NSLog(@"DONE");
+    m_state = statesArray[STATE_COMPILED];
+    
+    if ([messenger hasParent]) {
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+         [messenger tag:@"id" val:m_chamberId],
+         nil];
+    }
 }
+
 - (void) taskDidRecieveInvalidate:(MFTask * ) theTask {}
+
 - (void) taskDidLaunch:(MFTask * ) theTask {
-    NSLog(@"STARTED");
+    m_state = statesArray[STATE_COMPILING];
+    
+    if ([messenger hasParent]) {
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
+         [messenger tag:@"id" val:m_chamberId],
+         nil];
+    }
 }
 
 - (void) close {

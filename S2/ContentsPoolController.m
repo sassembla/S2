@@ -19,6 +19,8 @@
     
     NSString * m_compileBasePath;
     NSMutableDictionary * m_contentsDict;
+    
+    NSString * m_placePath;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
@@ -39,8 +41,10 @@
         case S2_CONTENTSPOOLCONT_EXEC_DRAIN:{
             NSAssert(dict[@"path"], @"path required");
             NSAssert(dict[@"source"], @"source required");
-        
-            [self drain:dict[@"path"] withContents:dict[@"source"] backTo:notif];
+
+            [self pool:dict[@"path"] withContents:dict[@"source"]];
+            [self filtering:dict[@"path"] withContents:dict[@"source"] backTo:notif];
+            
             break;
         }
         case S2_CONTENTSPOOLCONT_EXEC_PURGE:{
@@ -51,7 +55,13 @@
 }
 
 
-- (void) drain:(NSString * )index withContents:(NSString * )contents backTo:(NSNotification * )notif {
+- (NSString * ) pool:(NSString * )path withContents:(NSString * )contents {
+    // file outputを行う
+    return m_placePath;
+}
+
+
+- (void) filtering:(NSString * )index withContents:(NSString * )contents backTo:(NSNotification * )notif {
     if ([index hasSuffix:S2_BASEPATH_SUFFIX]) {
         m_compileBasePath = [[NSString alloc]initWithString:index];
     }

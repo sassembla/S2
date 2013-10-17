@@ -26,8 +26,10 @@
     CompileChamber * cChamber;
     
     NSMutableDictionary * m_chamberResponseDict;
-    
+    NSArray * m_stateArray;
     int m_repeatCount;
+    
+    NSArray * execArray;
 }
 
 - (void) setUp
@@ -37,8 +39,18 @@
     cChamber = [[CompileChamber alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
     
     m_chamberResponseDict = [[NSMutableDictionary alloc]init];
-    
     m_repeatCount = 0;
+    
+    execArray = @[@"SPINUP",
+                @"SPINUP_WITH_ASYNC",
+                @"SPINUPPED",
+                @"IGNITE",
+                @"IGNITED",
+                @"COMPILED",
+                @"ABORTED",
+                @"TICK",
+                @"PURGE"];
+    
 }
 
 - (void) tearDown
@@ -56,19 +68,46 @@
     
     switch ([messenger execFrom:S2_COMPILECHAMBER viaNotification:notif]) {
         case S2_COMPILECHAMBER_EXEC_IGNITED:{
+            NSLog(@"ignited, %@", dict[@"id"]);
+            
+            [self update:dict[@"id"] to:S2_COMPILECHAMBER_EXEC_IGNITED];
             break;
         }
         case S2_COMPILECHAMBER_EXEC_ABORTED:{
+            NSLog(@"aborted, %@", dict[@"id"]);
+            [self update:dict[@"id"] to:S2_COMPILECHAMBER_EXEC_ABORTED];
+            break;
+        }
+        case S2_COMPILECHAMBER_EXEC_TICK:{
+            NSLog(@"tick, %@", dict[@"id"]);
+            [self update:dict[@"id"] to:S2_COMPILECHAMBER_EXEC_TICK];
             break;
         }
             
+        case S2_COMPILECHAMBER_EXEC_COMPILED:{
+            NSLog(@"compiled, %@", dict[@"id"]);
+            [self update:dict[@"id"] to:S2_COMPILECHAMBER_EXEC_COMPILED];
+            break;
+        }
         default:
             break;
     }
 }
 
 
+
+
 // util
+- (void) update:(NSString * )chamberId to:(int)index {
+    NSMutableArray * array = [m_chamberResponseDict valueForKey:chamberId];
+    if (array) {} else array = [[NSMutableArray alloc]init];
+    
+    
+    
+    [array addObject:execArray[index]];
+    [m_chamberResponseDict setObject:array forKey:chamberId];
+}
+
 - (NSString * )targetState:(int)index {
     NSArray * targetStates = STATE_STR_ARRAY;
     return targetStates[index];
@@ -129,7 +168,7 @@
     XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILING], @"not match, %@", [cChamber state]);
 }
 
-- (void) testIgniteAndAbortThenAborted {
+- (void) testIgniteAndAbortThenAbortedThenSpinupping {
     
     NSDictionary * testDict = @{@"a":@"b"};
     [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
@@ -149,40 +188,39 @@
     
     [cChamber ignite:TEST_COMPILEBASEPATH withCodes:withCompileBasePathContents];
     
-    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    
-    while ([cChamber isCompiling]) {
-        if ([self countupLongThenFail]) break;
-        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    while (![m_chamberResponseDict[[cChamber chamberId]] containsObject:execArray[S2_COMPILECHAMBER_EXEC_COMPILED]]) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too late");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
     XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILED], @"not match, %@", [cChamber state]);
 }
 
 /**
- 不十分なコンテンツを渡して、コンパイル成功しない
+ 不十分なコンテンツを渡して、コンパイル失敗で終了する。
  */
 - (void) testIgniteAndAbortThenCompileFailure {
     
-    NSString * contents = @"";
-    NSDictionary * testDict = @{TEST_SCALA_1:contents};
+    NSDictionary * testDict = @{TEST_SCALA_1:@"", TEST_COMPILEBASEPATH:@""};
     
     [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
     
-    while ([cChamber isCompiling]) {
+    while (![m_chamberResponseDict[[cChamber chamberId]] containsObject:execArray[S2_COMPILECHAMBER_EXEC_COMPILED]]) {
         if ([self countupThenFail]) {
             XCTFail(@"too late");
             break;
         }
-        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    
-    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILE_FAILED], @"not match, %@", [cChamber state]);
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILED], @"not match, %@", [cChamber state]);
 }
 
 /**
- 十分なコンテンツを渡して、abort
+ 十分なコンテンツを渡して、コンパイルをabortする
  */
 - (void) testIgniteAndAbortThenCompileAbort {
     
@@ -194,7 +232,7 @@
     
     [cChamber abort];
     
-    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILE_ABORTED], @"not match, %@", [cChamber state]);
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_ABORTED], @"not match, %@", [cChamber state]);
 }
 
 
