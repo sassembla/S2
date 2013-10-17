@@ -119,12 +119,12 @@
                                            [messenger tag:@"source" val:dict[@"source"]],
                                            nil];
             
+            // ignition
             if (poolInfoDict) {
                 NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
-                NSDictionary * idsAndContents = poolInfoDict[@"idsAndContents"];
                 
-                // ひまそうなチャンバーを見つけて実行させる。結果が全て流れるまではチャンバーの答えは遮らない。
-                NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath withContents:idsAndContents];
+                NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath];
+                
                 [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
                  [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
                  nil];
@@ -146,7 +146,6 @@
         case S2_COMPILECHAMBER_EXEC_IGNITED:{
             NSAssert(dict[@"id"], @"id required");
             [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_COMPILING]];
-            
             break;
         }
             
@@ -163,6 +162,17 @@
             
         case S2_COMPILECHAMBER_EXEC_TICK:{
             NSAssert(dict[@"id"], @"id required");
+            NSAssert(dict[@"message"], @"message required");
+            
+            /*
+             こいつだけが、今送ってきたchamberが最新かどうか、というのを知っている。
+             で、とりあえず両方通そう。
+             */
+            
+            
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
+             [messenger tag:@"message" val:dict[@"message"]],
+             nil];
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 21:21:48" withLimitSec:10000 withComment:@"現在最新を走っていて、かつBANされていないchamberなら、受け取って話を聞く。現在コンパイル中のやつ一覧、のリストを作る必要があるな。"];
             
             break;
@@ -181,7 +191,7 @@
     [m_chamberDict setValue:updatedChamberInfoDict forKey:chamberId];
 }
 
-- (NSString * ) igniteIdleChamber:(NSString * )compileBasePath withContents:(NSDictionary * )idsAndContents {
+- (NSString * ) igniteIdleChamber:(NSString * )compileBasePath {
     NSString * ignitedChamberId = nil;
     
     for (NSString * chamberId in [m_chamberDict keyEnumerator]) {
@@ -194,7 +204,6 @@
             [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_IGNITE,
              [messenger tag:@"id" val:chamberId],
              [messenger tag:@"compileBasePath" val:compileBasePath],
-             [messenger tag:@"idsAndContents" val:idsAndContents],
              nil];
             break;
         }

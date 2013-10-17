@@ -85,6 +85,7 @@
 }
 
 
+// util
 - (bool) countupThenFail {
     m_repeatCount++;
     if (TEST_REPEAT_COUNT < m_repeatCount) {
@@ -94,7 +95,20 @@
     return false;
 }
 
-
+/**
+ stringをファイルから読み出す。
+ */
+- (NSString * ) readSource:(NSString * )filePath {
+    NSFileHandle * readHandle = [NSFileHandle fileHandleForReadingAtPath:filePath];
+    
+    if (readHandle) {
+        NSData * data = [readHandle readDataToEndOfFile];
+        NSString * fileContentsStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        return fileContentsStr;
+    }
+    
+    return nil;
+}
 
 
 
@@ -136,13 +150,9 @@
     
     // データの受け口へとコードを送る。
     // コンパイル可能なファイル名と内容
-    NSString * fileName = TEST_COMPILEBASEPATH;
-    NSString * contents = @"test source code content";
-    
-    
     [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
-     [messenger tag:@"path" val:fileName],
-     [messenger tag:@"source" val:contents],
+     [messenger tag:@"path" val:TEST_COMPILEBASEPATH],
+     [messenger tag:@"source" val:[self readSource:TEST_COMPILEBASEPATH]],
      nil];
     
     // 装填完了、m_chamberResponseArrayにignitedChamberIdが　ひとつ　入る
@@ -151,7 +161,26 @@
 
 
 - (void) testChambersStatus_1of2_Working {
+    [cChambCont readyChamber:TEST_CHAMBER_NUM_2];
     
+    
+    // wait for spinup
+    while ([[cChambCont spinuppedChambers] count] < TEST_CHAMBER_NUM_2) {
+        if ([self countupThenFail]) return;
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    }
+    
+    // データの受け口へとコードを送る。
+    // コンパイル可能なファイル名と内容になる、はず。プールからわたってくるリソースを変更しよう。
+    
+    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
+     [messenger tag:@"path" val:TEST_COMPILEBASEPATH],
+     [messenger tag:@"source" val:[self readSource:TEST_COMPILEBASEPATH]],
+     nil];
+    
+    // コンパイル完了まで待つ
+    XCTFail(@"fail!!　プールでジェネレートして、chamberではパスだけを引っ張る。パスさえあれば、動かせる　はず　だし。");
+
 }
 
 /*

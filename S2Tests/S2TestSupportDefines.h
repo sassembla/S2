@@ -29,3 +29,5 @@
 ///Users/highvision/Desktop/S2/S2Tests/TestResource/sampleProject/src/test/scala/MyTest.scala
 
 
+
+#define TEST_TEMPPROJECT_OUTPUT_PATH ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"tempProject/"])

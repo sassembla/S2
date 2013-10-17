@@ -43,7 +43,7 @@
             NSAssert(dict[@"source"], @"source required");
 
             [self pool:dict[@"path"] withContents:dict[@"source"]];
-            [self filtering:dict[@"path"] withContents:dict[@"source"] backTo:notif];
+            [self drain:dict[@"path"] withContents:dict[@"source"] backTo:notif];
             
             break;
         }
@@ -55,32 +55,67 @@
 }
 
 
-- (NSString * ) pool:(NSString * )path withContents:(NSString * )contents {
+- (void) pool:(NSString * )path withContents:(NSString * )contents {
     // file outputを行う
-    return m_placePath;
 }
 
 
-- (void) filtering:(NSString * )index withContents:(NSString * )contents backTo:(NSNotification * )notif {
+- (void) drain:(NSString * )index withContents:(NSString * )contents backTo:(NSNotification * )notif {
     if ([index hasSuffix:S2_BASEPATH_SUFFIX]) {
         m_compileBasePath = [[NSString alloc]initWithString:index];
     }
     
-    // ファイルとしてset/update
+    // dictionaryとしてset/update
     [m_contentsDict setValue:contents forKey:index];
+    
+    
+    // 特定箇所にgenerate
+    [self generateFiles:@{index:contents} to:@"/Users/highvision/1_36_38"];
     
     
     // そのまま内容を返信 or 何もしない
     if (m_compileBasePath) {
         [messenger callback:notif,
          [messenger tag:@"compileBasePath" val:m_compileBasePath],
-         [messenger tag:@"idsAndContents" val:m_contentsDict],
          nil];
     } else {
         NSLog(@"basepath not yet appears in:%@", m_contentsDict);
         return;
     }
 }
+
+
+/**
+ ファイル作成(メモリ上のものを使う場合は不要)
+ */
+- (void) generateFiles:(NSDictionary * )pathAndSources to:(NSString * )generateTargetPath {
+    
+    NSError * error;
+    NSFileManager * fMan = [[NSFileManager alloc]init];
+    [fMan createDirectoryAtPath:generateTargetPath withIntermediateDirectories:YES attributes:nil error:&error];
+    
+    //ファイル出力
+    for (NSString * path in [pathAndSources allKeys]) {
+        NSString * targetPath;
+        
+        //フォルダ生成
+        targetPath = [NSString stringWithFormat:@"%@%@", generateTargetPath, path];
+        [fMan createDirectoryAtPath:[targetPath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error];
+        
+        //ファイル生成
+        bool result = [fMan createFileAtPath:targetPath contents:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
+        
+        if (result) {
+            NSLog(@"generated:%@", targetPath);
+        } else {
+            NSLog(@"fail to generate:%@", targetPath);
+        }
+        
+        NSFileHandle * writeHandle = [NSFileHandle fileHandleForUpdatingAtPath:targetPath];
+        [writeHandle writeData:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding]];
+    }
+}
+
 
 
 - (void) close {

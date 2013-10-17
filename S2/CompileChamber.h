@@ -50,7 +50,7 @@ enum STATE {
 
 - (BOOL) isCompiling;
 
-- (void) ignite:(NSString * )compileBasePath withCodes:(NSDictionary * )idsAndContents;
+- (void) ignite:(NSString * )compileBasePath;
 - (void) abort;
 
 

@@ -18,6 +18,7 @@ enum S2_COMPILECHAMBERCONT_EXEC {
     S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
     S2_COMPILECHAMBERCONT_EXEC_CHAMBER_ABORTED,
     
+    S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
 };
 
 
@@ -32,8 +33,7 @@ enum S2_COMPILECHAMBERCONT_EXEC {
 - (NSArray * ) ignitingChambers;
 
 - (void) changeChamberStatus:(NSString * )chamberId to:(NSString * )state;
-- (NSString * ) igniteIdleChamber:(NSString * )compileBasePath withContents:(NSDictionary * )idsAndContents;
-
+- (NSString * ) igniteIdleChamber:(NSString * )compileBasePath;
 - (void) close;
 
 @end

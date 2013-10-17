@@ -76,9 +76,8 @@
         }
         case S2_COMPILECHAMBER_EXEC_IGNITE:{
             NSAssert(dict[@"compileBasePath"], @"compileBasePath required");
-            NSAssert(dict[@"idsAndContents"], @"idsAndContents required");
             
-            [self ignite:dict[@"compileBasePath"] withCodes:dict[@"idsAndContents"]];
+            [self ignite:dict[@"compileBasePath"]];
             break;
         }
         case S2_COMPILECHAMBER_EXEC_PURGE:{
@@ -120,23 +119,12 @@
 /**
  着火
  */
-- (void) ignite:(NSString * )compileBasePath withCodes:(NSDictionary * )idsAndContents {
-    
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 19:14:11" withLimitSec:10000 withComment:@"試験実装として、一カ所にフォルダをつくり、ファイルを吐き出す。吐き出し先はべつにここで設定しないでも良い筈。プールが吐き出しててもいい。それが終わってから処理が走る、とか。"];
-    
-    NSString * targetPath = @"/Users/highvision/1_36_38/";
-    
-    [self generateFiles:idsAndContents to:targetPath];
-    
-    NSString * refinedCompileBasePath = @"S2Tests/TestResource/sampleProject/build.gradle";
-
-    NSString * placeBasePathWithGradlePath = [[NSString alloc] initWithFormat:@"%@%@", targetPath, refinedCompileBasePath];
-    
+- (void) ignite:(NSString * )compileBasePath {
     
     m_compileTask = [[MFTask alloc] init];
     [m_compileTask setDelegate:self];
     
-    NSArray * currentParams = @[@"--daemon", @"-b", placeBasePathWithGradlePath, @"build", @"-i"];
+    NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
     
     [m_compileTask setLaunchPath:@"/usr/local/bin/gradle"];
     [m_compileTask setArguments:currentParams];
@@ -219,36 +207,6 @@
 
 
 
-/**
- ファイル作成(メモリ上のものを使う場合は不要)
- */
-- (void) generateFiles:(NSDictionary * )pathAndSources to:(NSString * )generateTargetPath {
-    
-    NSError * error;
-    NSFileManager * fMan = [[NSFileManager alloc]init];
-    [fMan createDirectoryAtPath:generateTargetPath withIntermediateDirectories:YES attributes:nil error:&error];
-    
-    //ファイル出力
-    for (NSString * path in [pathAndSources allKeys]) {
-        NSString * targetPath;
-        
-        //フォルダ生成
-        targetPath = [NSString stringWithFormat:@"%@%@", generateTargetPath, path];
-        [fMan createDirectoryAtPath:[targetPath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error];
-        
-        //ファイル生成
-        bool result = [fMan createFileAtPath:targetPath contents:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
-        
-        if (result) {
-            NSLog(@"generated:%@", targetPath);
-        } else {
-            NSLog(@"fail to generate:%@", targetPath);
-        }
-        
-        NSFileHandle * writeHandle = [NSFileHandle fileHandleForUpdatingAtPath:targetPath];
-        [writeHandle writeData:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding]];
-    }
-}
 
 
 

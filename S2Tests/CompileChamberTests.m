@@ -102,8 +102,6 @@
     NSMutableArray * array = [m_chamberResponseDict valueForKey:chamberId];
     if (array) {} else array = [[NSMutableArray alloc]init];
     
-    
-    
     [array addObject:execArray[index]];
     [m_chamberResponseDict setObject:array forKey:chamberId];
 }
@@ -131,20 +129,52 @@
     return false;
 }
 
-- (NSMutableDictionary * ) readSource:(NSString * )filePath withBaseDict:(NSDictionary * )base {
+- (NSString * ) readSource:(NSString * )filePath {
     NSFileHandle * readHandle = [NSFileHandle fileHandleForReadingAtPath:filePath];
     
     if (readHandle) {
         NSData * data = [readHandle readDataToEndOfFile];
-        NSString * fileContentsStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
-        
-        NSMutableDictionary * newBaseDict = [[NSMutableDictionary alloc]initWithDictionary:base];
-        [newBaseDict setValue:fileContentsStr forKey:filePath];
-        
-        return newBaseDict;
+        return [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
     }
     
     return nil;
+}
+
+/**
+ ファイル作成(メモリ上のものを使う場合は不要)
+ */
+- (void) generateFiles:(NSDictionary * )pathAndSources to:(NSString * )generateTargetPath {
+    
+    NSError * error;
+    NSFileManager * fMan = [[NSFileManager alloc]init];
+    [fMan createDirectoryAtPath:generateTargetPath withIntermediateDirectories:YES attributes:nil error:&error];
+    
+    //ファイル出力
+    for (NSString * path in [pathAndSources allKeys]) {
+        NSString * targetPath;
+        
+        //フォルダ生成
+        targetPath = [NSString stringWithFormat:@"%@%@", generateTargetPath, path];
+        [fMan createDirectoryAtPath:[targetPath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error];
+        
+        //ファイル生成
+        bool result = [fMan createFileAtPath:targetPath contents:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
+        
+        if (result) {
+            NSLog(@"generated:%@", targetPath);
+        } else {
+            NSLog(@"fail to generate:%@", targetPath);
+        }
+        
+        NSFileHandle * writeHandle = [NSFileHandle fileHandleForUpdatingAtPath:targetPath];
+        [writeHandle writeData:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding]];
+    }
+}
+
+- (void) deleteFiles:(NSString * )deleteTargetPath {
+    NSError * error;
+    NSFileManager * fMan = [[NSFileManager alloc]init];
+    [fMan removeItemAtPath:deleteTargetPath error:&error];
 }
 
 
@@ -161,32 +191,39 @@
  開始命令が出たら、要素と一緒に現在のプールからモノを引っ張ってきてcompileに入る。
  */
 - (void) testIgniteThenStart {
-    NSDictionary * testDict = @{@"a":@"b"};
-    
-    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+    [cChamber ignite:TEST_COMPILEBASEPATH];
 
     XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILING], @"not match, %@", [cChamber state]);
 }
 
 - (void) testIgniteAndAbortThenAbortedThenSpinupping {
-    
-    NSDictionary * testDict = @{@"a":@"b"};
-    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+    [cChamber ignite:TEST_COMPILEBASEPATH];
     [cChamber abort];
     
     XCTAssertTrue([cChamber state] == [self targetState:STATE_ABORTED], @"not match, %@", [cChamber state]);
+}
+
+- (void) testGenAndDel {
+    [self deleteFiles:TEST_TEMPPROJECT_OUTPUT_PATH];
+    NSDictionary * codes = @{TEST_SCALA_1:[self readSource:TEST_SCALA_1]};
+    [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
+    
+    [self deleteFiles:TEST_TEMPPROJECT_OUTPUT_PATH];
 }
 
 /**
  十分なコンテンツを渡して、コンパイル成功
  */
 - (void) testIgniteAndAbortThenCompiledPerfectly {
+    [self deleteFiles:TEST_TEMPPROJECT_OUTPUT_PATH];
     
-    NSMutableDictionary * testDict_1 = [self readSource:TEST_SCALA_1 withBaseDict:nil];
-    NSMutableDictionary * withTestDict_2 = [self readSource:TEST_SCALA_2 withBaseDict:testDict_1];
-    NSMutableDictionary * withCompileBasePathContents = [self readSource:TEST_COMPILEBASEPATH withBaseDict:withTestDict_2];
+    NSDictionary * codes = @{TEST_SCALA_1:[self readSource:TEST_SCALA_1],
+                             TEST_SCALA_2:[self readSource:TEST_SCALA_2],
+                             TEST_COMPILEBASEPATH:[self readSource:TEST_COMPILEBASEPATH]};
     
-    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:withCompileBasePathContents];
+    [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
+    
+    [cChamber ignite:TEST_COMPILEBASEPATH];
     
     while (![m_chamberResponseDict[[cChamber chamberId]] containsObject:execArray[S2_COMPILECHAMBER_EXEC_COMPILED]]) {
         if ([self countupThenFail]) {
@@ -203,10 +240,14 @@
  不十分なコンテンツを渡して、コンパイル失敗で終了する。
  */
 - (void) testIgniteAndAbortThenCompileFailure {
+    [self deleteFiles:TEST_TEMPPROJECT_OUTPUT_PATH];
     
-    NSDictionary * testDict = @{TEST_SCALA_1:@"", TEST_COMPILEBASEPATH:@""};
+    NSDictionary * codes = @{TEST_SCALA_1:[self readSource:TEST_SCALA_1],
+                             TEST_COMPILEBASEPATH:[self readSource:TEST_COMPILEBASEPATH]};
     
-    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:testDict];
+    [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
+    
+    [cChamber ignite:TEST_COMPILEBASEPATH ];
     
     while (![m_chamberResponseDict[[cChamber chamberId]] containsObject:execArray[S2_COMPILECHAMBER_EXEC_COMPILED]]) {
         if ([self countupThenFail]) {
@@ -223,12 +264,15 @@
  十分なコンテンツを渡して、コンパイルをabortする
  */
 - (void) testIgniteAndAbortThenCompileAbort {
+    [self deleteFiles:TEST_TEMPPROJECT_OUTPUT_PATH];
     
-    NSMutableDictionary * testDict_1 = [self readSource:TEST_SCALA_1 withBaseDict:nil];
-    NSMutableDictionary * withTestDict_2 = [self readSource:TEST_SCALA_2 withBaseDict:testDict_1];
-    NSMutableDictionary * withCompileBasePathContents = [self readSource:TEST_COMPILEBASEPATH withBaseDict:withTestDict_2];
+    NSDictionary * codes = @{TEST_SCALA_1:[self readSource:TEST_SCALA_1],
+                             TEST_SCALA_2:[self readSource:TEST_SCALA_2],
+                             TEST_COMPILEBASEPATH:[self readSource:TEST_COMPILEBASEPATH]};
     
-    [cChamber ignite:TEST_COMPILEBASEPATH withCodes:withCompileBasePathContents];
+    [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
+    
+    [cChamber ignite:TEST_COMPILEBASEPATH];
     
     [cChamber abort];
     
