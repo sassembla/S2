@@ -63,7 +63,7 @@
     // 自分以外からのmessageは、chamberIdのチェックを行う
     NSAssert(dict[@"id"], @"id required");
     
-    if (dict[@"id"] != m_chamberId) {
+    if ([dict[@"id"] isEqualToString:m_chamberId]) {
         return;
     }
     
@@ -154,6 +154,16 @@
 /**
  マスターへと経過を送付する
  */
+- (void) taskDidLaunch:(MFTask * ) theTask {
+    m_state = statesArray[STATE_COMPILING];
+    
+    if ([messenger hasParent]) {
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
+         [messenger tag:@"id" val:m_chamberId],
+         nil];
+    }
+}
+
 - (void) taskDidRecieveData:(NSData * ) theData fromTask:(MFTask * )task {
     NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
     if ([messenger hasParent]) {
@@ -186,15 +196,7 @@
 
 - (void) taskDidRecieveInvalidate:(MFTask * ) theTask {}
 
-- (void) taskDidLaunch:(MFTask * ) theTask {
-    m_state = statesArray[STATE_COMPILING];
-    
-    if ([messenger hasParent]) {
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
-         [messenger tag:@"id" val:m_chamberId],
-         nil];
-    }
-}
+
 
 - (void) close {
     [messenger closeConnection];

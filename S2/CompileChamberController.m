@@ -154,9 +154,6 @@
         
         case S2_COMPILECHAMBER_EXEC_IGNITED:{
             NSAssert(dict[@"id"], @"id required");
-            [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_COMPILING]];
-            [self setChamberPriorityFirst:dict[@"id"]];
-            
             /*
              イベントとしては、新しいigniteが来たタイミングで、
              ・priorityが変わる(newが現れる)
@@ -176,13 +173,18 @@
             
         case S2_COMPILECHAMBER_EXEC_COMPILED:{
             NSAssert(dict[@"id"], @"id required");
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"コンパイル後の処理"];
             
             [self removePriority:dict[@"id"]];
 
-            // 特定チャンバーのメッセージを消す
+            // 特定チャンバーのメッセージを消す。　内部で消すだけで、flushはしない。
             [m_messageDict removeObjectForKey:dict[@"id"]];
-
+            
+            
+            // 通知
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_COMPILED,
+             [messenger tag:@"compiledChamberId" val:dict[@"id"]],
+             nil];
+            
             break;
         }
         case S2_COMPILECHAMBER_EXEC_ABORTED:{
@@ -197,7 +199,7 @@
             NSAssert(dict[@"id"], @"id required");
             NSAssert(dict[@"message"], @"message required");
             
-            // もうここでフィルタリングして、光らせる系の命令にしちゃっていいんでは。
+            
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 9:53:02" withLimitSec:100000 withComment:@"要素を削る最前提は、レベルパラメータをみて行う。レベリングはここで行う。arrayにchamberIdを溜めていって、先頭のほうほどレベルが高い。みたいにする。chamberが死んだらそのchamberからのメッセージはすべて削る。"];
             
             /*
@@ -209,7 +211,6 @@
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
              [messenger tag:@"message" val:dict[@"message"]],
              nil];
-            
             break;
         }
     }
@@ -243,6 +244,11 @@
             break;
         }
     }
+    
+    // この時点で着火した扱いにする
+    [self changeChamberStatus:ignitedChamberId to:static_chamber_states[STATE_COMPILING]];
+    [self setChamberPriorityFirst:ignitedChamberId];
+
     
     return ignitedChamberId;
 }

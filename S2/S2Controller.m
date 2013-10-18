@@ -179,6 +179,11 @@
                     [self callToMaster:S2_CONT_EXEC_IGNITED withMessageDict:dict];
                     break;
                 }
+                case S2_COMPILECHAMBERCONT_EXEC_CHAMBER_COMPILED:{
+                    NSAssert(dict[@"compiledChamberId"], @"compiledChamberId required");
+                    [self callToMaster:S2_CONT_EXEC_COMPILEPROCEEDED withMessageDict:dict];
+                    break;
+                }
             }
             break;
         }

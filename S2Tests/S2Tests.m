@@ -36,7 +36,9 @@
     S2Controller * cont;
     
     NSMutableDictionary * m_pullingDict;
-    NSMutableArray * m_ignitedArray;
+    
+    NSMutableArray * m_ignitedChamberArray;
+    NSMutableArray * m_compiledChamberArray;
     
     int m_repeatCount;
 }
@@ -51,7 +53,8 @@
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
     
     m_pullingDict = [[NSMutableDictionary alloc]init];
-    m_ignitedArray = [[NSMutableArray alloc]init];
+    m_ignitedChamberArray = [[NSMutableArray alloc]init];
+    m_compiledChamberArray = [[NSMutableArray alloc]init];
     
     m_repeatCount = 0;
 }
@@ -64,7 +67,8 @@
     [messenger closeConnection];
     
     [m_pullingDict removeAllObjects];
-    [m_ignitedArray removeAllObjects];
+    [m_ignitedChamberArray removeAllObjects];
+    [m_compiledChamberArray removeAllObjects];
     
     [super tearDown];
 }
@@ -76,6 +80,13 @@
     NSDictionary * wrappedDict = dict[@"wrappedDict"];
     
     switch ([messenger execFrom:S2_MASTER viaNotification:notif]) {
+        case S2_CONT_EXEC_DISCONNECTED:{
+            break;
+        }
+        case S2_CONT_EXEC_CONNECTED:{
+            break;
+        }
+            
         case S2_CONT_EXEC_PULLINGSTARTED:{
             XCTAssertNotNil(wrappedDict[@"pullingId"], @"pullingId required");
             XCTAssertNotNil(wrappedDict[@"sourcePath"], @"sourcePath required");
@@ -86,11 +97,18 @@
         case S2_CONT_EXEC_IGNITED:{
             XCTAssertNotNil(wrappedDict[@"ignitedChamberId"], @"ignitedChamberId required");
 
-            [m_ignitedArray addObject:wrappedDict[@"ignitedChamberId"]];
+            [m_ignitedChamberArray addObject:wrappedDict[@"ignitedChamberId"]];
+            break;
+        }
+        case S2_CONT_EXEC_COMPILEPROCEEDED:{
+            XCTAssertNotNil(wrappedDict[@"compiledChamberId"], @"compiledChamberId required");
+            
+            [m_compiledChamberArray addObject:wrappedDict[@"compiledChamberId"]];
             break;
         }
             
         default:
+            XCTFail(@"unknown message to S2ControllerTests, %d", [messenger execFrom:S2_MASTER viaNotification:notif]);
             break;
     }
 }
@@ -213,10 +231,7 @@
     [self connectClientTo:TEST_SERVER_URL withMessage:TEST_MESSAGE];
    
     // update count up
-    while (true) {
-        if (0 < [cont updatedCount]) {
-            break;
-        }
+    while ([cont updatedCount] == 0) {
         if ([self countupThenFail]) {
             XCTFail(@"too long wait");
             break;
@@ -325,10 +340,7 @@
     
     cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
     
-    while (true) {
-        if ([cont state] == STATE_IGNITED) {
-            break;
-        }
+    while ([cont state] != STATE_IGNITED) {
         if ([self countupThenFail]) {
             XCTFail(@"too long wait");
             break;
@@ -358,19 +370,18 @@
     }
     
     
-    // 一つずつupdatedを送付
-    for (NSString * path in [m_pullingDict allValues]) {
-        NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
-                              TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
-                              path, KEY_LISTED_DELIM,
-                              [self readSource:path]
-                              ];
-        
-        [self connectClientTo:TEST_SERVER_URL withMessage:message];
-    }
+    // TEST_COMPILEBASEPATHだけを送付
+    NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                          TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                          TEST_COMPILEBASEPATH, KEY_LISTED_DELIM,
+                          [self readSource:TEST_COMPILEBASEPATH]
+                          ];
+    
+    [self connectClientTo:TEST_SERVER_URL withMessage:message2];
+
     
     // この時点でコンパイル開始した形跡がある。
-    XCTAssertTrue([m_ignitedArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedArray count]);
+    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
 }
 
 
@@ -383,10 +394,7 @@
     
     cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
     
-    while (true) {
-        if ([cont state] == STATE_IGNITED) {
-            break;
-        }
+    while ([cont state] != STATE_IGNITED) {
         if ([self countupThenFail]) {
             XCTFail(@"too long wait");
             break;
@@ -416,42 +424,43 @@
     }
     
     
-    // 一つずつupdatedを送付
-    for (NSString * path in [m_pullingDict allValues]) {
-        NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
-                              TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
-                              path, KEY_LISTED_DELIM,
-                              [self readSource:path]
-                              ];
-        
-        [self connectClientTo:TEST_SERVER_URL withMessage:message];
-    }
+    // TEST_COMPILEBASEPATHだけを送付
+    NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                           TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                           TEST_COMPILEBASEPATH, KEY_LISTED_DELIM,
+                           [self readSource:TEST_COMPILEBASEPATH]
+                           ];
     
-    // 特定のチャンバーのコンパイル完了が出るまで待つ
-    while ([m_ignitedArray count] == 0) {
+    [self connectClientTo:TEST_SERVER_URL withMessage:message2];
+    
+    // 特定のチャンバーのコンパイルの完了を待つ。 m_ignitedArray[0]内のチャンバーの終了がくるまで待つ。
+    while ([m_compiledChamberArray count] == 0) {
         if ([self countupLongThenFail]) {
             XCTFail(@"too long wait");
             break;
         }
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
-}
-
-
-/**
- アップデートからコンパイル開始まで
- */
-- (void) testUpdatedThenStartCompletion {
     
+    // この時点でコンパイル完了した形跡がある。
+    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
 }
 
 
-/**
- アップデートからコンパイル終了まで
- */
-- (void) testUpdatedThenFinishCompletion {
-    
-}
+///**
+// アップデートからコンパイル開始まで
+// */
+//- (void) testUpdatedThenStartCompletion {
+//    XCTFail(@"not yet implemented");
+//}
+//
+//
+///**
+// アップデートからコンパイル終了まで
+// */
+//- (void) testUpdatedThenFinishCompletion {
+//    XCTFail(@"not yet implemented");
+//}
 
 
 

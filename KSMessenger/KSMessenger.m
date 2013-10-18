@@ -994,7 +994,8 @@
 	NSArray * arrays = [[self childrenDict] allValues];
 	for (int i = 0; i <= [arrays count]; i++) {
 		if (i == [arrays count]) {
-			NSAssert1(FALSE, @"Without MID call先に指定したmessengerが存在しないか、未知のものです。このメソッドを使用するより先に、子供MessengerからfindParent(子から親を指定)を使ってください。_%@",childName);
+//			NSAssert1(FALSE, @"Without MID call先に指定したmessengerが存在しないか、未知のものです。このメソッドを使用するより先に、子供MessengerからfindParent(子から親を指定)を使ってください。_%@",childName);
+            NSLog(@"ちょっと無視するけどヤバそうな状態のエラー");
 			return nil;
 		}
 		
