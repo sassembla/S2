@@ -74,10 +74,10 @@
     
     switch ([messenger execFrom:S2_MASTER viaNotification:notif]) {
         case S2_CONT_EXEC_PULLINGSTARTED:{
-            XCTAssertNotNil(wrappedDict[@"connectionId"], @"connectionId required");
+            XCTAssertNotNil(wrappedDict[@"pullingId"], @"pullingId required");
             XCTAssertNotNil(wrappedDict[@"sourcePath"], @"sourcePath required");
             
-            [m_pullingDict setObject:wrappedDict[@"sourcePath"] forKey:wrappedDict[@"connectionId"]];
+            [m_pullingDict setObject:wrappedDict[@"sourcePath"] forKey:wrappedDict[@"pullingId"]];
             break;
         }
             
@@ -281,40 +281,44 @@
     
 }
 
-
-
-/*
- connectとは無関係に、クライアントからのコード一覧の送付、コード断片のアップデートに対応する
+/**
+ listを送付、
+ updateでコードを作成、
+ プロジェクトを生成してビルド開始させる
  */
-- (void) testReceiveCodeList {
+- (void) testUpdateThenBuildStarted {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
+    while (true) {
+        if ([cont state] == STATE_IGNITED) {
+            break;
+        }
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
 
-    // リストを受け取ると、その後Pullを発生させる(チャンバーとは関係ないけどスケールするのかなここ。先にテスト書いちゃった方がいいな。)
-    // messagingで送った方が無難なんだが、connectionContのフリをするのは大変かなあ？誘発するアクションを実行すれば良いよね。
-//    [self connectClientTo:TEST_SERVER_URL withMessage:pulledMessage withPipe:nil];
+    // フルパッケージをのリストを渡す
+    NSArray * pullArray = @[TEST_COMPILEBASEPATH, TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3];
+    NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
+                          TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
+                          ];
     
+    // listUpdate送付
+    [self connectClientTo:TEST_SERVER_URL withMessage:message];
     
-    
-    // まとまってないので後回し
-    
-    
-    
-//    NSArray * pullingLists = [self pulling]
-//    
-//    
-//    // 擬似的にpulledを二件送る
-//    for (NSString * pullingId in pullingLists) {
-//        // デリミタもろとも、update扱いでいいんじゃねーの？って気がしてきた。syncに替わるsyncみたいな概念について考えると楽しそう。
-//        NSString * pulledMessage = [[NSString alloc]initWithFormat:@"%@%@", TEST_PULLED, @"somecode"];
-//        [self connectClientTo:TEST_SERVER_URL withMessage:pulledMessage withPipe:nil];
-//    }
-    
-    XCTFail(@"not yet implemented");
-    
-    
-    // 対応するpulledの後、CompileChamberControllerへと装填
-    
+    // ここでpoolがどうなってるのか調べる。
+    NSLog(@"開始");
+    while (true) {
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
 }
-
 
 
 

@@ -125,13 +125,13 @@
             
             switch ([messenger execFrom:S2_PULLUPCONT viaNotification:notif]) {
                 case S2_PULLUPCONT_PULLING:{
-                    NSAssert(dict[@"connectionId"], @"connectionId required");
+                    NSAssert(dict[@"pullingId"], @"pullingId required");
                     NSAssert(dict[@"sourcePath"], @"sourcePath required");
                     
                     NSString * sourcePath = dict[@"sourcePath"];
-                    NSString * identity = dict[@"connectionId"];
+                    NSString * identity = dict[@"pullingId"];
                     
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 8:15:25" withLimitSec:10000 withComment:@"エミッタの成すべきコードがこの辺。ss@系の要素を、特定の種類に合わせて合成する。SQLみたいなもの。"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 22:05:48" withLimitSec:10000 withComment:@"エミッタの成すべきコードがこの辺。ss@系の要素を、特定の種類に合わせて合成する。SQLみたいなもの。"];
                     NSString * message = [[NSString alloc]initWithFormat:@"ss@readFileData:{\"path\":\"%@\"}->(data|message)monocastMessage:{\"target\":\"S2Client\",\"message\":\"replace\",\"header\":\"-update:%@ \"}->showAtLog:{\"message\":\"pulled:%@\"}->showStatusMessage:{\"message\":\"pulled:%@\"}", sourcePath, identity, sourcePath, sourcePath];
                     
                     [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
@@ -172,13 +172,26 @@
     
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_LISTED]) {
+        NSString * keyAndListOfSourcesStr = dataStr;
+        
+        // keyデリミタvalueデリミタ...ってなってるので、デリミタで割る。
+        NSArray * keyAndListOfSourcesArray = [keyAndListOfSourcesStr componentsSeparatedByString:KEY_LISTED_DELIM];
+        
+        NSRange theRange;
+        
+        theRange.location = 1;
+        theRange.length = [keyAndListOfSourcesArray count]-1;
+        NSArray * listOfSourcesArray = [keyAndListOfSourcesArray subarrayWithRange:theRange];
+        
         [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_LISTED,
-         [messenger tag:@"listOfSources" val:dataStr],
+         [messenger tag:@"listOfSources" val:listOfSourcesArray],
          nil];
         return;
     }
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_PULLED]) {
+        [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 13:57:50" withLimitSec:100 withComment:@"pullからの投入部分がまだ。"];
+        
         [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_PULLED,
          [messenger tag:@"pulledSource" val:dataStr],
          nil];
@@ -186,8 +199,14 @@
     }
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
-        [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_UPDATED,
-         [messenger tag:@"updatedSource" val:dataStr],
+        [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 14:01:40" withLimitSec:100 withComment:@"アップデートが入ってきたら、みたいな話。"];
+        
+        NSString * path = @"";
+        NSString * source = @"";
+        
+        [messenger call:S2_PULLUPCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
+         [messenger tag:@"path" val:path],
+         [messenger tag:@"source" val:source],
          nil];
         return;
     }

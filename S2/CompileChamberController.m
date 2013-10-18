@@ -136,11 +136,6 @@
             }
             break;
         }
-        case S2_COMPILECHAMBERCONT_EXEC_UPDATE:{
-            NSAssert(dict[@"updatedSource"], @"updatedSource required");
-            [TimeMine setTimeMineLocalizedFormat:@"" withLimitSec:10000 withComment:@"アップデートが届いたので、分解して"];
-            break;
-        }
     }
     
     // チャンバーからのメッセージ

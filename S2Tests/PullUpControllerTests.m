@@ -80,15 +80,14 @@
     NSArray * listed = @[TEST_LISTED_1, TEST_LISTED_2];
     
     // このソースのpull開始、該当のソース入力を与えると、completedを送ってくる
-     NSDictionary * pullingDict = [pullUpCont listed:listed];
-    
+    [pullUpCont listed:listed];
     
     // テスト用コードを読み出す
     NSString * source1 = [self readSource:TEST_LISTED_1];
-    [pullUpCont pulled:pullingDict[TEST_LISTED_1] filePath:TEST_LISTED_1 source:source1 ];
+    [pullUpCont pulled:TEST_LISTED_1 source:source1 ];
     
     NSString * source2 = [self readSource:TEST_LISTED_2];
-    [pullUpCont pulled:pullingDict[TEST_LISTED_2] filePath:TEST_LISTED_2 source:source2];
+    [pullUpCont pulled:TEST_LISTED_2 source:source2];
     
     XCTAssertTrue([pullUpCont isCompleted], @"not completed");
 }
@@ -99,12 +98,12 @@
     NSArray * listed = @[TEST_LISTED_1, TEST_LISTED_2];
     
     // このソースのpull開始、該当のソース入力を与えると、completedを送ってくる
-    NSDictionary * pullingDict = [pullUpCont listed:listed];
+    [pullUpCont listed:listed];
     
     
     // テスト用コードを読み出す
     NSString * source1 = [self readSource:TEST_LISTED_1];
-    [pullUpCont pulled:pullingDict[TEST_LISTED_1] filePath:TEST_LISTED_1 source:source1 ];
+    [pullUpCont pulled:TEST_LISTED_1 source:source1 ];
     
     XCTAssertFalse([pullUpCont isCompleted], @"completed");
 }

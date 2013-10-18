@@ -16,8 +16,6 @@ enum S2_PULLUPCONT_EXEC {
     S2_PULLUPCONT_PULLING,
     S2_PULLUPCONT_PULLED,
     
-    S2_PULLUPCONT_UPDATED,
-    
     S2_PULLUPCONT_FROMPULL_UPDATED,
     S2_PULLUPCONT_PULL_COMPLETED
 };
@@ -26,9 +24,11 @@ enum S2_PULLUPCONT_EXEC {
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId;
 
+- (void) listed:(NSArray * )sourcesPathArray;
+- (void) pulled:(NSString * )path source:(NSString * )source;
 
-- (NSDictionary * ) listed:(NSArray * )sourcesPathArray;
-- (void) pulled:(NSString * )pullingId filePath:(NSString * )path source:(NSString * )source;
+
+- (NSArray * )pullingPathList;
 
 - (BOOL) isCompleted;
 

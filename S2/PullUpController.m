@@ -15,15 +15,13 @@
 
 @implementation PullUpController {
     KSMessenger * messenger;
-    NSMutableArray * m_pullingIdList;
+    NSMutableDictionary * m_pullingPathDict;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
     if (self = [super init]) {
         messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:S2_PULLUPCONT];
         [messenger connectParent:masterNameAndId];
-        
-        
     }
     return self;
 }
@@ -37,35 +35,17 @@
         case S2_PULLUPCONT_LISTED:{
             NSAssert(dict[@"listOfSources"], @"listOfSources required");
             
-            
-            NSString * keyAndListOfSourcesStr = dict[@"listOfSources"];
-            
-            // keyデリミタvalueデリミタ...ってなってるので、デリミタで割る。
-            NSArray * keyAndListOfSourcesArray = [keyAndListOfSourcesStr componentsSeparatedByString:KEY_LISTED_DELIM];
-
-            NSRange theRange;
-            
-            theRange.location = 1;
-            theRange.length = [keyAndListOfSourcesArray count]-1;
-            NSArray * listOfSourcesArray = [keyAndListOfSourcesArray subarrayWithRange:theRange];
-            
-            [self listed:listOfSourcesArray];
+            [self listed:dict[@"listOfSources"]];
             break;
         }
             
         case S2_PULLUPCONT_PULLED:{
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 0:59:19" withLimitSec:0 withComment:@"pullしたのが帰ってきたとこ、作ってない。"];
-    
-            [self pulled:<#(NSString *)#> filePath:<#(NSString *)#> source:<#(NSString *)#>]
+            NSAssert(dict[@"path"], @"path required");
+            NSAssert(dict[@"source"], @"source required");
+            
+            [self pulled:dict[@"path"] source:dict[@"source"]];
             break;
         }
-            
-        case S2_PULLUPCONT_UPDATED:{
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 12:46:21" withLimitSec:0 withComment:@"updateが届いたので、解析してS2Controllerに返す"];
-            
-            break;
-        }
-            
     }
 }
 
@@ -73,30 +53,26 @@
 /**
  listを補完、pullUpContに伝達する
  */
-- (NSDictionary * ) listed:(NSArray * )sourcesPathArray {
+- (void) listed:(NSArray * )sourcesPathArray {
     NSAssert(0 < [sourcesPathArray count], @"empty sourcesPathArray.");
     
     // 特定のカウントずつpullする
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 16:24:50" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
     
-    // renew
-    m_pullingIdList = [[NSMutableArray alloc]init];
     
-    NSMutableDictionary * currentPullingDict = [[NSMutableDictionary alloc]init];
+    // renew
+    m_pullingPathDict = [[NSMutableDictionary alloc]init];
+    
     for (NSString * pullingPath in sourcesPathArray) {
         NSString * pullingId = [KSMessenger generateMID];
-        
-        [m_pullingIdList addObject:pullingId];
+
+        [m_pullingPathDict setValue:pullingPath forKey:pullingId];
         
         [messenger callParent:S2_PULLUPCONT_PULLING,
+         [messenger tag:@"pullingId" val:pullingId],
          [messenger tag:@"sourcePath" val:pullingPath],
-         [messenger tag:@"connectionId" val:pullingId],
          nil];
-        
-        [currentPullingDict setValue:pullingId forKey:pullingPath];
     }
-    
-    return currentPullingDict;
 }
 
 
@@ -104,11 +80,19 @@
  pulledに対応する。
  masterへとpulledのデータを返す。
  */
-- (void) pulled:(NSString * )pullingId filePath:(NSString * )path source:(NSString * )source {
+- (void) pulled:(NSString * )path source:(NSString * )source {
     
-    // remove
-    [m_pullingIdList removeObject:pullingId];
+    // remove by value
+    NSString * currentConnectionId;
+    for (NSString * currentConId in [m_pullingPathDict allKeys]) {
+        if ([[m_pullingPathDict valueForKey:currentConId] isEqualToString:path]) currentConnectionId = currentConId;
+    }
     
+    if (currentConnectionId) [m_pullingPathDict removeObjectForKey:currentConnectionId];
+    else {
+        NSLog(@"no connection id found, ignore. %@", path);
+        return;
+    }
     
     [messenger callParent:S2_PULLUPCONT_FROMPULL_UPDATED,
      [messenger tag:@"path" val:path],
@@ -122,8 +106,13 @@
     }
 }
 
+- (NSArray * )pullingPathList {
+    return [m_pullingPathDict allValues];
+}
+
+
 - (BOOL) isCompleted {
-    if ([m_pullingIdList count] == 0) return true;
+    if ([m_pullingPathDict count] == 0) return true;
     return false;
 }
 
