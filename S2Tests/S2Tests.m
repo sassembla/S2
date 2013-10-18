@@ -36,6 +36,7 @@
     S2Controller * cont;
     
     NSMutableDictionary * m_pullingDict;
+    NSMutableArray * m_ignitedArray;
     
     int m_repeatCount;
 }
@@ -50,6 +51,7 @@
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
     
     m_pullingDict = [[NSMutableDictionary alloc]init];
+    m_ignitedArray = [[NSMutableArray alloc]init];
     
     m_repeatCount = 0;
 }
@@ -62,6 +64,7 @@
     [messenger closeConnection];
     
     [m_pullingDict removeAllObjects];
+    [m_ignitedArray removeAllObjects];
     
     [super tearDown];
 }
@@ -80,6 +83,12 @@
             [m_pullingDict setObject:wrappedDict[@"sourcePath"] forKey:wrappedDict[@"pullingId"]];
             break;
         }
+        case S2_CONT_EXEC_IGNITED:{
+            XCTAssertNotNil(wrappedDict[@"ignitedChamberId"], @"ignitedChamberId required");
+
+            [m_ignitedArray addObject:wrappedDict[@"ignitedChamberId"]];
+            break;
+        }
             
         default:
             break;
@@ -90,8 +99,7 @@
 
 // utility
 /**
- 通信を投げてそのまま死ぬかと思ったら、そうでもなくてつらい。
- 
+ WebSocketでの通信を行い、データを送付して切断する
  */
 - (void) connectClientTo:(NSString * )url withMessage:(NSString * )message {
 
@@ -115,6 +123,8 @@
     [killAllNsws2 setArguments:@[@"-9", @"nsws"]];
     [killAllNsws2 launch];
     [killAllNsws2 waitUntilExit];
+    
+    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
 }
 
 - (bool) countupThenFail {
@@ -124,6 +134,29 @@
     }
     return false;
 }
+
+- (bool) countupLongThenFail {
+    m_repeatCount++;
+    if (TEST_REPEAT_COUNT_5 < m_repeatCount) {
+        return true;
+    }
+    return false;
+}
+
+- (NSString * ) readSource:(NSString * )filePath {
+    NSFileHandle * readHandle = [NSFileHandle fileHandleForReadingAtPath:filePath];
+    
+    if (readHandle) {
+        NSData * data = [readHandle readDataToEndOfFile];
+        NSString * fileContentsStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        return fileContentsStr;
+    }
+    
+    return nil;
+}
+
+
+
 
 
 /**
@@ -286,7 +319,7 @@
  updateでコードを作成、
  プロジェクトを生成してビルド開始させる
  */
-- (void) testUpdateThenBuildStarted {
+- (void) testUpdateThenStartCompilation {
     // 起動する
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
@@ -303,25 +336,122 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
 
-    // フルパッケージをのリストを渡す
-    NSArray * pullArray = @[TEST_COMPILEBASEPATH, TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3];
+    // フルパッケージをのリストを渡す 最後にcompile条件であるTEST_COMPILEBASEPATHがそろう
+    NSArray * pullArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
+    
+    // listUpdate送付
     NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
                           TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
                           [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
                           ];
     
-    // listUpdate送付
     [self connectClientTo:TEST_SERVER_URL withMessage:message];
     
-    // ここでpoolがどうなってるのか調べる。
-    NSLog(@"開始");
+    
+    // pullUpが3つ分のカウントを出すまで、、という適当な待ちを行う
+    while ([m_pullingDict count] < [pullArray count]) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    
+    // 一つずつupdatedを送付
+    for (NSString * path in [m_pullingDict allValues]) {
+        NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                              TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                              path, KEY_LISTED_DELIM,
+                              [self readSource:path]
+                              ];
+        
+        [self connectClientTo:TEST_SERVER_URL withMessage:message];
+    }
+    
+    // この時点でコンパイル開始した形跡がある。
+    XCTAssertTrue([m_ignitedArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedArray count]);
+}
+
+
+/**
+ コンパイル完了まで
+ */
+- (void) testListedThenFinishCompletion {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
     while (true) {
+        if ([cont state] == STATE_IGNITED) {
+            break;
+        }
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    // フルパッケージをのリストを渡す 最後にcompile条件であるTEST_COMPILEBASEPATHがそろう
+    NSArray * pullArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
+    
+    // listUpdate送付
+    NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
+                          TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
+                          ];
+    
+    [self connectClientTo:TEST_SERVER_URL withMessage:message];
+    
+    
+    // pullUpが3つ分のカウントを出すまで、、という適当な待ちを行う
+    while ([m_pullingDict count] < [pullArray count]) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    
+    // 一つずつupdatedを送付
+    for (NSString * path in [m_pullingDict allValues]) {
+        NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                              TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                              path, KEY_LISTED_DELIM,
+                              [self readSource:path]
+                              ];
+        
+        [self connectClientTo:TEST_SERVER_URL withMessage:message];
+    }
+    
+    // 特定のチャンバーのコンパイル完了が出るまで待つ
+    while ([m_ignitedArray count] == 0) {
+        if ([self countupLongThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
 }
 
 
+/**
+ アップデートからコンパイル開始まで
+ */
+- (void) testUpdatedThenStartCompletion {
+    
+}
 
+
+/**
+ アップデートからコンパイル終了まで
+ */
+- (void) testUpdatedThenFinishCompletion {
+    
+}
 
 
 

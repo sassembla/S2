@@ -36,6 +36,8 @@
 		B7B6D44D1802F176007AE06E /* PullUpControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7B6D44C1802F176007AE06E /* PullUpControllerTests.m */; };
 		B7B6D4501802F99C007AE06E /* PullUpController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7B6D44F1802F99C007AE06E /* PullUpController.m */; };
 		B7B6D4511802F99C007AE06E /* PullUpController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7B6D44F1802F99C007AE06E /* PullUpController.m */; };
+		B7B72FD518118BEE00EF8612 /* Emitter.m in Sources */ = {isa = PBXBuildFile; fileRef = B7B72FD418118BEE00EF8612 /* Emitter.m */; };
+		B7B72FD618118BEE00EF8612 /* Emitter.m in Sources */ = {isa = PBXBuildFile; fileRef = B7B72FD418118BEE00EF8612 /* Emitter.m */; };
 		B7CA8979180AAFCF008B6C40 /* ContentsPoolController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7CA8978180AAFCF008B6C40 /* ContentsPoolController.m */; };
 		B7CA897A180AAFCF008B6C40 /* ContentsPoolController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7CA8978180AAFCF008B6C40 /* ContentsPoolController.m */; };
 		B7CA897C180AAFE9008B6C40 /* ContentsPoolControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7CA897B180AAFE9008B6C40 /* ContentsPoolControllerTests.m */; };
@@ -101,6 +103,8 @@
 		B7B6D44F1802F99C007AE06E /* PullUpController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PullUpController.m; sourceTree = "<group>"; };
 		B7B6D4521802FBD8007AE06E /* S2Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = S2Token.h; sourceTree = "<group>"; };
 		B7B6D4531802FBFD007AE06E /* S2TestSupportDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = S2TestSupportDefines.h; sourceTree = "<group>"; };
+		B7B72FD318118BEE00EF8612 /* Emitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Emitter.h; sourceTree = "<group>"; };
+		B7B72FD418118BEE00EF8612 /* Emitter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Emitter.m; sourceTree = "<group>"; };
 		B7CA8977180AAFCF008B6C40 /* ContentsPoolController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContentsPoolController.h; sourceTree = "<group>"; };
 		B7CA8978180AAFCF008B6C40 /* ContentsPoolController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContentsPoolController.m; sourceTree = "<group>"; };
 		B7CA897B180AAFE9008B6C40 /* ContentsPoolControllerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContentsPoolControllerTests.m; sourceTree = "<group>"; };
@@ -214,6 +218,8 @@
 				B7EB771F180A78D300FF959D /* CompileChamber.m */,
 				B7CA8977180AAFCF008B6C40 /* ContentsPoolController.h */,
 				B7CA8978180AAFCF008B6C40 /* ContentsPoolController.m */,
+				B7B72FD318118BEE00EF8612 /* Emitter.h */,
+				B7B72FD418118BEE00EF8612 /* Emitter.m */,
 			);
 			path = S2;
 			sourceTree = "<group>";
@@ -396,6 +402,7 @@
 				B7987F2517EE835D008F21F4 /* KSMessenger.m in Sources */,
 				B7FCE9FE17EF17D100C6B41A /* TimeMine.m in Sources */,
 				B7B6D4501802F99C007AE06E /* PullUpController.m in Sources */,
+				B7B72FD518118BEE00EF8612 /* Emitter.m in Sources */,
 				B7987E9F17EE82FB008F21F4 /* main.m in Sources */,
 				B7987ED017EE831F008F21F4 /* MBWebSocketServer.m in Sources */,
 			);
@@ -417,6 +424,7 @@
 				B7FCEA0917EFECC500C6B41A /* EmitterTests.m in Sources */,
 				B7FCEA0317EF1EB900C6B41A /* S2Controller.m in Sources */,
 				B7CA897A180AAFCF008B6C40 /* ContentsPoolController.m in Sources */,
+				B7B72FD618118BEE00EF8612 /* Emitter.m in Sources */,
 				B7EB771D180A78C800FF959D /* CompileChamberController.m in Sources */,
 				B7987F2617EE835D008F21F4 /* KSMessenger.m in Sources */,
 				B742D358180E8E2300EB43E5 /* MFTask.m in Sources */,

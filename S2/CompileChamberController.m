@@ -119,6 +119,7 @@
             // インプットがあったので、プール上のコードを編集、編集完了と同時に暇なchamberへとGoを出す。
             NSAssert(dict[@"path"], @"path required");
             NSAssert(dict[@"source"], @"source required");
+            
             NSDictionary * poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN,
                                            [messenger tag:@"path" val:dict[@"path"]],
                                            [messenger tag:@"source" val:dict[@"source"]],
@@ -145,6 +146,9 @@
         case S2_COMPILECHAMBER_EXEC_SPINUPPED:{
             NSAssert(dict[@"id"], @"id required");
             [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_SPINUPPED]];
+            
+            // 少なくとも一つのchamberがspinup状態。 上位に連絡する。
+            if ([m_chamberPriority count] == 0) [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_SPINUPPED_FIRST, nil];
             break;
         }
         
@@ -165,7 +169,7 @@
              黄色で送り込むかな。messageQueue。
              */
 
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 12:04:58" withLimitSec:100000 withComment:@"優先度のすげ替えが発生したので、一気に生きているチャンバーのinfoを塗り替える。"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 12:04:58" withLimitSec:100000 withComment:@"優先度のすげ替えが発生したので、一気に生きているチャンバーのinfoを塗り替える。で、そのチャンバーの残した結果を塗り替える。あんまり多く無いと思うんだよね。同時には。"];
             
             break;
         }

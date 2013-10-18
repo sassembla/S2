@@ -1175,7 +1175,6 @@
     
     //Notificationが欲しい情報を保持しているかどうかチェック
     NSMutableDictionary * sourceDict = (NSMutableDictionary *)[notif userInfo];
-	NSLog(@"sourceDict  %@", sourceDict);
     
 	//送信者MID
 	NSString * senderMID = [sourceDict valueForKey:MS_SENDERMID];

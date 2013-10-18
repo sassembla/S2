@@ -22,3 +22,6 @@
 #define S2_BASEPATH_SUFFIX  (@"build.gradle")
 
 #define S2_COMPILER_KEYWORDS    (@[@"BUILD SUCCESSFUL", @"Total time: "])
+
+
+#define S2_FILECACHE_PATH   (@"/Users/highvision/S2.fcache")

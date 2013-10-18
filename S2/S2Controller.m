@@ -14,6 +14,7 @@
 #import "WebSocketConnectionOperation.h"
 #import "PullUpController.h"
 #import "CompileChamberController.h"
+#import "Emitter.h"
 
 #import "S2Token.h"
 
@@ -32,6 +33,8 @@
     PullUpController * pullUpCont;
     
     CompileChamberController * cChamberCont;
+    
+    Emitter * m_emitter;
 }
 
 /**
@@ -48,6 +51,9 @@
         [messenger connectParent:masterNameAndId];
         
         
+        m_emitter = [[Emitter alloc]init];
+        
+        
         // serve
         serverOperation = [[WebSocketConnectionOperation alloc]initWebSocketConnectionOperationWithMaster:[messenger myNameAndMID] withAddressAndPort:paramDict[KEY_WEBSOCKETSERVER_ADDRESS]];
         
@@ -56,6 +62,7 @@
         
         // compile
         cChamberCont = [[CompileChamberController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
+        
     }
     return self;
 }
@@ -128,14 +135,11 @@
                     NSAssert(dict[@"pullingId"], @"pullingId required");
                     NSAssert(dict[@"sourcePath"], @"sourcePath required");
                     
-                    NSString * sourcePath = dict[@"sourcePath"];
-                    NSString * identity = dict[@"pullingId"];
-                    
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 22:05:48" withLimitSec:10000 withComment:@"エミッタの成すべきコードがこの辺。ss@系の要素を、特定の種類に合わせて合成する。SQLみたいなもの。"];
-                    NSString * message = [[NSString alloc]initWithFormat:@"ss@readFileData:{\"path\":\"%@\"}->(data|message)monocastMessage:{\"target\":\"S2Client\",\"message\":\"replace\",\"header\":\"-update:%@ \"}->showAtLog:{\"message\":\"pulled:%@\"}->showStatusMessage:{\"message\":\"pulled:%@\"}", sourcePath, identity, sourcePath, sourcePath];
+                    // gen pullMessage
+                    NSString * pullMessage = [m_emitter generatePullMessage:dict[@"pullingId"] withPath:dict[@"sourcePath"]];
                     
                     [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
-                     [messenger tag:@"message" val:message],
+                     [messenger tag:@"message" val:pullMessage],
                      nil];
                     
                     [self callToMaster:S2_CONT_EXEC_PULLINGSTARTED withMessageDict:dict];
@@ -153,7 +157,26 @@
                     break;
                 }
                 case S2_PULLUPCONT_PULL_COMPLETED:{
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/17 0:19:30" withLimitSec:10000 withComment:@"pull完了後の通知。節目っぽい。"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 1:28:27" withLimitSec:10000 withComment:@"pull完了後の通知。節目っぽい。"];
+                    break;
+                }
+            }
+            
+            switch ([messenger execFrom:S2_COMPILECHAMBERCONT viaNotification:notif]) {
+                case S2_COMPILECHAMBERCONT_EXEC_SPINUPPED_FIRST:{
+                    
+                    NSString * readyMessage = [m_emitter generateReadyMessage];
+                    
+                    [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
+                     [messenger tag:@"message" val:readyMessage],
+                     nil];
+                    
+                    break;
+                }
+                case S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED:{
+                    NSAssert(dict[@"ignitedChamberId"],@"ignitedChamberId required");
+                    
+                    [self callToMaster:S2_CONT_EXEC_IGNITED withMessageDict:dict];
                     break;
                 }
             }
@@ -190,10 +213,19 @@
     }
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_PULLED]) {
-        [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 13:57:50" withLimitSec:100 withComment:@"pullからの投入部分がまだ。"];
+        NSLog(@"dataStr %@", dataStr);
+        NSString * keyAndPathAndSource = dataStr;
+        
+        NSArray * keyAndIdAndOther = [keyAndPathAndSource componentsSeparatedByString:KEY_LISTED_DELIM];
+        
+        NSString * pulledId = keyAndIdAndOther[0];
+        NSString * path = keyAndIdAndOther[1];
+        NSString * source = [keyAndPathAndSource substringFromIndex:[pulledId length]+[path length]+1+1];
+        
         
         [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_PULLED,
-         [messenger tag:@"pulledSource" val:dataStr],
+         [messenger tag:@"path" val:path],
+         [messenger tag:@"source" val:source],
          nil];
         return;
     }
@@ -229,7 +261,6 @@
 }
 
 
-
 // for test
 - (void) callToMaster:(int)exec withMessageDict:(NSDictionary * )messageDict {
     if ([messenger hasParent]) {
@@ -245,8 +276,9 @@
  終了
  */
 - (void) shutDown {
-    
     [serverOperation shutDown];
+    
+    [cChamberCont close];
     
     [pullUpCont close];
     

@@ -43,7 +43,7 @@
             NSAssert(dict[@"source"], @"source required");
 
             [self pool:dict[@"path"] withContents:dict[@"source"]];
-            [self drain:dict[@"path"] withContents:dict[@"source"] backTo:notif];
+            [self drain:dict[@"path"] backTo:notif];
             
             break;
         }
@@ -54,24 +54,19 @@
     }
 }
 
-
+/**
+ 特定箇所にファイルを吐き出す。
+ */
 - (void) pool:(NSString * )path withContents:(NSString * )contents {
-    // file outputを行う
+    // 特定箇所にgenerate
+    [self generateFileCache:@{path:contents} to:S2_FILECACHE_PATH];
 }
 
 
-- (void) drain:(NSString * )index withContents:(NSString * )contents backTo:(NSNotification * )notif {
-    if ([index hasSuffix:S2_BASEPATH_SUFFIX]) {
-        m_compileBasePath = [[NSString alloc]initWithString:index];
+- (void) drain:(NSString * )path backTo:(NSNotification * )notif {
+    if ([path hasSuffix:S2_BASEPATH_SUFFIX]) {
+        m_compileBasePath = [[NSString alloc]initWithString:path];
     }
-    
-    // dictionaryとしてset/update
-    [m_contentsDict setValue:contents forKey:index];
-    
-    
-    // 特定箇所にgenerate
-    [self generateFiles:@{index:contents} to:@"/Users/highvision/1_36_38"];
-    
     
     // そのまま内容を返信 or 何もしない
     if (m_compileBasePath) {
@@ -79,7 +74,7 @@
          [messenger tag:@"compileBasePath" val:m_compileBasePath],
          nil];
     } else {
-        NSLog(@"basepath not yet appears in:%@", m_contentsDict);
+        NSLog(@"basepath not yet appears");
         return;
     }
 }
@@ -88,7 +83,7 @@
 /**
  ファイル作成(メモリ上のものを使う場合は不要)
  */
-- (void) generateFiles:(NSDictionary * )pathAndSources to:(NSString * )generateTargetPath {
+- (void) generateFileCache:(NSDictionary * )pathAndSources to:(NSString * )generateTargetPath {
     
     NSError * error;
     NSFileManager * fMan = [[NSFileManager alloc]init];
@@ -99,7 +94,9 @@
         NSString * targetPath;
         
         //フォルダ生成
-        targetPath = [NSString stringWithFormat:@"%@%@", generateTargetPath, path];
+        if ([path hasPrefix:@"./"]) targetPath = [NSString stringWithFormat:@"%@/%@", generateTargetPath, [path substringFromIndex:2]];
+        else targetPath = [NSString stringWithFormat:@"%@/%@", generateTargetPath, path];
+        
         [fMan createDirectoryAtPath:[targetPath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error];
         
         //ファイル生成
@@ -116,9 +113,16 @@
     }
 }
 
+- (void) deleteFileCache:(NSString * )deleteTargetPath {
+    NSError * error;
+    NSFileManager * fMan = [[NSFileManager alloc]init];
+    [fMan removeItemAtPath:deleteTargetPath error:&error];
+}
+
 
 
 - (void) close {
+    [self deleteFileCache:S2_FILECACHE_PATH];
     [messenger closeConnection];
 }
 @end

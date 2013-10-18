@@ -18,7 +18,8 @@ enum S2_CONTENTSPOOLCONT_EXEC {
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId;
 
-- (void) drain:(NSString * )index withContents:(NSString * )contents backTo:(NSNotification * )notif;
+- (void) pool:(NSString * )path withContents:(NSString * )contents;
+- (void) drain:(NSString * )path backTo:(NSNotification * )notif;
 
 - (void) close;
 
