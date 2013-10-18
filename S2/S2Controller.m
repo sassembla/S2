@@ -169,7 +169,7 @@
     // messagePack使うならココかな。送付側に負荷が無ければ良いけど、ありそうだよなー。でも使ってみないと解らない。使うと速いし軽いかも知れない。文字よりは軽そう。
     
     NSString * dataStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
-    // returnがあるかどうか、っての、頭にuuid着ければ解決しない？　っていうのはあるけど、一時認識するためにここでのexec分解は必須。
+    
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_LISTED]) {
         [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_LISTED,
@@ -184,10 +184,9 @@
          nil];
         return;
     }
-
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
-        [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_UPDATE,
+        [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_UPDATED,
          [messenger tag:@"updatedSource" val:dataStr],
          nil];
         return;

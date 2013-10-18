@@ -55,7 +55,14 @@
             
         case S2_PULLUPCONT_PULLED:{
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/08 0:59:19" withLimitSec:0 withComment:@"pullしたのが帰ってきたとこ、作ってない。"];
-//            [self pulled:<#(NSString *)#> filePath:<#(NSString *)#> source:<#(NSString *)#>]
+    
+            [self pulled:<#(NSString *)#> filePath:<#(NSString *)#> source:<#(NSString *)#>]
+            break;
+        }
+            
+        case S2_PULLUPCONT_UPDATED:{
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 12:46:21" withLimitSec:0 withComment:@"updateが届いたので、解析してS2Controllerに返す"];
+            
             break;
         }
             
