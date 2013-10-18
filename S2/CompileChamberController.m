@@ -13,6 +13,8 @@
 
 #import "ContentsPoolController.h"
 
+#import "S2Token.h"
+
 #import "TimeMine.h"
 
 @implementation CompileChamberController {
@@ -36,6 +38,7 @@
         [messenger connectParent:masterNameAndId];
         
         m_count = 0;
+        
         m_chamberDict = [[NSMutableDictionary alloc]init];
         
         static_chamber_states = STATE_STR_ARRAY;
@@ -101,7 +104,7 @@
     return [self specificStateChambers:static_chamber_states[STATE_SPINUPPED]];
 }
 
-- (NSArray * ) ignitingChambers {
+- (NSArray * ) compilingChambers {
     return [self specificStateChambers:static_chamber_states[STATE_COMPILING]];
 }
 
@@ -125,15 +128,30 @@
                                            [messenger tag:@"source" val:dict[@"source"]],
                                            nil];
             
-            // ignition
+            // ignition with input
             if (poolInfoDict) {
                 NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
                 
+                
+                // spinup / compiling 状態のチャンバーを駆り出す
                 NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath];
                 
-                [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
-                 [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
-                 nil];
+                
+                
+                if (currentIgnitedChamberId) {
+                    // この時点で着火した扱いにする
+                    [self changeChamberStatus:currentIgnitedChamberId to:static_chamber_states[STATE_COMPILING]];
+                    [self setChamberPriorityFirst:currentIgnitedChamberId];
+
+                    [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
+                     [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
+                     nil];
+                } else {
+                    // all chambers are full.
+                    // 全てのチャンバーがspinup中かコンパイル中。
+
+                    [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_ALLCHAMBERS_FILLED, nil];
+                }
             }
             break;
         }
@@ -141,13 +159,11 @@
     
     // チャンバーからのメッセージ
     switch ([messenger execFrom:S2_COMPILECHAMBER viaNotification:notif]) {
-            
-            
         case S2_COMPILECHAMBER_EXEC_SPINUPPED:{
             NSAssert(dict[@"id"], @"id required");
             [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_SPINUPPED]];
             
-            // 少なくとも一つのchamberがspinup状態。 上位に連絡する。
+            // 少なくとも一つのchamberがspinup状態になった。 上位に連絡する。
             if ([m_chamberPriority count] == 0) [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_SPINUPPED_FIRST, nil];
             break;
         }
@@ -180,6 +196,12 @@
             [m_messageDict removeObjectForKey:dict[@"id"]];
             
             
+            // spinup
+            [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_SPINUP,
+             [messenger tag:@"id" val:dict[@"id"]],
+             nil];
+            
+            
             // 通知
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_COMPILED,
              [messenger tag:@"compiledChamberId" val:dict[@"id"]],
@@ -189,9 +211,19 @@
         }
         case S2_COMPILECHAMBER_EXEC_ABORTED:{
             NSAssert(dict[@"id"], @"id required");
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"abort後の処理"];
             
+            // プライオリティから除外
             [self removePriority:dict[@"id"]];
+            
+            // spinup
+            [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_SPINUP,
+             [messenger tag:@"id" val:dict[@"id"]],
+             nil];
+            
+            // 通知
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_ABORTED,
+             [messenger tag:@"abortedChamberId" val:dict[@"id"]],
+             nil];
             break;
         }
             
@@ -245,10 +277,13 @@
         }
     }
     
-    // この時点で着火した扱いにする
-    [self changeChamberStatus:ignitedChamberId to:static_chamber_states[STATE_COMPILING]];
-    [self setChamberPriorityFirst:ignitedChamberId];
-
+    /*
+    // 無い場合、プライオリティの低いコンパイル中のものを使用する。
+    if (ignitedChamberId) {} else {
+        lowPriorityChamberId なチャンバーの動作をabort -> spinup -> 、、と持っていくことは出来るが、メリットを感じないのでやらない。
+        ignitedChamberId = [self lowPriorityAbortableChamberId];
+    }
+     */
     
     return ignitedChamberId;
 }
@@ -267,6 +302,15 @@
     [m_chamberPriority removeObject:chamberId];
 }
 
+- (NSString * ) lowPriorityAbortableChamberId {
+    for (NSString * lowPriorityChamberId in [m_chamberPriority reverseObjectEnumerator]) {
+        NSDictionary * chamberInfoDict = m_chamberDict[lowPriorityChamberId];
+        if ([chamberInfoDict[@"state"] isEqualToString:static_chamber_states[STATE_COMPILING]]) {
+            return lowPriorityChamberId;
+        }
+    }
+    return nil;
+}
 
 
 - (void) close {

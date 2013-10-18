@@ -80,6 +80,10 @@
             [self ignite:dict[@"compileBasePath"]];
             break;
         }
+        case S2_COMPILECHAMBER_EXEC_ABORT:{
+            [self abort];
+            break;
+        }
         case S2_COMPILECHAMBER_EXEC_PURGE:{
             [self abort];
             [self close];
@@ -148,6 +152,10 @@
     }
     
     m_state = statesArray[STATE_ABORTED];
+    
+    [messenger callParent:S2_COMPILECHAMBER_EXEC_ABORTED,
+     [messenger tag:@"id" val:m_chamberId],
+     nil];
 }
 
 

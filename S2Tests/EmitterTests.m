@@ -37,6 +37,6 @@
  */
 
 - (void) testSomething {
-    XCTFail(@"not yet implemented");
+    NSLog(@"Emitter、特にテスト内容が無い。");
 }
 @end
