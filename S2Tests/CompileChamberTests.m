@@ -80,6 +80,7 @@
         }
         case S2_COMPILECHAMBER_EXEC_TICK:{
             NSLog(@"tick, %@", dict[@"id"]);
+            NSLog(@"message is %@", dict[@"message"]);
             [self update:dict[@"id"] to:S2_COMPILECHAMBER_EXEC_TICK];
             break;
         }
@@ -122,7 +123,7 @@
 
 - (bool) countupLongThenFail {
     m_repeatCount++;
-    if (TEST_REPEAT_COUNT_5 < m_repeatCount) {
+    if (TEST_REPEAT_COUNT_4 < m_repeatCount) {
         XCTFail(@"too long wait");
         return true;
     }
@@ -223,15 +224,19 @@
     
     [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
     
-    [cChamber ignite:TEST_COMPILEBASEPATH];
+    NSString * currentTargetPath = [[NSString alloc]initWithFormat:@"%@%@", TEST_TEMPPROJECT_OUTPUT_PATH, TEST_COMPILEBASEPATH];
+    
+    [cChamber ignite:currentTargetPath];
     
     while (![m_chamberResponseDict[[cChamber chamberId]] containsObject:execArray[S2_COMPILECHAMBER_EXEC_COMPILED]]) {
-        if ([self countupThenFail]) {
+        if ([self countupLongThenFail]) {
             XCTFail(@"too late");
             break;
         }
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
+    
+    [self deleteFiles:TEST_TEMPPROJECT_OUTPUT_PATH];
     
     XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILED], @"not match, %@", [cChamber state]);
 }
@@ -247,15 +252,19 @@
     
     [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
     
-    [cChamber ignite:TEST_COMPILEBASEPATH ];
+    NSString * currentTargetPath = [[NSString alloc]initWithFormat:@"%@%@", TEST_TEMPPROJECT_OUTPUT_PATH, TEST_COMPILEBASEPATH];
+    
+    [cChamber ignite:currentTargetPath];
     
     while (![m_chamberResponseDict[[cChamber chamberId]] containsObject:execArray[S2_COMPILECHAMBER_EXEC_COMPILED]]) {
-        if ([self countupThenFail]) {
+        if ([self countupLongThenFail]) {
             XCTFail(@"too late");
             break;
         }
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
+    
+    [self deleteFiles:TEST_TEMPPROJECT_OUTPUT_PATH];
     
     XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILED], @"not match, %@", [cChamber state]);
 }
@@ -272,9 +281,13 @@
     
     [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
     
-    [cChamber ignite:TEST_COMPILEBASEPATH];
+    NSString * currentTargetPath = [[NSString alloc]initWithFormat:@"%@%@", TEST_TEMPPROJECT_OUTPUT_PATH, TEST_COMPILEBASEPATH];
+    
+    [cChamber ignite:currentTargetPath];
     
     [cChamber abort];
+    
+    [self deleteFiles:TEST_TEMPPROJECT_OUTPUT_PATH];
     
     XCTAssertTrue([cChamber state] == [self targetState:STATE_ABORTED], @"not match, %@", [cChamber state]);
 }
