@@ -19,12 +19,15 @@
     KSMessenger * messenger;
 
     NSMutableDictionary * m_chamberDict;
+    NSMutableDictionary * m_messageDict;
     
     int m_count;
     
     NSArray * static_chamber_states;
     
     ContentsPoolController * contentsPoolCont;
+    
+    NSMutableArray * m_chamberPriority;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
@@ -37,8 +40,9 @@
         
         static_chamber_states = STATE_STR_ARRAY;
         
-        
         contentsPoolCont = [[ContentsPoolController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
+        
+        m_chamberPriority = [[NSMutableArray alloc]init];
     }
     return self;
 }
@@ -61,7 +65,6 @@
     // 初期化
     m_count = count;
     m_chamberDict = [[NSMutableDictionary alloc]init];
-    
     for (int i = 0; i < m_count; i++) {
         CompileChamber * chamber = [[CompileChamber alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
 
@@ -73,6 +76,8 @@
         
         [m_chamberDict setValue:chamberInfoDict forKey:currentChamberId];
     }
+    
+    m_messageDict = [[NSMutableDictionary alloc]init];
 }
 
 
@@ -131,6 +136,11 @@
             }
             break;
         }
+        case S2_COMPILECHAMBERCONT_EXEC_UPDATE:{
+            NSAssert(dict[@"updatedSource"], @"updatedSource required");
+            [TimeMine setTimeMineLocalizedFormat:@"" withLimitSec:10000 withComment:@"アップデートが届いたので、分解して"];
+            break;
+        }
     }
     
     // チャンバーからのメッセージ
@@ -146,17 +156,41 @@
         case S2_COMPILECHAMBER_EXEC_IGNITED:{
             NSAssert(dict[@"id"], @"id required");
             [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_COMPILING]];
+            [self setChamberPriorityFirst:dict[@"id"]];
+            
+            /*
+             イベントとしては、新しいigniteが来たタイミングで、
+             ・priorityが変わる(newが現れる)
+             ・それまでのnewがoldになる
+             ・メッセージのレベルが落ちるので、
+             clear
+             旧メッセージの送り込みを継続
+             になる。
+             
+             黄色で送り込むかな。messageQueue。
+             */
+
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 12:04:58" withLimitSec:100000 withComment:@"優先度のすげ替えが発生したので、一気に生きているチャンバーのinfoを塗り替える。"];
+            
             break;
         }
             
         case S2_COMPILECHAMBER_EXEC_COMPILED:{
             NSAssert(dict[@"id"], @"id required");
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"コンパイル後の処理"];
+            
+            [self removePriority:dict[@"id"]];
+
+            // 特定チャンバーのメッセージを消す
+            [m_messageDict removeObjectForKey:dict[@"id"]];
+
             break;
         }
         case S2_COMPILECHAMBER_EXEC_ABORTED:{
             NSAssert(dict[@"id"], @"id required");
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/13 19:37:31" withLimitSec:10000 withComment:@"abort後の処理"];
+            
+            [self removePriority:dict[@"id"]];
             break;
         }
             
@@ -164,16 +198,18 @@
             NSAssert(dict[@"id"], @"id required");
             NSAssert(dict[@"message"], @"message required");
             
+            // もうここでフィルタリングして、光らせる系の命令にしちゃっていいんでは。
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 9:53:02" withLimitSec:100000 withComment:@"要素を削る最前提は、レベルパラメータをみて行う。レベリングはここで行う。arrayにchamberIdを溜めていって、先頭のほうほどレベルが高い。みたいにする。chamberが死んだらそのchamberからのメッセージはすべて削る。"];
+            
             /*
-             こいつだけが、今送ってきたchamberが最新かどうか、というのを知っている。
-             で、とりあえず両方通そう。
+             チャンバーの寿命は、igniteされたりabortされたりで替わる。現在塗りつぶし(既存runnningを破棄)は発生していないので、どうするかな。
+             ー＞既存runnningで埋まった場合は何もしない、でOK
              */
             
             
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
              [messenger tag:@"message" val:dict[@"message"]],
              nil];
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/15 21:21:48" withLimitSec:10000 withComment:@"現在最新を走っていて、かつBANされていないchamberなら、受け取って話を聞く。現在コンパイル中のやつ一覧、のリストを作る必要があるな。"];
             
             break;
         }
@@ -211,6 +247,21 @@
     
     return ignitedChamberId;
 }
+
+
+- (void) setChamberPriorityFirst:(NSString * )chamberId {
+    if ([m_chamberPriority containsObject:chamberId]) [m_chamberPriority removeObject:chamberId];
+    [m_chamberPriority insertObject:chamberId atIndex:0];
+}
+
+- (BOOL) isFirstPriority:(NSString * )chamberId {
+    return m_chamberPriority[0] == chamberId;
+}
+
+- (void) removePriority:(NSString * )chamberId {
+    [m_chamberPriority removeObject:chamberId];
+}
+
 
 
 - (void) close {

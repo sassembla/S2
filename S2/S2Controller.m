@@ -185,13 +185,13 @@
         return;
     }
 
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 8:14:46" withLimitSec:100000 withComment:@"このへんに、compileChamberControllerへのupdate受け入れ処理"];
-//    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
-//        [messenger call:S2_COMPCHAMBERCONT withExec:COMPCHAMBERCONT_UPDATED,
-//         [messenger tag:@"updatedSource" val:dataStr],
-//         nil];
-//        return;
-//    }
+    
+    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
+        [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_UPDATE,
+         [messenger tag:@"updatedSource" val:dataStr],
+         nil];
+        return;
+    }
 }
 
 
