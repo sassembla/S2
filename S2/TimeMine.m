@@ -34,9 +34,9 @@
 	NSDate * utcLimitDate = [[NSDate alloc] initWithTimeInterval:interval sinceDate:limitDate];
 	NSDate * nowDate = [NSDate date];//現在のシステム時間
 	
-	NSLog(@"timeMine	%@	rest %f", comment, [utcLimitDate timeIntervalSinceDate:nowDate]);
-	
-	NSAssert2([utcLimitDate compare:nowDate] == NSOrderedDescending, @"bomb, %@		rest %f", comment, [utcLimitDate timeIntervalSinceDate:nowDate]);
+//	NSLog(@"timeMine	%@	rest %f", comment, [utcLimitDate timeIntervalSinceDate:nowDate]);
+//	
+//	NSAssert2([utcLimitDate compare:nowDate] == NSOrderedDescending, @"bomb, %@		rest %f", comment, [utcLimitDate timeIntervalSinceDate:nowDate]);
 	
 	return [utcLimitDate timeIntervalSinceDate:nowDate];
 }

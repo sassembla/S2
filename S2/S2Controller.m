@@ -89,14 +89,6 @@
             // 1 first only
             switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
                 case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
-                    
-                    // only one can connect
-                    if (m_connectionDict) {
-                        NSLog(@"already connected by one client.");
-                        return;
-                    }
-                    
-                    
                     NSAssert(dict[@"clientAddr:port"], @"clientAddr:port required");
                     NSLog(@"connection established with %@", dict[@"clientAddr:port"]);
                     
@@ -110,10 +102,8 @@
                     // initialize
                     m_connectionDict = [[NSDictionary alloc]initWithObjectsAndKeys:connectionDict, conUUID, nil];
                     
-                    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INITIALIZE,
-                     [messenger tag:@"chamberCount" val:@S2_DEFAULT_CHAMBER_COUNT],
-                     nil];
                     
+                    // ready for signal. normally wait [listed].
                     
                     [self callToMaster:S2_CONT_EXEC_CONNECTED withMessageDict:m_connectionDict];
                     
@@ -157,7 +147,10 @@
                     break;
                 }
                 case S2_PULLUPCONT_PULL_COMPLETED:{
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 1:28:27" withLimitSec:10000 withComment:@"pull完了後の通知。節目っぽい。"];
+                    // pull 完了のタイミングで、チャンバーとかを設置する。
+                    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INITIALIZE,
+                     [messenger tag:@"chamberCount" val:@S2_DEFAULT_CHAMBER_COUNT],
+                     nil];
                     break;
                 }
             }
@@ -197,7 +190,7 @@
     // messagePack使うならココかな。送付側に負荷が無ければ良いけど、ありそうだよなー。でも使ってみないと解らない。使うと速いし軽いかも知れない。文字よりは軽そう。
     
     NSString * dataStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"dataStr %@", dataStr);
+//    NSLog(@"dataStr %@", dataStr);
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_LISTED]) {
         NSString * keyAndListOfSourcesStr = dataStr;
@@ -236,12 +229,16 @@
     }
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
-        [TimeMine setTimeMineLocalizedFormat:@"2013/10/18 14:01:40" withLimitSec:100 withComment:@"アップデートが入ってきたら、みたいな話。"];
+        NSArray * spacedComponents = [dataStr componentsSeparatedByString:@" "];
+        NSString * keyAndPathStr = spacedComponents[0];
         
-        NSString * path = @"";
-        NSString * source = @"";
+        NSArray * keyAndPathArray = [keyAndPathStr componentsSeparatedByString:@":"];
+
+        NSString * path = keyAndPathArray[1];
         
-        [messenger call:S2_PULLUPCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
+        NSString * source = [dataStr substringFromIndex:[TRIGGER_PREFIX_UPDATED length] + [path length] + 1 + 1];
+        
+        [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
          [messenger tag:@"path" val:path],
          [messenger tag:@"source" val:source],
          nil];
