@@ -63,7 +63,7 @@
     // 自分以外からのmessageは、chamberIdのチェックを行う
     NSAssert(dict[@"id"], @"id required");
     
-    if ([dict[@"id"] isEqualToString:m_chamberId]) {
+    if (![dict[@"id"] isEqualToString:m_chamberId]) {
         return;
     }
     

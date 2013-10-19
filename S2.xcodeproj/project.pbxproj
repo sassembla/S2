@@ -12,6 +12,8 @@
 		B742D358180E8E2300EB43E5 /* MFTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D353180E8E2300EB43E5 /* MFTask.m */; };
 		B742D359180E8E2300EB43E5 /* MFTaskQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D356180E8E2300EB43E5 /* MFTaskQueue.m */; };
 		B742D35A180E8E2300EB43E5 /* MFTaskQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D356180E8E2300EB43E5 /* MFTaskQueue.m */; };
+		B743DB721811F15200E642A6 /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B743DB711811F15200E642A6 /* TimeMine.m */; };
+		B743DB731811F15200E642A6 /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B743DB711811F15200E642A6 /* TimeMine.m */; };
 		B7987E9317EE82FB008F21F4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7987E9217EE82FB008F21F4 /* Cocoa.framework */; };
 		B7987E9D17EE82FB008F21F4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B7987E9B17EE82FB008F21F4 /* InfoPlist.strings */; };
 		B7987E9F17EE82FB008F21F4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987E9E17EE82FB008F21F4 /* main.m */; };
@@ -46,8 +48,6 @@
 		B7EB771D180A78C800FF959D /* CompileChamberController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7EB771B180A78C800FF959D /* CompileChamberController.m */; };
 		B7EB7720180A78D300FF959D /* CompileChamber.m in Sources */ = {isa = PBXBuildFile; fileRef = B7EB771F180A78D300FF959D /* CompileChamber.m */; };
 		B7EB7721180A78D300FF959D /* CompileChamber.m in Sources */ = {isa = PBXBuildFile; fileRef = B7EB771F180A78D300FF959D /* CompileChamber.m */; };
-		B7FCE9FE17EF17D100C6B41A /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCE9FD17EF17D100C6B41A /* TimeMine.m */; };
-		B7FCE9FF17EF17D100C6B41A /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCE9FD17EF17D100C6B41A /* TimeMine.m */; };
 		B7FCEA0217EF1EB900C6B41A /* S2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0117EF1EB900C6B41A /* S2Controller.m */; };
 		B7FCEA0317EF1EB900C6B41A /* S2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0117EF1EB900C6B41A /* S2Controller.m */; };
 		B7FCEA0917EFECC500C6B41A /* EmitterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FCEA0817EFECC500C6B41A /* EmitterTests.m */; };
@@ -69,6 +69,8 @@
 		B742D354180E8E2300EB43E5 /* MFTaskDelegateProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFTaskDelegateProtocol.h; sourceTree = "<group>"; };
 		B742D355180E8E2300EB43E5 /* MFTaskQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFTaskQueue.h; sourceTree = "<group>"; };
 		B742D356180E8E2300EB43E5 /* MFTaskQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFTaskQueue.m; sourceTree = "<group>"; };
+		B743DB701811F15200E642A6 /* TimeMine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeMine.h; path = S2/TimeMine.h; sourceTree = "<group>"; };
+		B743DB711811F15200E642A6 /* TimeMine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TimeMine.m; path = S2/TimeMine.m; sourceTree = "<group>"; };
 		B7987E8F17EE82FB008F21F4 /* S2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = S2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7987E9217EE82FB008F21F4 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		B7987E9517EE82FB008F21F4 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -113,8 +115,6 @@
 		B7EB771B180A78C800FF959D /* CompileChamberController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompileChamberController.m; sourceTree = "<group>"; };
 		B7EB771E180A78D300FF959D /* CompileChamber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompileChamber.h; sourceTree = "<group>"; };
 		B7EB771F180A78D300FF959D /* CompileChamber.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompileChamber.m; sourceTree = "<group>"; };
-		B7FCE9FC17EF17D100C6B41A /* TimeMine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeMine.h; sourceTree = "<group>"; };
-		B7FCE9FD17EF17D100C6B41A /* TimeMine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeMine.m; sourceTree = "<group>"; };
 		B7FCEA0017EF1EB900C6B41A /* S2Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = S2Controller.h; sourceTree = "<group>"; };
 		B7FCEA0117EF1EB900C6B41A /* S2Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = S2Controller.m; sourceTree = "<group>"; };
 		B7FCEA0817EFECC500C6B41A /* EmitterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmitterTests.m; sourceTree = "<group>"; };
@@ -158,8 +158,9 @@
 		B7987E8617EE82FB008F21F4 = {
 			isa = PBXGroup;
 			children = (
+				B743DB701811F15200E642A6 /* TimeMine.h */,
+				B743DB711811F15200E642A6 /* TimeMine.m */,
 				B742D351180E8E2300EB43E5 /* MFTask */,
-				B7FCE9FB17EF17D100C6B41A /* TimeAssert */,
 				B7987F2217EE835D008F21F4 /* KSMessenger */,
 				B7987EC617EE831F008F21F4 /* MBWebSocketServer */,
 				B7987E9817EE82FB008F21F4 /* S2 */,
@@ -282,16 +283,6 @@
 			path = KSMessenger;
 			sourceTree = "<group>";
 		};
-		B7FCE9FB17EF17D100C6B41A /* TimeAssert */ = {
-			isa = PBXGroup;
-			children = (
-				B7FCE9FC17EF17D100C6B41A /* TimeMine.h */,
-				B7FCE9FD17EF17D100C6B41A /* TimeMine.m */,
-			);
-			name = TimeAssert;
-			path = ../TimeAssert;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -392,6 +383,7 @@
 			files = (
 				B7987ECE17EE831F008F21F4 /* GCDAsyncSocket.m in Sources */,
 				B742D359180E8E2300EB43E5 /* MFTaskQueue.m in Sources */,
+				B743DB721811F15200E642A6 /* TimeMine.m in Sources */,
 				B7987ED417EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
 				B7FCEA0217EF1EB900C6B41A /* S2Controller.m in Sources */,
 				B7CA8979180AAFCF008B6C40 /* ContentsPoolController.m in Sources */,
@@ -400,7 +392,6 @@
 				B7EB771C180A78C800FF959D /* CompileChamberController.m in Sources */,
 				B7EB7720180A78D300FF959D /* CompileChamber.m in Sources */,
 				B7987F2517EE835D008F21F4 /* KSMessenger.m in Sources */,
-				B7FCE9FE17EF17D100C6B41A /* TimeMine.m in Sources */,
 				B7B6D4501802F99C007AE06E /* PullUpController.m in Sources */,
 				B7B72FD518118BEE00EF8612 /* Emitter.m in Sources */,
 				B7987E9F17EE82FB008F21F4 /* main.m in Sources */,
@@ -429,8 +420,8 @@
 				B7987F2617EE835D008F21F4 /* KSMessenger.m in Sources */,
 				B742D358180E8E2300EB43E5 /* MFTask.m in Sources */,
 				B7B6D44D1802F176007AE06E /* PullUpControllerTests.m in Sources */,
+				B743DB731811F15200E642A6 /* TimeMine.m in Sources */,
 				B7B6D4491802EDF2007AE06E /* CompileChamberTests.m in Sources */,
-				B7FCE9FF17EF17D100C6B41A /* TimeMine.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

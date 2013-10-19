@@ -348,7 +348,7 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
 
-    // フルパッケージをのリストを渡す 最後にcompile条件であるTEST_COMPILEBASEPATHがそろう
+    // フルパッケージのリストを渡す 最後にcompile条件であるTEST_COMPILEBASEPATHがそろう
     NSArray * pullArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
     
     // listUpdate送付
@@ -360,7 +360,7 @@
     [self connectClientTo:TEST_SERVER_URL withMessage:message];
     
     
-    // pullUpが3つ分のカウントを出すまで、、という適当な待ちを行う
+    // pullUpが設定分のカウントを出すまで、、という適当な待ちを行う
     while ([m_pullingDict count] < [pullArray count]) {
         if ([self countupThenFail]) {
             XCTFail(@"too long wait");
@@ -370,10 +370,14 @@
     }
     
     
+    NSArray * pulledIds = [m_pullingDict allKeysForObject:TEST_COMPILEBASEPATH];
+    XCTAssertTrue([pulledIds count] == 1, @"not match, %lu", (unsigned long)[pulledIds count]);
+                                                                             
+    
     // TEST_COMPILEBASEPATHだけを送付
     NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
                           TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
-                          TEST_COMPILEBASEPATH, KEY_LISTED_DELIM,
+                          pulledIds[0], KEY_LISTED_DELIM,
                           [self readSource:TEST_COMPILEBASEPATH]
                           ];
     
@@ -414,7 +418,7 @@
     [self connectClientTo:TEST_SERVER_URL withMessage:message];
     
     
-    // pullUpが3つ分のカウントを出すまで、、という適当な待ちを行う
+    // pullUpが設定分のカウントを出すまで、、という適当な待ちを行う
     while ([m_pullingDict count] < [pullArray count]) {
         if ([self countupThenFail]) {
             XCTFail(@"too long wait");
@@ -423,11 +427,13 @@
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
+    NSArray * pulledIds = [m_pullingDict allKeysForObject:TEST_COMPILEBASEPATH];
+    XCTAssertTrue([pulledIds count] == 1, @"not match, %lu", (unsigned long)[pulledIds count]);
     
     // TEST_COMPILEBASEPATHだけを送付
     NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
                            TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
-                           TEST_COMPILEBASEPATH, KEY_LISTED_DELIM,
+                           pulledIds[0], KEY_LISTED_DELIM,
                            [self readSource:TEST_COMPILEBASEPATH]
                            ];
     

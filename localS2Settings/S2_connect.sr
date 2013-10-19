@@ -1,4 +1,4 @@
-//S2 private planet edition
+//S2'
 
 //SSからのメッセージを、SRで受けるためのClient と、そこからS2へのルート
 id:SStoSR destination:ws://127.0.0.1:8823 option:type:client
@@ -8,13 +8,6 @@ id:S2toSR destination:ws://127.0.0.1:8824 option:type:client
 connect:SStoSR to:S2toSR
 connect:S2toSR to:SStoSR
 
-// message
-emit:ss@showAtLog:{"message":"ST&SR-connected."}->showStatusMessage:{"message":"ST&SR-connected."} to:SStoSR
-
-// message
-emit:ss@showAtLog:{"message":"S2-ready."}->showStatusMessage:{"message":"S2-ready."} to:SStoSR
-
-
 //フィルタのセット、S2の着火
-emitfile:./tool/ScalaFilter.txt to:SStoSR
+emitfile:/Users/highvision/Desktop/S2/localS2Settings/tool/ScalaFilter.txt to:SStoSR
 

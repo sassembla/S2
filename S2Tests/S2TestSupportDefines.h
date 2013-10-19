@@ -14,8 +14,8 @@
 #define TEST_BASE_PATH  (@"./S2Tests/TestResource/")
 
 // list用のダミー
-#define TEST_LISTED_1   ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"codes/TEST_LISTED_1.txt"])
-#define TEST_LISTED_2   ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"codes/TEST_LISTED_2.txt"])
+#define TEST_LISTED_1   ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"codes/TEST_LISTED_1.scala"])
+#define TEST_LISTED_2   ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"codes/TEST_LISTED_2.scala"])
 
 
 // サンプルのScalaプロジェクト No.1

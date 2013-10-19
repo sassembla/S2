@@ -28,7 +28,7 @@ enum S2_PULLUPCONT_EXEC {
 - (void) pulled:(NSString * )path source:(NSString * )source;
 
 
-- (NSArray * )pullingPathList;
+- (NSDictionary * )pullingPathList;
 
 - (BOOL) isCompleted;
 

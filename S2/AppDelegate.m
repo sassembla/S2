@@ -26,38 +26,18 @@
 	KSMessenger * messenger;
 }
 
-- (id) initWithParams:(NSDictionary * )params {
-    
-    if (params[KEY_XCTEST]) {
-        return nil;
-    }
-    
-    
-    if (self = [super init]) {
-        
-    }
-    
-    return self;
-}
-
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 	messenger = [[KSMessenger alloc] initWithBodyID:self withSelector:@selector(receiver:) withName:S2_DELEGATE];
 	
+    NSDictionary * paramDict = @{KEY_WEBSOCKETSERVER_ADDRESS:@"ws://127.0.0.1:8824"};
     
     // App main controller with WebSocketServer
 //    S2Controller * cont = [[S2Controller alloc]initWithDict:paramDict withMasterName:[messenger myNameAndMID]];
-
-    
     
 }
 
-
-
-
-- (void) receiver:(NSNotification * )notif {
-	NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
-}
+- (void) receiver:(NSNotification * )notif {}
 
 
 @end

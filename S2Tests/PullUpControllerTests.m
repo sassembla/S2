@@ -82,12 +82,15 @@
     // このソースのpull開始、該当のソース入力を与えると、completedを送ってくる
     [pullUpCont listed:listed];
     
-    // テスト用コードを読み出す
-    NSString * source1 = [self readSource:TEST_LISTED_1];
-    [pullUpCont pulled:TEST_LISTED_1 source:source1 ];
     
-    NSString * source2 = [self readSource:TEST_LISTED_2];
-    [pullUpCont pulled:TEST_LISTED_2 source:source2];
+    NSDictionary * pullingDict = [pullUpCont pullingPathList];
+    NSArray * keys = [pullingDict allKeys];
+    
+
+    // 全てのテスト用コードを読み出す
+    for (NSString * key in keys) {
+        [pullUpCont pulled:key source:@"something"];
+    }
     
     XCTAssertTrue([pullUpCont isCompleted], @"not completed");
 }
@@ -101,9 +104,13 @@
     [pullUpCont listed:listed];
     
     
+    NSDictionary * pullingDict = [pullUpCont pullingPathList];
+    NSArray * keys = [pullingDict allKeys];
+    
+    
     // テスト用コードを読み出す
     NSString * source1 = [self readSource:TEST_LISTED_1];
-    [pullUpCont pulled:TEST_LISTED_1 source:source1 ];
+    [pullUpCont pulled:keys[0] source:source1];
     
     XCTAssertFalse([pullUpCont isCompleted], @"completed");
 }

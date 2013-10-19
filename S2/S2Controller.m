@@ -157,7 +157,7 @@
                     break;
                 }
                 case S2_PULLUPCONT_PULL_COMPLETED:{
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 1:28:27" withLimitSec:10000 withComment:@"pull完了後の通知。節目っぽい。"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 1:28:27" withLimitSec:10000 withComment:@"pull完了後の通知。節目っぽい。"];
                     break;
                 }
             }
@@ -197,7 +197,7 @@
     // messagePack使うならココかな。送付側に負荷が無ければ良いけど、ありそうだよなー。でも使ってみないと解らない。使うと速いし軽いかも知れない。文字よりは軽そう。
     
     NSString * dataStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
-    
+    NSLog(@"dataStr %@", dataStr);
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_LISTED]) {
         NSString * keyAndListOfSourcesStr = dataStr;
@@ -218,18 +218,18 @@
     }
     
     if ([dataStr hasPrefix:TRIGGER_PREFIX_PULLED]) {
-        NSLog(@"dataStr %@", dataStr);
         NSString * keyAndPathAndSource = dataStr;
         
-        NSArray * keyAndIdAndOther = [keyAndPathAndSource componentsSeparatedByString:KEY_LISTED_DELIM];
+        NSRange theRange;
+        theRange.location = [TRIGGER_PREFIX_PULLED length]+1;
+        theRange.length = [[messenger myMID]length];
         
-        NSString * pulledId = keyAndIdAndOther[0];
-        NSString * path = keyAndIdAndOther[1];
-        NSString * source = [keyAndPathAndSource substringFromIndex:[pulledId length]+[path length]+1+1];
+        NSString * pulledId = [keyAndPathAndSource substringWithRange:theRange];
+        NSString * source = [keyAndPathAndSource substringFromIndex:[TRIGGER_PREFIX_PULLED length]+[pulledId length]+1+1];
         
-        
+    
         [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_PULLED,
-         [messenger tag:@"path" val:path],
+         [messenger tag:@"pulledId" val:pulledId],
          [messenger tag:@"source" val:source],
          nil];
         return;

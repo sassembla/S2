@@ -12,6 +12,4 @@
 
 @property (assign) IBOutlet NSWindow *window;
 
-- (id) initWithParams:(NSDictionary * )params;
-
 @end

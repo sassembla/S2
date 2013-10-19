@@ -40,10 +40,10 @@
         }
             
         case S2_PULLUPCONT_PULLED:{
-            NSAssert(dict[@"path"], @"path required");
+            NSAssert(dict[@"pulledId"], @"pulledId required");
             NSAssert(dict[@"source"], @"source required");
             
-            [self pulled:dict[@"path"] source:dict[@"source"]];
+            [self pulled:dict[@"pulledId"] source:dict[@"source"]];
             break;
         }
     }
@@ -57,21 +57,23 @@
     NSAssert(0 < [sourcesPathArray count], @"empty sourcesPathArray.");
     
     // 特定のカウントずつpullする
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 16:24:50" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 16:24:50" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
     
     
     // renew
     m_pullingPathDict = [[NSMutableDictionary alloc]init];
     
     for (NSString * pullingPath in sourcesPathArray) {
-        NSString * pullingId = [KSMessenger generateMID];
+        if ([pullingPath hasSuffix:@".gradle"] || [pullingPath hasSuffix:@".scala"]) {
+            NSString * pullingId = [KSMessenger generateMID];
 
-        [m_pullingPathDict setValue:pullingPath forKey:pullingId];
-        
-        [messenger callParent:S2_PULLUPCONT_PULLING,
-         [messenger tag:@"pullingId" val:pullingId],
-         [messenger tag:@"sourcePath" val:pullingPath],
-         nil];
+            [m_pullingPathDict setValue:pullingPath forKey:pullingId];
+            
+            [messenger callParent:S2_PULLUPCONT_PULLING,
+             [messenger tag:@"pullingId" val:pullingId],
+             [messenger tag:@"sourcePath" val:pullingPath],
+             nil];
+        }
     }
 }
 
@@ -80,34 +82,30 @@
  pulledに対応する。
  masterへとpulledのデータを返す。
  */
-- (void) pulled:(NSString * )path source:(NSString * )source {
+- (void) pulled:(NSString * )pulledId source:(NSString * )source {
     
-    // remove by value
-    NSString * currentConnectionId;
-    for (NSString * currentConId in [m_pullingPathDict allKeys]) {
-        if ([[m_pullingPathDict valueForKey:currentConId] isEqualToString:path]) currentConnectionId = currentConId;
-    }
-    
-    if (currentConnectionId) [m_pullingPathDict removeObjectForKey:currentConnectionId];
-    else {
-        NSLog(@"no connection id found, ignore. %@", path);
-        return;
-    }
-    
-    [messenger callParent:S2_PULLUPCONT_FROMPULL_UPDATED,
-     [messenger tag:@"path" val:path],
-     [messenger tag:@"source" val:source],
-     nil];
-    
-    // pull完了通知、compilableになる筈。
-    if ([self isCompleted]) {
-        [messenger callParent:S2_PULLUPCONT_PULL_COMPLETED,
+    if (m_pullingPathDict[pulledId]) {
+        NSString * path = [[NSString alloc] initWithFormat:@"%@", m_pullingPathDict[pulledId]];
+        [m_pullingPathDict removeObjectForKey:pulledId];
+        
+        [messenger callParent:S2_PULLUPCONT_FROMPULL_UPDATED,
+         [messenger tag:@"path" val:path],
+         [messenger tag:@"source" val:source],
          nil];
+        
+        // pull完了通知、compilableになる筈。
+        if ([self isCompleted]) {
+            [messenger callParent:S2_PULLUPCONT_PULL_COMPLETED,
+             nil];
+        }
+    } else {
+        NSLog(@"no connection id found, ignored. %@", pulledId);
+        return;
     }
 }
 
-- (NSArray * )pullingPathList {
-    return [m_pullingPathDict allValues];
+- (NSDictionary * )pullingPathList {
+    return m_pullingPathDict;
 }
 
 
