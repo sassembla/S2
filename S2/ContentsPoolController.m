@@ -91,11 +91,18 @@
     
     //ファイル出力
     for (NSString * path in [pathAndSources allKeys]) {
-        NSString * targetPath;
+        
         
         //フォルダ生成
-        if ([path hasPrefix:@"./"]) targetPath = [NSString stringWithFormat:@"%@/%@", generateTargetPath, [path substringFromIndex:2]];
-        else targetPath = [NSString stringWithFormat:@"%@/%@", generateTargetPath, path];
+        NSString * prePath = nil;
+        if ([path hasPrefix:@"./"]) prePath = [path substringFromIndex:2];
+        else prePath = path;
+        
+        
+        NSString * targetPath = nil;
+        if ([prePath hasPrefix:@"/"]) targetPath = [NSString stringWithFormat:@"%@%@", generateTargetPath, prePath];
+        else targetPath = [NSString stringWithFormat:@"%@%@", generateTargetPath, prePath];
+        
         
         [fMan createDirectoryAtPath:[targetPath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error];
         
@@ -103,9 +110,11 @@
         bool result = [fMan createFileAtPath:targetPath contents:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
         
         if (result) {
-            NSLog(@"generated:%@", targetPath);
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 17:44:08" withLimitSec:100000 withComment:@"generated"];
+//            NSLog(@":%@", targetPath);
         } else {
-            NSLog(@"fail to generate:%@", targetPath);
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 17:45:02" withLimitSec:100000 withComment:@"fail to generate"];
+//            NSLog(@"fail to generate:%@", targetPath);
         }
         
         NSFileHandle * writeHandle = [NSFileHandle fileHandleForUpdatingAtPath:targetPath];

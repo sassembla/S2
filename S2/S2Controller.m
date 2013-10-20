@@ -147,7 +147,7 @@
                     break;
                 }
                 case S2_PULLUPCONT_PULL_COMPLETED:{
-                    // pull 完了のタイミングで、チャンバーとかを設置する。
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 13:49:33" withLimitSec:100000 withComment:@"pull 完了のタイミングで、チャンバーとかを設置する。"];
                     [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INITIALIZE,
                      [messenger tag:@"chamberCount" val:@S2_DEFAULT_CHAMBER_COUNT],
                      nil];
@@ -160,9 +160,9 @@
                     
                     NSString * readyMessage = [m_emitter generateReadyMessage];
                     
-                    [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
-                     [messenger tag:@"message" val:readyMessage],
-                     nil];
+//                    [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
+//                     [messenger tag:@"message" val:readyMessage],
+//                     nil];
                     
                     break;
                 }
@@ -175,6 +175,17 @@
                 case S2_COMPILECHAMBERCONT_EXEC_CHAMBER_COMPILED:{
                     NSAssert(dict[@"compiledChamberId"], @"compiledChamberId required");
                     [self callToMaster:S2_CONT_EXEC_COMPILEPROCEEDED withMessageDict:dict];
+                    break;
+                }
+                case S2_COMPILECHAMBERCONT_EXEC_OUTPUT:{
+                    NSAssert(dict[@"message"], @"message required");
+                    NSAssert(dict[@"priority"], @"priority required");
+                    
+                    NSString * filterMessage = [m_emitter genereateFilteredMessage:dict[@"message"] withPriority:[dict[@"priority"] intValue]];
+                    
+                    [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
+                     [messenger tag:@"message" val:filterMessage],
+                     nil];
                     break;
                 }
             }

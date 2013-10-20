@@ -115,7 +115,6 @@
 - (bool) countupThenFail {
     m_repeatCount++;
     if (TEST_REPEAT_COUNT_2 < m_repeatCount) {
-        XCTFail(@"too long wait");
         return true;
     }
     return false;
@@ -124,7 +123,6 @@
 - (bool) countupLongThenFail {
     m_repeatCount++;
     if (TEST_REPEAT_COUNT_4 < m_repeatCount) {
-        XCTFail(@"too long wait");
         return true;
     }
     return false;

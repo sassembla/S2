@@ -1,1 +1,1 @@
-test3
+ss@Scalaのコンパイルとかの命令を一手に設定する設定ファイル。JSONで順を守って実行される。0.0.1/inputIdentity:{"id":"S2Client"}->点火とリスト出力/getAllFilePath:{"anchor":"build.gradle","header":"listup,"}->(paths|message)monocastMessage:{"target":"S2Client","message":"replace"}->showAtLog:{"message":"entry..."}->showStatusMessage:{"message":"entry..."}

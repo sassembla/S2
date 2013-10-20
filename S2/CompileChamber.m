@@ -76,8 +76,8 @@
         }
         case S2_COMPILECHAMBER_EXEC_IGNITE:{
             NSAssert(dict[@"compileBasePath"], @"compileBasePath required");
-
-            NSLog(@"ignite 何回通ってますかね！！ %@", m_chamberId);
+            
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 15:42:23" withLimitSec:100000 withComment:@"ignite 何回通ってますかね！！"];
             
             [self ignite:dict[@"compileBasePath"]];
             break;
@@ -111,7 +111,6 @@
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 18:22:15" withLimitSec:10000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではこのブロック内でロックしてOK。今回は瞬間でSpinUpしたことにする。"];
     
     // spinupping
-    NSLog(@"spinupped m_chamberId %@", m_chamberId);
     m_state = statesArray[STATE_SPINUPPED];
 
     if ([messenger hasParent]) {

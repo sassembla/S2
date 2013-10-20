@@ -7,6 +7,7 @@
 //
 
 #import "Emitter.h"
+#import "TimeMine.h"
 
 @implementation Emitter
 
@@ -21,4 +22,12 @@
 - (NSString * ) generateReadyMessage {
     return @"ss@showAtLog:{\"message\":\"S2 compileChamber spinup over.\"}->showStatusMessage:{\"message\":\"S2 compileChamber spinup over.\"}";
 }
+
+
+- (NSString * ) genereateFilteredMessage:(NSString * )message withPriority:(int)priority {
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 13:58:04" withLimitSec:10000 withComment:@"直にラインを光らせる処理とか、、は、ちょっとあとで。負荷がかかるけどフィルタを流す。"];
+    return [NSString stringWithFormat:@"ss@filtering:{\"name\":\"scala\",\"source\":\"%@\"}", message];
+//    return message;
+}
+
 @end
