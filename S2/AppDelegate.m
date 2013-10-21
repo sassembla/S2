@@ -11,8 +11,7 @@
 
 #import "S2Controller.h"
 
-
-#define KEY_XCTEST  (@"-XCTest")
+#import "S2Token.h"
 
 
 #define S2_DELEGATE	(@"S2_DELEGATE")
@@ -30,10 +29,10 @@
 {
 	messenger = [[KSMessenger alloc] initWithBodyID:self withSelector:@selector(receiver:) withName:S2_DELEGATE];
 	
-    NSDictionary * paramDict = @{KEY_WEBSOCKETSERVER_ADDRESS:@"ws://127.0.0.1:8824"};
+    NSDictionary * paramDict = @{KEY_WEBSOCKETSERVER_ADDRESS:S2_DEFAULT_ADDR};
     
     // App main controller with WebSocketServer
-//    S2Controller * cont = [[S2Controller alloc]initWithDict:paramDict withMasterName:[messenger myNameAndMID]];
+    S2Controller * cont = [[S2Controller alloc]initWithDict:paramDict withMasterName:[messenger myNameAndMID]];
     
 }
 

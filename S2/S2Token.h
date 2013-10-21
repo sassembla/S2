@@ -6,6 +6,10 @@
 //  Copyright (c) 2013年 sassembla. All rights reserved.
 //
 
+// defaut server path
+#define S2_DEFAULT_ADDR         (@"ws://127/0/0/1:8823")
+
+
 // S2 specific API triggers
 #define TRIGGER_PREFIX_LISTED   (@"listed")
 #define TRIGGER_PREFIX_PULLED   (@"pulled")
