@@ -211,7 +211,7 @@
     NSString * dataStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
 //    NSLog(@"dataStr %@", dataStr);
     
-    if ([dataStr hasPrefix:TRIGGER_PREFIX_LISTED]) {
+    if ([dataStr hasPrefix:S2_TRIGGER_PREFIX_LISTED]) {
         NSString * keyAndListOfSourcesStr = dataStr;
         
         // keyデリミタvalueデリミタ...ってなってるので、デリミタで割る。
@@ -229,15 +229,15 @@
         return;
     }
     
-    if ([dataStr hasPrefix:TRIGGER_PREFIX_PULLED]) {
+    if ([dataStr hasPrefix:S2_TRIGGER_PREFIX_PULLED]) {
         NSString * keyAndPathAndSource = dataStr;
         
         NSRange theRange;
-        theRange.location = [TRIGGER_PREFIX_PULLED length]+1;
+        theRange.location = [S2_TRIGGER_PREFIX_PULLED length]+1;
         theRange.length = [[messenger myMID]length];
         
         NSString * pulledId = [keyAndPathAndSource substringWithRange:theRange];
-        NSString * source = [keyAndPathAndSource substringFromIndex:[TRIGGER_PREFIX_PULLED length]+[pulledId length]+1+1];
+        NSString * source = [keyAndPathAndSource substringFromIndex:[S2_TRIGGER_PREFIX_PULLED length]+[pulledId length]+1+1];
         
         NSAssert([pulledId length] == [[messenger myMID] length], @"pulledId length not match, %lu", (unsigned long)[pulledId length]);
         
@@ -248,7 +248,7 @@
         return;
     }
     
-    if ([dataStr hasPrefix:TRIGGER_PREFIX_UPDATED]) {
+    if ([dataStr hasPrefix:S2_TRIGGER_PREFIX_UPDATED]) {
         NSArray * spacedComponents = [dataStr componentsSeparatedByString:@" "];
         NSString * keyAndPathStr = spacedComponents[0];
         
@@ -256,12 +256,17 @@
 
         NSString * path = keyAndPathArray[1];
         
-        NSString * source = [dataStr substringFromIndex:[TRIGGER_PREFIX_UPDATED length] + [path length] + 1 + 1];
+        NSString * source = [dataStr substringFromIndex:[S2_TRIGGER_PREFIX_UPDATED length] + [path length] + 1 + 1];
         
         [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
          [messenger tag:@"path" val:path],
          [messenger tag:@"source" val:source],
          nil];
+        return;
+    }
+    
+    if ([dataStr hasPrefix:S2_TRIGGER_PREFIX_COMPILE]) {
+        [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_COMPILE, nil];
         return;
     }
 }

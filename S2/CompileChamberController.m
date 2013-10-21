@@ -149,7 +149,7 @@
         case S2_COMPILECHAMBER_EXEC_SPINUPPED:{
             NSAssert(dict[@"id"], @"id required");
             [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_SPINUPPED]];
-            NSLog(@"同じチャンバーが何度もspinupしてる？ %@", dict[@"id"]);
+
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CAHMBERSPINUPPED, nil];
             break;
         }

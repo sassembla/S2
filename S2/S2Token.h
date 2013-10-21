@@ -11,9 +11,11 @@
 
 
 // S2 specific API triggers
-#define TRIGGER_PREFIX_LISTED   (@"listed")
-#define TRIGGER_PREFIX_PULLED   (@"pulled")
-#define TRIGGER_PREFIX_UPDATED  (@"updated")
+#define S2_TRIGGER_PREFIX_LISTED   (@"listed")
+#define S2_TRIGGER_PREFIX_PULLED   (@"pulled")
+#define S2_TRIGGER_PREFIX_COMPILE  (@"compile")
+#define S2_TRIGGER_PREFIX_UPDATED  (@"updated")
+
 
 #define TRIGGER_DELIM   (@"@")
 

@@ -279,7 +279,7 @@
     
     NSArray * pullArray = @[TEST_LISTED_1, TEST_LISTED_2];
     NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
-                          TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          S2_TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
                           [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
                           ];
     
@@ -323,7 +323,7 @@
 
     NSArray * pullArray = @[TEST_LISTED_1, TEST_LISTED_2];
     NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
-                          TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          S2_TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
                           [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
                           ];
     int resetCount = 0;
@@ -344,7 +344,7 @@
     // pullArrayの内容を送付
     for (NSString * key in [m_pullingDict allKeys]) {
         NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
-                               TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                               S2_TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
                                key, KEY_LISTED_DELIM, [self readSource:key]
                                ];
         
@@ -388,7 +388,7 @@
     
     // listUpdate送付
     NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
-                          TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          S2_TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
                           [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
                           ];
     
@@ -407,7 +407,7 @@
     // pullArrayの内容を送付
     for (NSString * key in [m_pullingDict allKeys]) {
         NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
-                              TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                              S2_TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
                               key, KEY_LISTED_DELIM, [self readSource:key]
                               ];
         
@@ -451,7 +451,7 @@
     
     // listUpdate送付
     NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
-                          TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          S2_TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
                           [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
                           ];
     
@@ -471,12 +471,14 @@
     // pullArrayの内容を送付
     for (NSString * key in [m_pullingDict allKeys]) {
         NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
-                               TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                               S2_TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
                                key, KEY_LISTED_DELIM, [self readSource:key]
                                ];
         
         [self connectClientTo:TEST_SERVER_URL withMessage:message2];
     }
+    
+    // この時点で、pull completeによってコンパイルが開始される。
     
     // 全チャンバーのスピンアップが発生、完了している。
     while ([m_spinuppedArray count] < S2_DEFAULT_CHAMBER_COUNT) {
@@ -496,25 +498,156 @@
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
+    
+    
     // この時点でコンパイル完了した形跡がある。
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
 }
 
 
-///**
-// アップデートからコンパイル開始まで
-// */
-//- (void) testUpdatedThenStartCompletion {
-//    XCTFail(@"not yet implemented");
-//}
-//
-//
-///**
-// アップデートからコンパイル終了まで
-// */
-//- (void) testUpdatedThenFinishCompletion {
-//    XCTFail(@"not yet implemented");
-//}
+/**
+ 起動からempty状態のままでコンパイル開始まで、コンパイルは発生しない。
+ */
+- (void) testNotStartCompilation {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
+    while ([cont state] != STATE_IGNITED) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    // コンパイル発動
+    NSString * compileMessage = [[NSString alloc]initWithFormat:@"%@", S2_TRIGGER_PREFIX_COMPILE];
+    [self connectClientTo:TEST_SERVER_URL withMessage:compileMessage];
+    
+    
+    // この時点でコンパイル開始した形跡が無い。
+    XCTAssertTrue([m_ignitedChamberArray count] == 0, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+}
+
+
+
+/**
+ アップデートでのコンパイル終了まで
+ */
+- (void) testUpdatedThenFinishCompletion {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
+    while ([cont state] != STATE_IGNITED) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    NSArray * pullArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
+    
+    // listUpdate送付
+    NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
+                          S2_TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
+                          ];
+    
+    [self connectClientTo:TEST_SERVER_URL withMessage:message];
+    
+    
+    // pullUpが設定分のカウントを出すまで、、という適当な待ちを行う
+    while ([m_pullingDict count] < [pullArray count]) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    // pullArrayの内容を送付
+    for (NSString * key in [m_pullingDict allKeys]) {
+        NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                               S2_TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                               key, KEY_LISTED_DELIM, [self readSource:key]
+                               ];
+        
+        [self connectClientTo:TEST_SERVER_URL withMessage:message2];
+    }
+    
+    // 一度目のコンパイルが発生しているので、一つのチャンバーがコンパイルを行っている。
+    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    
+    // updateを発生させて、2つ目のチャンバーを動かす
+    NSString * message3 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, TEST_SCALA_1, [self readSource:TEST_SCALA_1]];
+    [self connectClientTo:TEST_SERVER_URL withMessage:message3];
+    
+    XCTAssertTrue([m_ignitedChamberArray count] == 2, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+}
+
+
+- (void) testThenFinishCompile {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
+    while ([cont state] != STATE_IGNITED) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    NSArray * pullArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
+    
+    // listUpdate送付
+    NSString * message = [[NSString alloc]initWithFormat:@"%@%@%@",
+                          S2_TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
+                          [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
+                          ];
+    
+    [self connectClientTo:TEST_SERVER_URL withMessage:message];
+    
+    
+    // pullUpが設定分のカウントを出すまで、、という適当な待ちを行う
+    while ([m_pullingDict count] < [pullArray count]) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    // pullArrayの内容を送付
+    for (NSString * key in [m_pullingDict allKeys]) {
+        NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                               S2_TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                               key, KEY_LISTED_DELIM, [self readSource:key]
+                               ];
+        
+        [self connectClientTo:TEST_SERVER_URL withMessage:message2];
+    }
+    
+    // 一度目のコンパイルが発生しているので、一つのチャンバーがコンパイルを行っている。
+    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    
+    // ２つ目のコンパイル
+    NSString * message3 = S2_TRIGGER_PREFIX_COMPILE;
+    [self connectClientTo:TEST_SERVER_URL withMessage:message3];
+    
+    XCTAssertTrue([m_ignitedChamberArray count] == 2, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+}
+
+
+
+// コンパイルの正否系
 
 
 
