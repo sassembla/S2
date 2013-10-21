@@ -18,7 +18,9 @@
 #import "TimeMine.h"
 
 #define TEST_MASTER     (@"TEST_MASTER")
+
 #define TEST_SERVER_URL (@"ws://127.0.0.1:8824")
+
 #define TEST_MESSAGE    (@"TEST_MESSAGE")
 
 #define TEST_PATH_NSWS  (@"./S2Tests/TestResource/tool/nsws")
@@ -37,6 +39,8 @@
     
     NSMutableDictionary * m_pullingDict;
     
+    NSMutableArray * m_pullCompleteArray;
+    NSMutableArray * m_spinuppedArray;
     NSMutableArray * m_ignitedChamberArray;
     NSMutableArray * m_compiledChamberArray;
     
@@ -53,6 +57,8 @@
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
     
     m_pullingDict = [[NSMutableDictionary alloc]init];
+    m_pullCompleteArray = [[NSMutableArray alloc]init];
+    m_spinuppedArray = [[NSMutableArray alloc]init];
     m_ignitedChamberArray = [[NSMutableArray alloc]init];
     m_compiledChamberArray = [[NSMutableArray alloc]init];
     
@@ -67,6 +73,8 @@
     [messenger closeConnection];
     
     [m_pullingDict removeAllObjects];
+    [m_pullCompleteArray removeAllObjects];
+    [m_spinuppedArray removeAllObjects];
     [m_ignitedChamberArray removeAllObjects];
     [m_compiledChamberArray removeAllObjects];
     
@@ -92,6 +100,14 @@
             XCTAssertNotNil(wrappedDict[@"sourcePath"], @"sourcePath required");
             
             [m_pullingDict setObject:wrappedDict[@"sourcePath"] forKey:wrappedDict[@"pullingId"]];
+            break;
+        }
+        case S2_CONT_EXEC_PULLINGCOMPLETED:{
+            [m_pullCompleteArray addObject:@"pulled"];
+            break;
+        }
+        case S2_CONT_EXEC_SPINUPPED:{
+            [m_spinuppedArray addObject:@"spinupped"];
             break;
         }
         case S2_CONT_EXEC_IGNITED:{
@@ -310,9 +326,12 @@
                           TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
                           [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
                           ];
-                          
+    int resetCount = 0;
+    
+    
     // listUpdate送付
-    [self connectClientTo:TEST_SERVER_URL withMessage:message];
+    [self connectClientTo:TEST_SERVER_URL withMessage:message];// 1
+    resetCount++;
     
     while ([m_pullingDict count] < [pullArray count]) {
         if ([self countupThenFail]) {
@@ -322,11 +341,27 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
 
-    for (NSString * key in m_pullingDict) {
-        NSString * message = @"";
-        [self connectClientTo:TEST_SERVER_URL withMessage:message];
+    // pullArrayの内容を送付
+    for (NSString * key in [m_pullingDict allKeys]) {
+        NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                               TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                               key, KEY_LISTED_DELIM, [self readSource:key]
+                               ];
+        
+        [self connectClientTo:TEST_SERVER_URL withMessage:message2];// 2,3　通信回数に応じて初期化が行われてしまうので、spinuppedのカウントが上がってしまう。
+        resetCount++;
     }
     
+    // spinupが終わるまで待つ
+    while ([m_spinuppedArray count] < [pullArray count]) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    XCTAssertTrue([m_spinuppedArray count] == S2_DEFAULT_CHAMBER_COUNT*resetCount, @"not match, %lu", (unsigned long)[m_spinuppedArray count]);
 }
 
 /**
@@ -369,23 +404,28 @@
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
+    // pullArrayの内容を送付
+    for (NSString * key in [m_pullingDict allKeys]) {
+        NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                              TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                              key, KEY_LISTED_DELIM, [self readSource:key]
+                              ];
+        
+        [self connectClientTo:TEST_SERVER_URL withMessage:message2];// このタイミングでspinuppedがたまたま合ってるだけ！
+    }
     
-    NSArray * pulledIds = [m_pullingDict allKeysForObject:TEST_COMPILEBASEPATH];
-    XCTAssertTrue([pulledIds count] == 1, @"not match, %lu", (unsigned long)[pulledIds count]);
-                                                                             
+    // spinupが終わるまで待つ
+    while ([m_spinuppedArray count] < [pullArray count]) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
     
-    // TEST_COMPILEBASEPATHだけを送付
-    NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
-                          TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
-                          pulledIds[0], KEY_LISTED_DELIM,
-                          [self readSource:TEST_COMPILEBASEPATH]
-                          ];
-    
-    [self connectClientTo:TEST_SERVER_URL withMessage:message2];
-
     
     // この時点でコンパイル開始した形跡がある。
-    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    XCTAssertTrue(0 < [m_ignitedChamberArray count], @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
 }
 
 
@@ -427,17 +467,25 @@
         [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    NSArray * pulledIds = [m_pullingDict allKeysForObject:TEST_COMPILEBASEPATH];
-    XCTAssertTrue([pulledIds count] == 1, @"not match, %lu", (unsigned long)[pulledIds count]);
     
-    // TEST_COMPILEBASEPATHだけを送付
-    NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
-                           TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
-                           pulledIds[0], KEY_LISTED_DELIM,
-                           [self readSource:TEST_COMPILEBASEPATH]
-                           ];
+    // pullArrayの内容を送付
+    for (NSString * key in [m_pullingDict allKeys]) {
+        NSString * message2 = [[NSString alloc]initWithFormat:@"%@%@%@%@%@",
+                               TRIGGER_PREFIX_PULLED, KEY_LISTED_DELIM,
+                               key, KEY_LISTED_DELIM, [self readSource:key]
+                               ];
+        
+        [self connectClientTo:TEST_SERVER_URL withMessage:message2];
+    }
     
-    [self connectClientTo:TEST_SERVER_URL withMessage:message2];
+    // 全チャンバーのスピンアップが発生、完了している。
+    while ([m_spinuppedArray count] < S2_DEFAULT_CHAMBER_COUNT) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
     
     // 特定のチャンバーのコンパイルの完了を待つ。 m_ignitedArray[0]内のチャンバーの終了がくるまで待つ。
     while ([m_compiledChamberArray count] == 0) {

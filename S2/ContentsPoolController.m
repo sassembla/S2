@@ -38,13 +38,17 @@
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
     switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
-        case S2_CONTENTSPOOLCONT_EXEC_DRAIN:{
+        case S2_CONTENTSPOOLCONT_EXEC_ADD_DRAIN:{
             NSAssert(dict[@"path"], @"path required");
             NSAssert(dict[@"source"], @"source required");
 
             [self pool:dict[@"path"] withContents:dict[@"source"]];
             [self drain:dict[@"path"] backTo:notif];
             
+            break;
+        }
+        case S2_CONTENTSPOOLCONT_EXEC_DRAIN:{
+            [self drain:dict[@"path"] backTo:notif];
             break;
         }
         case S2_CONTENTSPOOLCONT_EXEC_PURGE:{
@@ -74,7 +78,7 @@
          [messenger tag:@"compileBasePath" val:m_compileBasePath],
          nil];
     } else {
-        NSLog(@"basepath not yet appears");
+        NSLog(@"basepath not yet appears, %@", path);
         return;
     }
 }

@@ -118,39 +118,28 @@
             [self readyChamber:[dict[@"chamberCount"] intValue]];
             break;
         }
+        case S2_COMPILECHAMBERCONT_EXEC_POOL:{
+            NSAssert(dict[@"path"], @"path required");
+            NSAssert(dict[@"source"], @"source required");
+            
+            [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_ADD_DRAIN,
+             [messenger tag:@"path" val:dict[@"path"]],
+             [messenger tag:@"source" val:dict[@"source"]],
+             nil];
+
+            break;
+        }
         case S2_COMPILECHAMBERCONT_EXEC_INPUT:{
             // インプットがあったので、プール上のコードを編集、編集完了と同時に暇なchamberへとGoを出す。
             NSAssert(dict[@"path"], @"path required");
             NSAssert(dict[@"source"], @"source required");
             
-            NSDictionary * poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN,
-                                           [messenger tag:@"path" val:dict[@"path"]],
-                                           [messenger tag:@"source" val:dict[@"source"]],
-                                           nil];
+            [self compileOrNot:dict[@"path"] withSource:dict[@"source"]];
             
-            // ignition with input
-            if (poolInfoDict) {
-                NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
-                
-                // spinup / compiling 状態のチャンバーを駆り出す
-                NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath];
-                
-                if (currentIgnitedChamberId) {
-                    // この時点で着火した扱いにする
-                    [self changeChamberStatus:currentIgnitedChamberId to:static_chamber_states[STATE_COMPILING]];
-                    [self setChamberPriorityFirst:currentIgnitedChamberId];
-
-                    [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
-                     [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
-                     nil];
-                    
-                } else {
-                    // all chambers are full.
-                    // 全てのチャンバーがspinup中かコンパイル中。
-
-                    [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_ALLCHAMBERS_FILLED, nil];
-                }
-            }
+            break;
+        }
+        case S2_COMPILECHAMBERCONT_EXEC_COMPILE:{
+            [self compileOrNot:nil withSource:nil];
             break;
         }
     }
@@ -160,9 +149,8 @@
         case S2_COMPILECHAMBER_EXEC_SPINUPPED:{
             NSAssert(dict[@"id"], @"id required");
             [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_SPINUPPED]];
-            
-            // 少なくとも一つのchamberがspinup状態になった。 上位に連絡する。
-            if ([m_chamberPriority count] == 0) [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_SPINUPPED_FIRST, nil];
+            NSLog(@"同じチャンバーが何度もspinupしてる？ %@", dict[@"id"]);
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CAHMBERSPINUPPED, nil];
             break;
         }
         
@@ -246,6 +234,42 @@
         }
     }
     
+}
+
+- (void) compileOrNot:(NSString * )path withSource:(NSString * )source {
+    NSDictionary * poolInfoDict;
+    if (path && source) {
+        poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_ADD_DRAIN,
+                                   [messenger tag:@"path" val:path],
+                                   [messenger tag:@"source" val:source],
+                                   nil];
+    } else {
+        poolInfoDict = [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_DRAIN, nil];
+    }
+                        
+    // ignition with input
+    if (poolInfoDict) {
+        NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
+        
+        // spinup / compiling 状態のチャンバーを駆り出す
+        NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath];
+        
+        if (currentIgnitedChamberId) {
+            // この時点で着火した扱いにする
+            [self changeChamberStatus:currentIgnitedChamberId to:static_chamber_states[STATE_COMPILING]];
+            [self setChamberPriorityFirst:currentIgnitedChamberId];
+            
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
+             [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
+             nil];
+            
+        } else {
+            // all chambers are full.
+            // 全てのチャンバーがspinup中かコンパイル中。
+            
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_ALLCHAMBERS_FILLED, nil];
+        }
+    }
 }
 
 

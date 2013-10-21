@@ -19,11 +19,13 @@ Input部分の取り付けが終わったので、挙動を一通り移装しよ
 
 * in listed 入力、リスト
 * out pulling プル xN
-* in pulled (chamber start) プルの完了(update内容に対するものなので、個別になる)xN
+* in pulled (chamber start) プルの完了(update内容に対するものなので、個別になる)xN =>内部ではupdateを使用。  
 * in updated 入力、コード更新　
 * out tick 今コンパイルしてますよイベントの送付(フィルタ有り、id有り)  
 
 * in updated ..continue.
+
+一度遷移を書いた方が良いね。
 
 
 * 部分入力をサポートするなら、in codeUpdatedで分岐、メモリ上の特定の位置に書き出す

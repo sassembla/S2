@@ -88,7 +88,7 @@
         NSString * path = [[NSString alloc] initWithFormat:@"%@", m_pullingPathDict[pulledId]];
         [m_pullingPathDict removeObjectForKey:pulledId];
         
-        [messenger callParent:S2_PULLUPCONT_FROMPULL_UPDATED,
+        [messenger callParent:S2_PULLUPCONT_PULLUP,
          [messenger tag:@"path" val:path],
          [messenger tag:@"source" val:source],
          nil];

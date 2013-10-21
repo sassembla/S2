@@ -62,7 +62,6 @@
         
         // compile
         cChamberCont = [[CompileChamberController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
-        
     }
     return self;
 }
@@ -86,7 +85,6 @@
         }
             
         case STATE_IGNITED:{
-            // 1 first only
             switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
                 case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
                     NSAssert(dict[@"clientAddr:port"], @"clientAddr:port required");
@@ -102,9 +100,12 @@
                     // initialize
                     m_connectionDict = [[NSDictionary alloc]initWithObjectsAndKeys:connectionDict, conUUID, nil];
                     
+                    // chamberのリセットを行う
+                    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INITIALIZE,
+                     [messenger tag:@"chamberCount" val:@S2_DEFAULT_CHAMBER_COUNT],
+                     nil];
                     
                     // ready for signal. normally wait [listed].
-                    
                     [self callToMaster:S2_CONT_EXEC_CONNECTED withMessageDict:m_connectionDict];
                     
                     break;
@@ -135,34 +136,41 @@
                     [self callToMaster:S2_CONT_EXEC_PULLINGSTARTED withMessageDict:dict];
                     break;
                 }
-                case S2_PULLUPCONT_FROMPULL_UPDATED:{
+                case S2_PULLUPCONT_PULLUP:{
                     NSAssert(dict[@"path"], @"path required");
                     NSAssert(dict[@"source"], @"source required");
                     
                     
-                    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INPUT,
+                    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_POOL,
                      [messenger tag:@"path" val:dict[@"path"]],
                      [messenger tag:@"source" val:dict[@"source"]],
                      nil];
                     break;
                 }
                 case S2_PULLUPCONT_PULL_COMPLETED:{
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 13:49:33" withLimitSec:100000 withComment:@"pull 完了のタイミングで、チャンバーとかを設置する。"];
-                    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_INITIALIZE,
-                     [messenger tag:@"chamberCount" val:@S2_DEFAULT_CHAMBER_COUNT],
+
+                    // act as kick compiler.
+                    [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_COMPILE, nil];
+                    
+                    // notify to user.
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/21 16:18:47" withLimitSec:10000 withComment:@"pullが終わった段階での通知をしよう。内容は、pullに関するidが降られているといいんだろうなーと思うなど。pull = リセットだわ。ファイルの削除とかが発生したらリセットが必要。リセットでエイリアス作るか。"];
+                    NSString * pullCompletedMessage = @"pull overed";
+                    
+
+                    [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
+                     [messenger tag:@"message" val:pullCompletedMessage],
                      nil];
+                    
+                    
+                    [self callToMaster:S2_CONT_EXEC_PULLINGCOMPLETED withMessageDict:dict];
                     break;
                 }
             }
             
             switch ([messenger execFrom:S2_COMPILECHAMBERCONT viaNotification:notif]) {
-                case S2_COMPILECHAMBERCONT_EXEC_SPINUPPED_FIRST:{
-                    
-                    NSString * readyMessage = [m_emitter generateReadyMessage];
-                    
-//                    [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
-//                     [messenger tag:@"message" val:readyMessage],
-//                     nil];
+                case S2_COMPILECHAMBERCONT_EXEC_CAHMBERSPINUPPED:{
+
+                    [self callToMaster:S2_CONT_EXEC_SPINUPPED withMessageDict:dict];
                     
                     break;
                 }
@@ -231,7 +239,8 @@
         NSString * pulledId = [keyAndPathAndSource substringWithRange:theRange];
         NSString * source = [keyAndPathAndSource substringFromIndex:[TRIGGER_PREFIX_PULLED length]+[pulledId length]+1+1];
         
-    
+        NSAssert([pulledId length] == [[messenger myMID] length], @"pulledId length not match, %lu", (unsigned long)[pulledId length]);
+        
         [messenger call:S2_PULLUPCONT withExec:S2_PULLUPCONT_PULLED,
          [messenger tag:@"pulledId" val:pulledId],
          [messenger tag:@"source" val:source],
