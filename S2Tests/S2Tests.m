@@ -116,16 +116,12 @@
             [m_ignitedChamberArray addObject:wrappedDict[@"ignitedChamberId"]];
             break;
         }
-        case S2_CONT_EXEC_COMPILEPROCEEDED:{
+        case S2_CONT_EXEC_COMPILED:{
             XCTAssertNotNil(wrappedDict[@"compiledChamberId"], @"compiledChamberId required");
             
             [m_compiledChamberArray addObject:wrappedDict[@"compiledChamberId"]];
             break;
         }
-            
-        default:
-            XCTFail(@"unknown message to S2ControllerTests, %d", [messenger execFrom:S2_MASTER viaNotification:notif]);
-            break;
     }
 }
 
@@ -591,7 +587,7 @@
 }
 
 
-- (void) testThenFinishCompile {
+- (void) testCompileThenFinishCompile {
     // 起動する
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
@@ -635,6 +631,7 @@
         [self connectClientTo:TEST_SERVER_URL withMessage:message2];
     }
     
+    
     // 一度目のコンパイルが発生しているので、一つのチャンバーがコンパイルを行っている。
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
     
@@ -642,13 +639,8 @@
     NSString * message3 = S2_TRIGGER_PREFIX_COMPILE;
     [self connectClientTo:TEST_SERVER_URL withMessage:message3];
     
+    
     XCTAssertTrue([m_ignitedChamberArray count] == 2, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
 }
-
-
-
-// コンパイルの正否系
-
-
 
 @end

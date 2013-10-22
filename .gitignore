@@ -5,16 +5,21 @@ localS2Settings/tool/samples/codes/S2_measure_1.sr
 
 S2.xcodeproj/xcuserdata/highvision.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 
-S2Tests/TestResource/sampleProject/.gradle/*
+S2Tests/TestResource/sampleProject_gradle/.gradle/*
 
-S2Tests/TestResource/sampleProject/build/*
+S2Tests/TestResource/sampleProject_gradlet/build/*
 
-S2Tests/TestResource/sampleProject/gradle/*
+S2Tests/TestResource/sampleProject_gradle/gradle/*
 
 
+S2Tests/TestResource/sampleProject_gradle_zinc/.gradle/*
 
-S2.xcodeproj/xcuserdata/t.inoue.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+S2Tests/TestResource/sampleProject_gradlet_zinc/build/*
+
+S2Tests/TestResource/sampleProject_gradle_zinc/gradle/*
 
 S2.xcodeproj/xcuserdata/t.inoue.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 
 S2Tests/TestResource/tempProject/*
+S2Tests/TestResource/sampleProject_gradle/build/*
+S2Tests/TestResource/sampleProject_gradle_zinc/build/*

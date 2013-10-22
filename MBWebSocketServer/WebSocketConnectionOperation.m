@@ -62,7 +62,6 @@
         case KS_WEBSOCKETCONNECTIONOPERATION_PUSH:{
             NSAssert(dict[@"message"], @"message required");
             [m_server send:dict[@"message"]];
-            //どうかなーsend時に対応しないと行けないよなー
             break;
         }
     }

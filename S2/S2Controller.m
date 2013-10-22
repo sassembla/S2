@@ -182,10 +182,12 @@
                 }
                 case S2_COMPILECHAMBERCONT_EXEC_CHAMBER_COMPILED:{
                     NSAssert(dict[@"compiledChamberId"], @"compiledChamberId required");
-                    [self callToMaster:S2_CONT_EXEC_COMPILEPROCEEDED withMessageDict:dict];
+                    [self callToMaster:S2_CONT_EXEC_COMPILED withMessageDict:dict];
                     break;
                 }
                 case S2_COMPILECHAMBERCONT_EXEC_OUTPUT:{
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/22 1:44:17" withLimitSec:0 withComment:@"ここで絞るか、下位で絞るか。チャンバーで絞った方が、メッセージの総量が減るので良いな。"];
+                    
                     NSAssert(dict[@"message"], @"message required");
                     NSAssert(dict[@"priority"], @"priority required");
                     
@@ -194,6 +196,8 @@
                     [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
                      [messenger tag:@"message" val:filterMessage],
                      nil];
+                    
+                    [self callToMaster:S2_CONT_EXEC_TICK withMessageDict:dict];
                     break;
                 }
             }

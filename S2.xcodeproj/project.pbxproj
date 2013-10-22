@@ -14,6 +14,7 @@
 		B742D35A180E8E2300EB43E5 /* MFTaskQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D356180E8E2300EB43E5 /* MFTaskQueue.m */; };
 		B743DB721811F15200E642A6 /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B743DB711811F15200E642A6 /* TimeMine.m */; };
 		B743DB731811F15200E642A6 /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B743DB711811F15200E642A6 /* TimeMine.m */; };
+		B763968A18158DF900941C7A /* S2CompilationResultTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B763968918158DF900941C7A /* S2CompilationResultTests.m */; };
 		B7987E9317EE82FB008F21F4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7987E9217EE82FB008F21F4 /* Cocoa.framework */; };
 		B7987E9D17EE82FB008F21F4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B7987E9B17EE82FB008F21F4 /* InfoPlist.strings */; };
 		B7987E9F17EE82FB008F21F4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B7987E9E17EE82FB008F21F4 /* main.m */; };
@@ -71,6 +72,7 @@
 		B742D356180E8E2300EB43E5 /* MFTaskQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFTaskQueue.m; sourceTree = "<group>"; };
 		B743DB701811F15200E642A6 /* TimeMine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeMine.h; path = S2/TimeMine.h; sourceTree = "<group>"; };
 		B743DB711811F15200E642A6 /* TimeMine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TimeMine.m; path = S2/TimeMine.m; sourceTree = "<group>"; };
+		B763968918158DF900941C7A /* S2CompilationResultTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = S2CompilationResultTests.m; sourceTree = "<group>"; };
 		B7987E8F17EE82FB008F21F4 /* S2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = S2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7987E9217EE82FB008F21F4 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		B7987E9517EE82FB008F21F4 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -241,6 +243,7 @@
 			isa = PBXGroup;
 			children = (
 				B7987EBC17EE82FB008F21F4 /* S2Tests.m */,
+				B763968918158DF900941C7A /* S2CompilationResultTests.m */,
 				B7987EB717EE82FB008F21F4 /* Supporting Files */,
 				B7FCEA0817EFECC500C6B41A /* EmitterTests.m */,
 				B7B6D4481802EDF2007AE06E /* CompileChamberTests.m */,
@@ -414,6 +417,7 @@
 				B7CA897C180AAFE9008B6C40 /* ContentsPoolControllerTests.m in Sources */,
 				B7FCEA0917EFECC500C6B41A /* EmitterTests.m in Sources */,
 				B7FCEA0317EF1EB900C6B41A /* S2Controller.m in Sources */,
+				B763968A18158DF900941C7A /* S2CompilationResultTests.m in Sources */,
 				B7CA897A180AAFCF008B6C40 /* ContentsPoolController.m in Sources */,
 				B7B72FD618118BEE00EF8612 /* Emitter.m in Sources */,
 				B7EB771D180A78C800FF959D /* CompileChamberController.m in Sources */,
