@@ -21,7 +21,7 @@ dependencies {
 
 // コンパイル開始の直前にプロセスを停める、とかすれば、ストックが可能な筈。
 
-using zinc
+// using zinc
 tasks.withType(ScalaCompile) {
     scalaCompileOptions.useAnt = false
 }

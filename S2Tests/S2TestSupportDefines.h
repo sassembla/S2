@@ -26,6 +26,9 @@
 #define TEST_SCALA_2            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"src/main/scala/com/kissaki/TestProject/Sample2.scala"])
 #define TEST_SCALA_3            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"src/main/scala/com/kissaki/TestProject/TestProject.scala"])
 
+#define TEST_SCALA_3_FAIL       ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH, @"src/main/scala/com/kissaki/TestProject/TestProject_fail.scala"])
+
+
 // サンプルのScalaプロジェクト gradle + zinc
 #define TEST_SAMPLEPROJECTPATH_ZINC  ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"sampleProject_gradle_zinc/"])
 
@@ -33,6 +36,9 @@
 #define TEST_SCALA_1_ZINC            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH_ZINC, @"src/main/scala/com/kissaki/TestProject/Sample.scala"])
 #define TEST_SCALA_2_ZINC            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH_ZINC, @"src/main/scala/com/kissaki/TestProject/Sample2.scala"])
 #define TEST_SCALA_3_ZINC            ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH_ZINC, @"src/main/scala/com/kissaki/TestProject/TestProject.scala"])
+
+#define TEST_SCALA_3_FAIL_ZINC       ([NSString stringWithFormat:@"%@%@", TEST_SAMPLEPROJECTPATH_ZINC, @"src/main/scala/com/kissaki/TestProject/TestProject_fail.scala"])
+
 
 
 #define TEST_TEMPPROJECT_OUTPUT_PATH ([NSString stringWithFormat:@"%@%@", TEST_BASE_PATH, @"tempProject/"])

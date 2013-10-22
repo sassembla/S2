@@ -184,6 +184,7 @@
      BUILD SUCCESSFUL
      Total time: (.*) secs
      
+     
      */
     XCTAssertTrue([m_compiledResults count] == 100, @"not match, %lu", (unsigned long)[m_compiledResults count]);
     
@@ -203,10 +204,146 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    NSArray * pullArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
+    // コンパイル失敗する組み合わせ
+    NSArray * updateArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3_FAIL, TEST_COMPILEBASEPATH];
     
+    // updateを発生させる。 最後の一つでコンパイルが開始される。
+    for (NSString * path in updateArray) {
+        NSString * message3 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, path, [self readSource:path]];
+        [self connectClientTo:TEST_SERVER_URL withMessage:message3];
+    }
+    
+    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    while (m_compiledCounts == 0) {
+        if ([self countupLongThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    /*
+     -daemon ver
+     
+     1)//これはワンセット、この行の何文字目、という。 7の18、とかが出せると良い。
+     [ant:scalac] /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:7: error: not found: type Samplaaae2,
+
+     
+     	val b = new Samplaaae2()// typo here
+                         ^
+     //
+     
+     2):compileScala FAILED
+     */
+    
+    //ここでは、上記のもののみ受け取るのが正しい。
+    XCTAssertTrue([m_compiledResults count] == 2, @"not match, %lu", (unsigned long)[m_compiledResults count]);
     
 }
+
+
+
+
+
+
+- (void) testCompileWithZincSucceededWithSpecificMessages {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
+    while ([cont state] != STATE_IGNITED) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    NSArray * updateArray = @[TEST_SCALA_1_ZINC, TEST_SCALA_2_ZINC, TEST_SCALA_3_ZINC, TEST_COMPILEBASEPATH_ZINC];
+    
+    // updateを発生させる。 最後の一つでコンパイルが開始される。
+    for (NSString * path in updateArray) {
+        NSString * message3 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, path, [self readSource:path]];
+        [self connectClientTo:TEST_SERVER_URL withMessage:message3];
+    }
+    
+    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    while (m_compiledCounts == 0) {
+        if ([self countupLongThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    /*
+     -zinc ver
+     Starting Build
+     BUILD SUCCESSFUL
+     Total time: (.*) secs
+     
+     
+     */
+    XCTAssertTrue([m_compiledResults count] == 100, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    
+    
+    // succeeded を含む
+    XCTAssertTrue([m_compiledResults containsObject:@"BUILD FAILED"], @"not contains, %@", m_compiledResults);
+}
+
+- (void) testCompileFailureWithZinc {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
+    while ([cont state] != STATE_IGNITED) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    // コンパイル失敗する組み合わせ
+    NSArray * updateArray = @[TEST_SCALA_1_ZINC, TEST_SCALA_2_ZINC, TEST_SCALA_3_FAIL_ZINC, TEST_COMPILEBASEPATH_ZINC];
+    
+    // updateを発生させる。 最後の一つでコンパイルが開始される。
+    for (NSString * path in updateArray) {
+        NSString * message3 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, path, [self readSource:path]];
+        [self connectClientTo:TEST_SERVER_URL withMessage:message3];
+    }
+    
+    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    while (m_compiledCounts == 0) {
+        if ([self countupLongThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    /*
+     -zinc ver
+     
+     FAILURE: Build failed with an exception.
+     BUILD FAILED
+     
+     * Where:
+     Build file '/Users/t.inoue/Desktop/S2/S2Tests/TestResource/sampleProject_gradle_zinc/build.gradle' line: 24
+     ,
+     
+     
+     */
+    XCTAssertTrue([m_compiledResults count] == 100, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    
+    // failを含む
+    XCTAssertTrue([m_compiledResults containsObject:@"BUILD FAILED"], @"not contains, %@", m_compiledResults);
+    
+}
+
+
 
 
 

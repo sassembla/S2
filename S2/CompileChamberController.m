@@ -219,6 +219,10 @@
             
             
             [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 9:53:02" withLimitSec:100000 withComment:@"要素を削る最前提は、レベルパラメータをみて行う。レベリングはここで行う。arrayにchamberIdを溜めていって、先頭のほうほどレベルが高い。みたいにする。chamberが死んだらそのchamberからのメッセージはすべて削る。とりあえずざっと送る プライオリティは仮。"];
+            
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/23 4:04:01" withLimitSec:10000 withComment:@"ここでフィルタリングする。"];
+            
+            
 //
 //            /*
 //             チャンバーの寿命は、igniteされたりabortされたりで替わる。現在塗りつぶし(既存runnningを破棄)は発生していないので、どうするかな。

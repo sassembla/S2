@@ -4,6 +4,6 @@ object TestProject {
 		println("Hello, world!")
 	}
 	val a = new Sample()
-	val b = new Sample2()
+	val b = new Samplaaae2()// typo here
 	
 }

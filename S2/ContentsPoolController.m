@@ -69,7 +69,7 @@
 
 - (void) drain:(NSString * )path backTo:(NSNotification * )notif {
     if ([path hasSuffix:S2_BASEPATH_SUFFIX]) {
-        m_compileBasePath = [[NSString alloc]initWithString:path];
+        m_compileBasePath = [[NSString alloc]initWithString:[self absoluteCachePath:path toTargetPath:S2_FILECACHE_PATH]];
     }
     
     // そのまま内容を返信 or 何もしない
@@ -81,6 +81,16 @@
         NSLog(@"basepath not yet appears, %@", path);
         return;
     }
+}
+
+- (NSString * ) absoluteCachePath:(NSString * )path toTargetPath:(NSString * )targetPath {
+    NSString * resultPath = nil;
+    
+    if ([path hasPrefix:@"./"]) resultPath = [[NSString alloc]initWithFormat:@"%@%@", targetPath, [path substringFromIndex:1]];
+    else if ([path hasPrefix:@"/"]) resultPath = [[NSString alloc]initWithFormat:@"%@%@", targetPath, path];
+    else resultPath = [[NSString alloc]initWithFormat:@"%@/%@", targetPath, path];
+    
+    return resultPath;
 }
 
 
@@ -98,15 +108,7 @@
         
         
         //フォルダ生成
-        NSString * prePath = nil;
-        if ([path hasPrefix:@"./"]) prePath = [path substringFromIndex:2];
-        else prePath = path;
-        
-        
-        NSString * targetPath = nil;
-        if ([prePath hasPrefix:@"/"]) targetPath = [NSString stringWithFormat:@"%@%@", generateTargetPath, prePath];
-        else targetPath = [NSString stringWithFormat:@"%@%@", generateTargetPath, prePath];
-        
+        NSString * targetPath = [self absoluteCachePath:path toTargetPath:generateTargetPath];
         
         [fMan createDirectoryAtPath:[targetPath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error];
         
