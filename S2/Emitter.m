@@ -41,7 +41,7 @@
     return message;
 }
 
-- (void) filtering:(NSString * )message {
+- (NSString * ) filtering:(NSString * )message {
     
     /*
      1)//これはワンセット、この行の何文字目、という。 7の18、とかが出せると良い。
@@ -73,7 +73,7 @@
             return @"ss@showAtLog:{\"message\":\"S2 compile failed.\"}->showStatusMessage:{\"message\":\"S2 compile failed.\"}";
         }
     }
-
+    return nil;
 }
 
 @end
