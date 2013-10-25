@@ -13,4 +13,7 @@
 - (NSString * ) generatePullMessage:(NSString * )emitId withPath:(NSString * )path;
 - (NSString * ) generateReadyMessage;
 - (NSString * ) genereateFilteredMessage:(NSString * )message withPriority:(int)priority;
+
+- (NSString * ) filtering:(NSString * )message;
+
 @end

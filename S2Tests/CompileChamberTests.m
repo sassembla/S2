@@ -160,9 +160,9 @@
         bool result = [fMan createFileAtPath:targetPath contents:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
         
         if (result) {
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 13:09:13" withLimitSec:100000 withComment:@"generated!"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 19:56:30" withLimitSec:100000 withComment:@"generated!"];
         } else {
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 13:09:37" withLimitSec:100000 withComment:@"fail to generate"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 19:56:34" withLimitSec:100000 withComment:@"fail to generate"];
         }
         
         NSFileHandle * writeHandle = [NSFileHandle fileHandleForUpdatingAtPath:targetPath];

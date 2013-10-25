@@ -168,7 +168,7 @@
              黄色で送り込むかな。messageQueue。
              */
 
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 12:04:58" withLimitSec:100000 withComment:@"優先度のすげ替えが発生したので、一気に生きているチャンバーのinfoを塗り替える。で、そのチャンバーの残した結果を塗り替える。あんまり多く無いと思うんだよね。同時には。"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 20:02:40" withLimitSec:100000 withComment:@"優先度のすげ替えが発生したので、一気に生きているチャンバーのinfoを塗り替える。で、そのチャンバーの残した結果を塗り替える。あんまり多く無いと思うんだよね。同時には。"];
             
             break;
         }
@@ -218,10 +218,7 @@
             NSAssert(dict[@"message"], @"message required");
             
             
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 9:53:02" withLimitSec:100000 withComment:@"要素を削る最前提は、レベルパラメータをみて行う。レベリングはここで行う。arrayにchamberIdを溜めていって、先頭のほうほどレベルが高い。みたいにする。chamberが死んだらそのchamberからのメッセージはすべて削る。とりあえずざっと送る プライオリティは仮。"];
-            
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/23 4:04:01" withLimitSec:10000 withComment:@"ここでフィルタリングする。"];
-            
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 20:02:58" withLimitSec:100000 withComment:@"要素を削る最前提は、レベルパラメータをみて行う。レベリングはここで行う。arrayにchamberIdを溜めていって、先頭のほうほどレベルが高い。みたいにする。chamberが死んだらそのchamberからのメッセージはすべて削る。とりあえずざっと送る プライオリティは仮。"];
             
 //
 //            /*

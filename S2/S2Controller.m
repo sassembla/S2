@@ -153,7 +153,7 @@
                     [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_COMPILE, nil];
                     
                     // notify to user.
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/21 16:18:47" withLimitSec:10000 withComment:@"pullが終わった段階での通知をしよう。内容は、pullに関するidが降られているといいんだろうなーと思うなど。pull = リセットだわ。ファイルの削除とかが発生したらリセットが必要。リセットでエイリアス作るか。"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 20:20:17" withLimitSec:100000 withComment:@"pullが終わった段階での通知をしよう。内容は、pullに関するidが降られているといいんだろうなーと思うなど。pull = リセットだわ。ファイルの削除とかが発生したらリセットが必要。リセットでエイリアス作るか。"];
                     NSString * pullCompletedMessage = @"pull overed";
                     
 
@@ -186,8 +186,6 @@
                     break;
                 }
                 case S2_COMPILECHAMBERCONT_EXEC_OUTPUT:{
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/22 1:44:17" withLimitSec:0 withComment:@"ここで絞るか、下位で絞るか。チャンバーで絞った方が、メッセージの総量が減るので良いな。ただ、細分化しちゃうから、メモリくう。emitterでやろ。"];
-                    
                     NSAssert(dict[@"message"], @"message required");
                     NSAssert(dict[@"priority"], @"priority required");
                     

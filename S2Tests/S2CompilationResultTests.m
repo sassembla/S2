@@ -225,10 +225,8 @@
     /*
      -daemon ver
      
-     1)//これはワンセット、この行の何文字目、という。 7の18、とかが出せると良い。
+     1)//これはワンセット、この行の何文字目、という。 7の18、とかが出せると良い。 3行かな。
      [ant:scalac] /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:7: error: not found: type Samplaaae2,
-
-     
      	val b = new Samplaaae2()// typo here
                          ^
      //
@@ -282,7 +280,6 @@
      Starting Build
      BUILD SUCCESSFUL
      Total time: (.*) secs
-     
      
      */
     XCTAssertTrue([m_compiledResults count] == 100, @"not match, %lu", (unsigned long)[m_compiledResults count]);

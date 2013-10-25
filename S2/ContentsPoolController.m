@@ -116,10 +116,10 @@
         bool result = [fMan createFileAtPath:targetPath contents:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
         
         if (result) {
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 17:44:08" withLimitSec:100000 withComment:@"generated"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 20:01:06" withLimitSec:100000 withComment:@"generated"];
 //            NSLog(@":%@", targetPath);
         } else {
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/19 17:45:02" withLimitSec:100000 withComment:@"fail to generate"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 20:01:09" withLimitSec:100000 withComment:@"fail to generate"];
 //            NSLog(@"fail to generate:%@", targetPath);
         }
         

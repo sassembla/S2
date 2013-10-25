@@ -10,6 +10,7 @@
 #import "KSMessenger.h"
 
 #import "S2Token.h"
+#import "Emitter.h"
 
 #import "TimeMine.h"
 
@@ -19,8 +20,9 @@
     
     NSArray * statesArray;
     
+    Emitter * emitter;
     
-    MFTask * m_compileTask;
+    NSTask * m_compileTask;
     
     NSString * m_state;
 }
@@ -32,6 +34,7 @@
         
         statesArray = STATE_STR_ARRAY;
         
+        emitter = [[Emitter alloc]init];
         
         m_chamberId = [[NSString alloc]initWithFormat:@"chamber_%@", [KSMessenger generateMID]];
         
@@ -77,8 +80,6 @@
         case S2_COMPILECHAMBER_EXEC_IGNITE:{
             NSAssert(dict[@"compileBasePath"], @"compileBasePath required");
             
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 15:42:23" withLimitSec:100000 withComment:@"ignite 何回通ってますかね！！"];
-            
             [self ignite:dict[@"compileBasePath"]];
             break;
         }
@@ -108,7 +109,7 @@
  スピンアップ
  */
 - (void) spinup {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/20 18:22:15" withLimitSec:10000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではこのブロック内でロックしてOK。今回は瞬間でSpinUpしたことにする。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 19:55:37" withLimitSec:100000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではこのブロック内でロックしてOK。今回は瞬間でSpinUpしたことにする。"];
     
     // spinupping
     m_state = statesArray[STATE_SPINUPPED];
@@ -126,8 +127,8 @@
  */
 - (void) ignite:(NSString * )compileBasePath {
     
-    m_compileTask = [[MFTask alloc] init];
-    [m_compileTask setDelegate:self];
+    m_compileTask = [[NSTask alloc] init];
+//    [m_compileTask setDelegate:self];
     
     NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
     
@@ -135,8 +136,24 @@
     [m_compileTask setArguments:currentParams];
     
     
+    NSPipe * currentOut = [[NSPipe alloc]init];
+    [m_compileTask setStandardOutput:currentOut];
+    
     // compile start
     [m_compileTask launch];
+    
+    
+    NSFileHandle * publishHandle = [currentOut fileHandleForReading];
+
+    char buffer[BUFSIZ];
+    FILE * fp = fdopen([publishHandle fileDescriptor], "r");
+    while(fgets(buffer, BUFSIZ, fp)) {
+        NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
+        NSLog(@"hereComes %@", message);
+
+//        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+//         [messenger tag:@"id" val:m_chamberId],[messenger tag:@"message" val:message],nil];
+    }
 }
 
 - (BOOL) isCompiling {
@@ -175,10 +192,13 @@
 
 - (void) taskDidRecieveData:(NSData * ) theData fromTask:(MFTask * )task {
     NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
+    
+    NSString * result = [emitter filtering:message];
+    
     if ([messenger hasParent]) {
         [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
          [messenger tag:@"id" val:m_chamberId],
-         [messenger tag:@"message" val:message],
+         [messenger tag:@"message" val:result],
          nil];
     }
 }
