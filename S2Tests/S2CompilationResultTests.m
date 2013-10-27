@@ -236,7 +236,6 @@
     
     //ここでは、上記のもののみ受け取るのが正しい。
     XCTAssertTrue([m_compiledResults count] == 2, @"not match, %lu", (unsigned long)[m_compiledResults count]);
-    
 }
 
 
@@ -333,7 +332,7 @@
      
      
      */
-    XCTAssertTrue([m_compiledResults count] == 100, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    XCTAssertTrue([m_compiledResults count] == 2, @"not match, %lu", (unsigned long)[m_compiledResults count]);
     
     // failを含む
     XCTAssertTrue([m_compiledResults containsObject:@"BUILD FAILED"], @"not contains, %@", m_compiledResults);

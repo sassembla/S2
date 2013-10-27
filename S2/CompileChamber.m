@@ -132,9 +132,9 @@
     
     NSString * gradlebuildStr = [[NSString alloc]initWithFormat:@"\"gradle --daemon -b %@ build -i\"", compileBasePath];
 //    NSArray * currentParams = @[@"-c", gradlebuildStr];
-    NSArray * currentParams = @[@"gradle", @"--daemon", @"-b", compileBasePath, @"build", @"-i"];
+    NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
     
-    [m_compileTask setLaunchPath:@"/bin/sh"];
+    [m_compileTask setLaunchPath:@"/usr/local/bin/gradle"];
     [m_compileTask setArguments:currentParams];
     
     // compile start
@@ -187,11 +187,13 @@
     
     NSString * result = [emitter filtering:message];
     
-    if ([messenger hasParent]) {
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-         [messenger tag:@"id" val:m_chamberId],
-         [messenger tag:@"message" val:result],
-         nil];
+    if (0 < [result length]) {
+        if ([messenger hasParent]) {
+            [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+             [messenger tag:@"id" val:m_chamberId],
+             [messenger tag:@"message" val:result],
+             nil];
+        }
     }
 }
 
