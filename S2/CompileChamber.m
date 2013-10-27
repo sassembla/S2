@@ -163,6 +163,17 @@
         
         NSString * result = nil;
         if ((result = [emitter filtering:message])) {
+            // end
+            // m_state = statesArray[STATE_COMPILED];
+            /*
+             if ([messenger hasParent]) {
+             [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+             [messenger tag:@"id" val:m_chamberId],
+             nil];
+             }
+             */
+            
+            // not end
             if ([messenger hasParent]) {
                 [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
                  [messenger tag:@"id" val:m_chamberId],
@@ -170,15 +181,7 @@
                  nil];
             }
         }
-        
-        // m_state = statesArray[STATE_COMPILED];
-        /*
-         if ([messenger hasParent]) {
-         [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-         [messenger tag:@"id" val:m_chamberId],
-         nil];
-         }
-         */
+    
     }
     
 }
@@ -204,66 +207,7 @@
 }
 
 
-/**
- マスターへと経過を送付する
- */
-//- (void) taskDidLaunch:(MFTask * ) theTask {
-//    m_state = statesArray[STATE_COMPILING];
-//    
-//    if ([messenger hasParent]) {
-//        [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
-//         [messenger tag:@"id" val:m_chamberId],
-//         nil];
-//    }
-//}
-
-//- (void) taskDidRecieveData:(NSData * ) theData fromTask:(MFTask * )task {
-//    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
-//    
-//    NSString * result = [emitter filtering:message];
-//    
-//    if (0 < [result length]) {
-//        if ([messenger hasParent]) {
-//            [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-//             [messenger tag:@"id" val:m_chamberId],
-//             [messenger tag:@"message" val:result],
-//             nil];
-//        }
-//    }
-//}
-//
-//- (void) taskDidRecieveErrorData:(NSData * ) theData fromTask:(MFTask * )task {
-//    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
-//    if ([messenger hasParent]) {
-//        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-//         [messenger tag:@"id" val:m_chamberId],
-//         [messenger tag:@"message" val:message],
-//         nil];
-//    }
-//}
-//
-//- (void) taskDidTerminate:(MFTask * ) theTask {
-//    m_state = statesArray[STATE_COMPILED];
-//    
-//    if ([messenger hasParent]) {
-//        [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-//         [messenger tag:@"id" val:m_chamberId],
-//         nil];
-//    }
-//}
-//
-//- (void) taskDidRecieveInvalidate:(MFTask * ) theTask {}
-
-
 - (void) close {
     [messenger closeConnection];
 }
-
-
-
-
-
-
-
-
 @end

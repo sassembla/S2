@@ -12,8 +12,6 @@
 
 
 @implementation Emitter {
-    NSRegularExpression * m_regex_blankLine;
-    NSRegularExpression * m_regex_blankLine2;
     NSRegularExpression * m_regex_compileError;
     NSRegularExpression * m_regex_compileFailed;
 }
@@ -57,14 +55,14 @@ int i;
     
     
     // 改行だけなら逃げる
-    if ([message isEqualToString:@"\n"]) return nil;
+    if ([message isEqualToString:@"\n"]) {
+        return nil;
+    }
     
     // 改行で始まっているなら最初の改行を取り除く
     if ([message hasPrefix:@"\n"]) {
         return [self filtering:[message substringFromIndex:1]];
     }
-    
-    // うーーーん、連続行の処理が安定しない。分割がランダムなのか、タイマーでも入ってるのか。改行分解はしたくないなー。
     
     i++;
     NSLog(@"start %d",i);
@@ -81,7 +79,7 @@ int i;
      
      */
     
-    NSLog(@"end");
+    
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 19:57:31" withLimitSec:100000 withComment:@"プライオリティが0でなければ出ない、みたいなのが必要。"];
     
     
@@ -102,12 +100,13 @@ int i;
         @"^:classes.*",
         @"^:compileJava.*",
         @"^:compileScala.*",
+        @"^:compileTestJava.*",
         @"^:compileTestScala.*",
         @"^:jar.*",
         @"^:testClasses.*",
-        @"^:processTestResources.*"
+        @"^:processTestResources.*",
         
-        @"^Tasks to be executed:.*",
+        @"^Tasks to be executed.*",
         
         @"^Skipping task.*",
         @"^Projects loaded. Root project using build file (.*)[.].*",
@@ -122,11 +121,13 @@ int i;
         @"^:build",
         @"^:test.*",
         @"^:processResources.*",
-        @"^:check .*"
+        @"^:check.*",
+        @"^Received command.*",
         
         @"^Process .*",
         
-//        @"[[]*ant:scalac[]] .*"
+        @"[[]ant:scalac[]] .*",
+        
         @"  No history is available.",
         @"Starting process.*",
         
@@ -135,8 +136,12 @@ int i;
         
         @"^Executing build with daemon context:",
         
+        @"^file or directory .*",
+        
         
 //        @"BUILD FAILED",
+        @"^BUILD SUCCESSFUL.*",
+        @"^Total time: (.*) secs.*",
         
         @"empty"];
         
@@ -155,6 +160,8 @@ int i;
         }
         
     }
+    
+    NSLog(@"message is %@", message);
     
     // @"[[]*ant:scalac[]] .*"
     {
