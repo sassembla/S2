@@ -20,9 +20,7 @@
 
 - (id) init {
     if (self = [super init]) {
-        m_regex_blankLine = [NSRegularExpression regularExpressionWithPattern:@"[ant:scalac]\n.*" options:0 error:nil];
-        m_regex_blankLine2 = [NSRegularExpression regularExpressionWithPattern:@"\n.*" options:0 error:nil];
-        m_regex_compileError = [NSRegularExpression regularExpressionWithPattern:@"[ant:scalac]\t(.*)" options:0 error:nil];
+        m_regex_compileError = [NSRegularExpression regularExpressionWithPattern:@"[[]ant:scalac[]](.*)" options:0 error:nil];
         m_regex_compileFailed = [NSRegularExpression regularExpressionWithPattern:@"(:compileScala FAILED)" options:0 error:nil];
     }
     return self;
@@ -55,6 +53,19 @@ int i;
  フィルタ、特定のキーワードを抜き出す。
  */
 - (NSString * ) filtering:(NSString * )message {
+    NSLog(@"message %@", message);
+    
+    
+    // 改行だけなら逃げる
+    if ([message isEqualToString:@"\n"]) return nil;
+    
+    // 改行で始まっているなら最初の改行を取り除く
+    if ([message hasPrefix:@"\n"]) {
+        return [self filtering:[message substringFromIndex:1]];
+    }
+    
+    // うーーーん、連続行の処理が安定しない。分割がランダムなのか、タイマーでも入ってるのか。改行分解はしたくないなー。
+    
     i++;
     NSLog(@"start %d",i);
     
@@ -86,32 +97,46 @@ int i;
         @"^Compiling with Ant scalac task[.].*",
         @"^Compiling build file .*",
         @".* Compiling.*",
+        
+        
         @"^:classes.*",
         @"^:compileJava.*",
         @"^:compileScala.*",
         @"^:compileTestScala.*",
         @"^:jar.*",
         @"^:testClasses.*",
-        @"^Tasks to be executed: .*",
+        @"^:processTestResources.*"
+        
+        @"^Tasks to be executed:.*",
+        
+        @"^Skipping task.*",
+        @"^Projects loaded. Root project using build file (.*)[.].*",
+        
+        
         @"^Included projects:.*",
         @"^Starting Build.*",
-        @"^Projects loaded. Root project using build file (.*)[.].*",
         @"^Starting Gradle compiler daemon with fork options.*",
         @"^Started Gradle compiler daemon with fork options.*",
         @"^Executing.*",
         @"^:assemble",
         @"^:build",
+        @"^:test.*",
+        @"^:processResources.*",
+        @"^:check .*"
         
         @"^Process .*",
         
-        @"[[]*ant:scalac[]] .*"
+//        @"[[]*ant:scalac[]] .*"
         @"  No history is available.",
         @"Starting process.*",
         
         @"^Exception executing.*",
         @"^Compiling ([0-9.*]) Scala sources.*",
         
-        @"BUILD FAILED",
+        @"^Executing build with daemon context:",
+        
+        
+//        @"BUILD FAILED",
         
         @"empty"];
         
@@ -131,39 +156,28 @@ int i;
         
     }
     
-    
-    //empty line
+    // @"[[]*ant:scalac[]] .*"
     {
-        NSArray * emptyLine_matches = [m_regex_blankLine matchesInString:message options:0 range:NSMakeRange(0, [message length])];
-        
-        if (0 < [emptyLine_matches count]) {
-            return @"";
-        }
-        
-        NSArray * emptyLine_matches2 = [m_regex_blankLine2 matchesInString:message options:0 range:NSMakeRange(0, [message length])];
-        
-        if (0 < [emptyLine_matches2 count]) {
-            return @"";
-        }
-    }
-    
-    NSLog(@":message %@", message);
-    
-    
-    //[ error:]
-    {
-        NSArray * compileError_matches = [m_regex_compileError matchesInString:message options:0 range:NSMakeRange(0, [message length])];
-        for (NSTextCheckingResult * match in compileError_matches) {
+        NSArray * re = [m_regex_compileError matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+        for (NSTextCheckingResult * match in re) {
+            // この中で更に分ける、とかヤだな。
+            NSLog(@"range range %lu / len %lu", (unsigned long)[match range].location, (unsigned long)[match range].length);
             NSString * matchText = [message substringWithRange:[match range]];
+            
+            NSLog(@"match: %@", matchText);
+            
+            NSRange group1 = [match rangeAtIndex:1];
+            //        NSRange group2 = [match rangeAtIndex:2];
+            NSLog(@"group1: %@", [message substringWithRange:group1]);
+
         }
-        
     }
     
-    //[:compileScala FAILED]
+    // [:compileScala FAILED]
     {
-        NSArray * compileFailed_matches = [m_regex_compileFailed matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+        NSArray * re = [m_regex_compileFailed matchesInString:message options:0 range:NSMakeRange(0, [message length])];
         
-        for (NSTextCheckingResult * match in compileFailed_matches) {
+        for (NSTextCheckingResult * match in re) {
             NSLog(@"range range %lu / len %lu", (unsigned long)[match range].location, (unsigned long)[match range].length);
             NSString * matchText = [message substringWithRange:[match range]];
             
@@ -174,11 +188,10 @@ int i;
             NSLog(@"group1: %@", [message substringWithRange:group1]);
             //        NSLog(@"group2: %@", [message substringWithRange:group2]);
             
-            
             return @"ss@showAtLog:{\"message\":\"S2 compile failed.\"}->showStatusMessage:{\"message\":\"S2 compile failed.\"}";
         }
     }
-    return @"";
+    return nil;
 }
 
 @end

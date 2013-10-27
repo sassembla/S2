@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "MFTask.h"
+//#import "MFTask.h"
 
 #define S2_COMPILECHAMBER   (@"S2_COMPILECHAMBER")
 
@@ -47,7 +47,7 @@ enum STATE {
 
 
 
-@interface CompileChamber : NSObject <MFTaskDelegateProtocol>
+@interface CompileChamber : NSObject //<MFTaskDelegateProtocol>
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId;
 

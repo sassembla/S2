@@ -22,7 +22,7 @@
     
     Emitter * emitter;
     
-    MFTask * m_compileTask;
+    NSTask * m_compileTask;
     
     NSString * m_state;
 }
@@ -127,23 +127,58 @@
  */
 - (void) ignite:(NSString * )compileBasePath {
     
-    m_compileTask = [[MFTask alloc] init];
-    [m_compileTask setDelegate:self];
+    m_compileTask = [[NSTask alloc] init];
+//    [m_compileTask setDelegate:self];
     
-    NSString * gradlebuildStr = [[NSString alloc]initWithFormat:@"\"gradle --daemon -b %@ build -i\"", compileBasePath];
-//    NSArray * currentParams = @[@"-c", gradlebuildStr];
-    NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
     
-    [m_compileTask setLaunchPath:@"/usr/local/bin/gradle"];
+    // [m_compileTask setLaunchPath:@"/usr/local/bin/gradle"];
+    [m_compileTask setLaunchPath:@"/bin/sh"];
+    
+    NSString * gradlebuildStr = [[NSString alloc]initWithFormat:@"/usr/local/bin/gradle --daemon -b %@ build -i", compileBasePath];
+    NSArray * currentParams = @[@"-c", gradlebuildStr];
+//    NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
+    
     [m_compileTask setArguments:currentParams];
-    
+
+    NSPipe * currentOut = [[NSPipe alloc]init];
+    [m_compileTask setStandardOutput:currentOut];
+    [m_compileTask setStandardError:currentOut];
+
     // compile start
     [m_compileTask launch];
+    m_state = statesArray[STATE_COMPILING];
     
     if ([messenger hasParent]) {
         [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
          [messenger tag:@"id" val:m_chamberId],
          nil];
+    }
+    
+    NSFileHandle * publishHandle = [currentOut fileHandleForReading];
+
+    char buffer[BUFSIZ];
+    FILE * fp = fdopen([publishHandle fileDescriptor], "r");
+    while(fgets(buffer, BUFSIZ, fp)) {
+        NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
+        
+        NSString * result = nil;
+        if ((result = [emitter filtering:message])) {
+            if ([messenger hasParent]) {
+                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                 [messenger tag:@"id" val:m_chamberId],
+                 [messenger tag:@"message" val:result],
+                 nil];
+            }
+        }
+        
+        // m_state = statesArray[STATE_COMPILED];
+        /*
+         if ([messenger hasParent]) {
+         [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+         [messenger tag:@"id" val:m_chamberId],
+         nil];
+         }
+         */
     }
     
 }
@@ -172,62 +207,57 @@
 /**
  マスターへと経過を送付する
  */
-- (void) taskDidLaunch:(MFTask * ) theTask {
-    m_state = statesArray[STATE_COMPILING];
-    
-    if ([messenger hasParent]) {
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
-         [messenger tag:@"id" val:m_chamberId],
-         nil];
-    }
-}
+//- (void) taskDidLaunch:(MFTask * ) theTask {
+//    m_state = statesArray[STATE_COMPILING];
+//    
+//    if ([messenger hasParent]) {
+//        [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
+//         [messenger tag:@"id" val:m_chamberId],
+//         nil];
+//    }
+//}
 
-- (void) taskDidRecieveData:(NSData * ) theData fromTask:(MFTask * )task {
-    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
-    
-    NSString * result = [emitter filtering:message];
-    
-    if (0 < [result length]) {
-        if ([messenger hasParent]) {
-            [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-             [messenger tag:@"id" val:m_chamberId],
-             [messenger tag:@"message" val:result],
-             nil];
-        }
-    }
-}
-
-- (void) taskDidRecieveErrorData:(NSData * ) theData fromTask:(MFTask * )task {
-    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
-    if ([messenger hasParent]) {
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-         [messenger tag:@"id" val:m_chamberId],
-         [messenger tag:@"message" val:message],
-         nil];
-    }
-}
-
-- (void) taskDidTerminate:(MFTask * ) theTask {
-    m_state = statesArray[STATE_COMPILED];
-    
-    if ([messenger hasParent]) {
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-         [messenger tag:@"id" val:m_chamberId],
-         nil];
-    }
-}
-
-- (void) taskDidRecieveInvalidate:(MFTask * ) theTask {}
-
+//- (void) taskDidRecieveData:(NSData * ) theData fromTask:(MFTask * )task {
+//    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
+//    
+//    NSString * result = [emitter filtering:message];
+//    
+//    if (0 < [result length]) {
+//        if ([messenger hasParent]) {
+//            [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+//             [messenger tag:@"id" val:m_chamberId],
+//             [messenger tag:@"message" val:result],
+//             nil];
+//        }
+//    }
+//}
+//
+//- (void) taskDidRecieveErrorData:(NSData * ) theData fromTask:(MFTask * )task {
+//    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
+//    if ([messenger hasParent]) {
+//        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+//         [messenger tag:@"id" val:m_chamberId],
+//         [messenger tag:@"message" val:message],
+//         nil];
+//    }
+//}
+//
+//- (void) taskDidTerminate:(MFTask * ) theTask {
+//    m_state = statesArray[STATE_COMPILED];
+//    
+//    if ([messenger hasParent]) {
+//        [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+//         [messenger tag:@"id" val:m_chamberId],
+//         nil];
+//    }
+//}
+//
+//- (void) taskDidRecieveInvalidate:(MFTask * ) theTask {}
 
 
 - (void) close {
     [messenger closeConnection];
 }
-
-
-
-
 
 
 
