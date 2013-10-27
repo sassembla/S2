@@ -22,7 +22,7 @@
     
     Emitter * emitter;
     
-    NSTask * m_compileTask;
+    MFTask * m_compileTask;
     
     NSString * m_state;
 }
@@ -109,7 +109,7 @@
  スピンアップ
  */
 - (void) spinup {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 19:55:37" withLimitSec:100000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではこのブロック内でロックしてOK。今回は瞬間でSpinUpしたことにする。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 11:51:25" withLimitSec:100000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではこのブロック内でロックしてOK。今回は瞬間でSpinUpしたことにする。"];
     
     // spinupping
     m_state = statesArray[STATE_SPINUPPED];
@@ -127,33 +127,25 @@
  */
 - (void) ignite:(NSString * )compileBasePath {
     
-    m_compileTask = [[NSTask alloc] init];
-//    [m_compileTask setDelegate:self];
+    m_compileTask = [[MFTask alloc] init];
+    [m_compileTask setDelegate:self];
     
-    NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
+    NSString * gradlebuildStr = [[NSString alloc]initWithFormat:@"\"gradle --daemon -b %@ build -i\"", compileBasePath];
+//    NSArray * currentParams = @[@"-c", gradlebuildStr];
+    NSArray * currentParams = @[@"gradle", @"--daemon", @"-b", compileBasePath, @"build", @"-i"];
     
-    [m_compileTask setLaunchPath:@"/usr/local/bin/gradle"];
+    [m_compileTask setLaunchPath:@"/bin/sh"];
     [m_compileTask setArguments:currentParams];
-    
-    
-    NSPipe * currentOut = [[NSPipe alloc]init];
-    [m_compileTask setStandardOutput:currentOut];
     
     // compile start
     [m_compileTask launch];
     
-    
-    NSFileHandle * publishHandle = [currentOut fileHandleForReading];
-
-    char buffer[BUFSIZ];
-    FILE * fp = fdopen([publishHandle fileDescriptor], "r");
-    while(fgets(buffer, BUFSIZ, fp)) {
-        NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
-        NSLog(@"hereComes %@", message);
-
-//        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-//         [messenger tag:@"id" val:m_chamberId],[messenger tag:@"message" val:message],nil];
+    if ([messenger hasParent]) {
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
+         [messenger tag:@"id" val:m_chamberId],
+         nil];
     }
+    
 }
 
 - (BOOL) isCompiling {

@@ -160,9 +160,9 @@
         bool result = [fMan createFileAtPath:targetPath contents:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
         
         if (result) {
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 19:56:30" withLimitSec:100000 withComment:@"generated!"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 19:56:30" withLimitSec:100000 withComment:@"f generated!"];
         } else {
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 19:56:34" withLimitSec:100000 withComment:@"fail to generate"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 19:56:34" withLimitSec:100000 withComment:@"f fail to generate"];
         }
         
         NSFileHandle * writeHandle = [NSFileHandle fileHandleForUpdatingAtPath:targetPath];
@@ -222,7 +222,7 @@
     
     [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
     
-    NSString * currentTargetPath = [[NSString alloc]initWithFormat:@"%@%@", TEST_TEMPPROJECT_OUTPUT_PATH, TEST_COMPILEBASEPATH];
+    NSString * currentTargetPath = [[NSString alloc]initWithFormat:@"%@%@", TEST_TEMPPROJECT_OUTPUT_PATH, [TEST_COMPILEBASEPATH substringFromIndex:2]];
     
     [cChamber ignite:currentTargetPath];
     
@@ -250,7 +250,7 @@
     
     [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
     
-    NSString * currentTargetPath = [[NSString alloc]initWithFormat:@"%@%@", TEST_TEMPPROJECT_OUTPUT_PATH, TEST_COMPILEBASEPATH];
+    NSString * currentTargetPath = [[NSString alloc]initWithFormat:@"%@%@", TEST_TEMPPROJECT_OUTPUT_PATH, [TEST_COMPILEBASEPATH substringFromIndex:2]];
     
     [cChamber ignite:currentTargetPath];
     
@@ -279,7 +279,7 @@
     
     [self generateFiles:codes to:TEST_TEMPPROJECT_OUTPUT_PATH];
     
-    NSString * currentTargetPath = [[NSString alloc]initWithFormat:@"%@%@", TEST_TEMPPROJECT_OUTPUT_PATH, TEST_COMPILEBASEPATH];
+    NSString * currentTargetPath = [[NSString alloc]initWithFormat:@"%@%@", TEST_TEMPPROJECT_OUTPUT_PATH, [TEST_COMPILEBASEPATH substringFromIndex:2]];
     
     [cChamber ignite:currentTargetPath];
     

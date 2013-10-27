@@ -42,7 +42,7 @@
 
 
 - (NSString * ) genereateFilteredMessage:(NSString * )message withPriority:(int)priority {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/24 20:06:45" withLimitSec:100000 withComment:@"直にラインを光らせる処理とか、、は、ちょっとあとで。負荷がかかるけどフィルタを流す。ss@つけるとか。上っ面の処理を施す。キーが増える予感がする。その場合は分けるか。typeを持つ。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 20:06:45" withLimitSec:100000 withComment:@"直にラインを光らせる処理とか、、は、ちょっとあとで。負荷がかかるけどフィルタを流す。ss@つけるとか。上っ面の処理を施す。キーが増える予感がする。その場合は分けるか。typeを持つ。"];
     
     return message;
 }
