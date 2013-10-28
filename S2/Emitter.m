@@ -12,12 +12,14 @@
 
 
 @implementation Emitter {
+    NSRegularExpression * m_regex_compileSucceeded;
     NSRegularExpression * m_regex_compileError;
     NSRegularExpression * m_regex_compileFailed;
 }
 
 - (id) init {
     if (self = [super init]) {
+        m_regex_compileSucceeded = [NSRegularExpression regularExpressionWithPattern:@"^BUILD SUCCESSFUL.*" options:0 error:nil];
         m_regex_compileError = [NSRegularExpression regularExpressionWithPattern:@"[[]ant:scalac[]](.*)" options:0 error:nil];
         m_regex_compileFailed = [NSRegularExpression regularExpressionWithPattern:@"(:compileScala FAILED)" options:0 error:nil];
     }
@@ -139,8 +141,8 @@ int i;
         @"^file or directory .*",
         
         
-//        @"BUILD FAILED",
-        @"^BUILD SUCCESSFUL.*",
+//        @"^BUILD FAILED",
+//        @"^BUILD SUCCESSFUL.*",
         @"^Total time: (.*) secs.*",
         
         @"empty"];
@@ -162,6 +164,14 @@ int i;
     }
     
     NSLog(@"message is %@", message);
+    // @"^BUILD SUCCESSFUL.*"
+    {
+        NSArray * re = [m_regex_compileSucceeded matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+        for (NSTextCheckingResult * match in re) {
+            NSString * matchText = [message substringWithRange:[match range]];
+            return @"2013/10/28 9:12:54";
+        }
+    }
     
     // @"[[]*ant:scalac[]] .*"
     {

@@ -164,14 +164,10 @@
         NSString * result = nil;
         if ((result = [emitter filtering:message])) {
             // end
-            // m_state = statesArray[STATE_COMPILED];
-            /*
-             if ([messenger hasParent]) {
-             [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-             [messenger tag:@"id" val:m_chamberId],
-             nil];
-             }
-             */
+            if ([result isEqualToString:@"2013/10/28 9:12:54"]) {
+                // stop listening
+                break;
+            }
             
             // not end
             if ([messenger hasParent]) {
@@ -182,6 +178,14 @@
             }
         }
     
+    }
+    
+    m_state = statesArray[STATE_COMPILED];
+    
+    if ([messenger hasParent]) {
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+         [messenger tag:@"id" val:m_chamberId],
+         nil];
     }
     
 }
