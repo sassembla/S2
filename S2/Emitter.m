@@ -10,15 +10,31 @@
 
 #import "TimeMine.h"
 
+#define KEY_STACKTYPE   (@"KEY_STACKTYPE")
+#define KEY_STACKLIMIT  (@"KEY_STACKLIMIT")
+
+// defines of stack type
+#define STACKTYPE_ERRORLINES    (@"STACKTYPE_ERRORLINES")
+
+
+#define STRKEY_UPPER    (@"^")
+
+
 
 @implementation Emitter {
+    NSRegularExpression * m_regex_antscala;
+    NSRegularExpression * m_regex_antscalaError;
     NSRegularExpression * m_regex_compileSucceeded;
     NSRegularExpression * m_regex_compileError;
     NSRegularExpression * m_regex_compileFailed;
+    
+    NSMutableDictionary * m_stackDict;
 }
 
 - (id) init {
     if (self = [super init]) {
+        m_regex_antscala = [NSRegularExpression regularExpressionWithPattern:@".ant:scalac. (.*)" options:0 error:nil];
+        m_regex_antscalaError = [NSRegularExpression regularExpressionWithPattern:@".ant:scalac. (.*):([0-9].*): error: (.*)" options:0 error:nil];
         m_regex_compileSucceeded = [NSRegularExpression regularExpressionWithPattern:@"^BUILD SUCCESSFUL.*" options:0 error:nil];
         m_regex_compileError = [NSRegularExpression regularExpressionWithPattern:@"[[]ant:scalac[]](.*)" options:0 error:nil];
         m_regex_compileFailed = [NSRegularExpression regularExpressionWithPattern:@"(:compileScala FAILED)" options:0 error:nil];
@@ -47,8 +63,6 @@
     return message;
 }
 
-int i;
-
 /**
  フィルタ、特定のキーワードを抜き出す。
  */
@@ -65,9 +79,6 @@ int i;
     if ([message hasPrefix:@"\n"]) {
         return [self filtering:[message substringFromIndex:1] withSign:sign];
     }
-    
-    i++;
-    NSLog(@"start %d",i);
     
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 19:57:13" withLimitSec:100000 withComment:@"compileFail時は２発で帰る。これは現在のTaskのせいなのかな？"];
     /*
@@ -117,6 +128,7 @@ int i;
         @"^Included projects:.*",
         @"^Starting Build.*",
         @"^Starting Gradle compiler daemon with fork options.*",
+        @"^Starting Gradle daemon.*",
         @"^Started Gradle compiler daemon with fork options.*",
         @"^Executing.*",
         @"^:assemble",
@@ -128,7 +140,7 @@ int i;
         
         @"^Process .*",
         
-        @"[[]ant:scalac[]] .*",
+//        @"[[]ant:scalac[]] (.*)",//これで貫通しなくなる。
         
         @"  No history is available.",
         @"Starting process.*",
@@ -163,7 +175,7 @@ int i;
         
     }
     
-    NSLog(@"message is %@", message);
+    
     // @"^BUILD SUCCESSFUL.*"
     {
         NSArray * re = [m_regex_compileSucceeded matchesInString:message options:0 range:NSMakeRange(0, [message length])];
@@ -172,22 +184,62 @@ int i;
         }
     }
     
-    // @"[[]*ant:scalac[]] .*"
+    NSLog(@"message is %@", message);
+    
+    // antscala error
+    // [ant:scalac] /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:7: error: not found: type Samplaaae2
     {
-        NSArray * re = [m_regex_compileError matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+        NSArray * re = [m_regex_antscalaError matchesInString:message options:0 range:NSMakeRange(0, [message length])];
         for (NSTextCheckingResult * match in re) {
-            // この中で更に分ける、とかヤだな。
-            NSLog(@"range range %lu / len %lu", (unsigned long)[match range].location, (unsigned long)[match range].length);
-            NSString * matchText = [message substringWithRange:[match range]];
+            NSString * filePath = [message substringWithRange:[match rangeAtIndex:1]];
+            NSString * line = [message substringWithRange:[match rangeAtIndex:2]];
+            NSString * reason = [message substringWithRange:[match rangeAtIndex:3]];
             
-            NSLog(@"match: %@", matchText);
+            NSDictionary * dict = @{@"filePath":filePath,
+                                    @"line":line,
+                                    @"reason":reason};
             
-            NSRange group1 = [match rangeAtIndex:1];
-            //        NSRange group2 = [match rangeAtIndex:2];
-            NSLog(@"group1: %@", [message substringWithRange:group1]);
-
+            [self stack:dict withType:STACKTYPE_ERRORLINES withLimit:@2];
+            return nil;
+        }
+        
+        if ([m_stackDict[KEY_STACKTYPE] isEqualToString:STACKTYPE_ERRORLINES]) {
+            NSArray * re2 = [m_regex_antscala matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+            
+            // 残りの行の数で対応を変える
+            switch ([self countdown:STACKTYPE_ERRORLINES]) {
+                case 1:{
+                    for (NSTextCheckingResult * match in re2) {
+                        return nil;
+                    }
+                    break;
+                }
+                case 0:{
+                    for (NSTextCheckingResult * match in re2) {
+                        NSString * markerPosStr = [message substringWithRange:[match rangeAtIndex:1]];
+                        //markerPosStr ^までの長さを測る
+                        NSRange range = [markerPosStr rangeOfString:STRKEY_UPPER];
+                        NSUInteger index = range.location;
+                        NSDictionary * dict = @{@"index":[[NSString alloc]initWithFormat:@"%lu", (unsigned long)index]};
+                        [self append:dict];
+                        
+                        NSDictionary * result = [self flush];
+                        
+                        // 表示列を光らせるメッセージを直撃で返す
+                        NSString * message = [[NSString alloc] initWithFormat:@"ss@showStatusMessage:{\"message\":\"%@\"}->showAtLog:{\"message\":\"%@\"}->appendRegion:{\"line\":\"%@\",\"message\":\"%@\",\"view\":\"%@\",\"condition\":\"keyword\"}", result[@"reason"], result[@"reason"], result[@"line"], result[@"reason"], result[@"filePath"]];
+                        
+                        return @[message];
+                    }
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
         }
     }
+    
+    NSLog(@"message 2 is %@", message);
     
     // [:compileScala FAILED]
     {
@@ -208,6 +260,41 @@ int i;
         }
     }
     return nil;
+}
+
+
+/**
+ emitterごとのstackシステム
+ 多重にネストすることを考慮しない。一つだけのキーを持つ。
+ */
+- (void) stack:(NSDictionary * )dict withType:(NSString * )type withLimit:(NSNumber * )count {
+    m_stackDict = [[NSMutableDictionary alloc]initWithDictionary:dict];
+    [m_stackDict setValue:type forKey:KEY_STACKTYPE];
+    [m_stackDict setValue:count forKey:KEY_STACKLIMIT];
+}
+
+- (void) append:(NSDictionary * )dict {
+    for (NSString * key in [dict allKeys]) {
+        [m_stackDict setValue:[[NSString alloc]initWithString:dict[key]] forKey:key];
+    }
+}
+
+- (int) countdown:(NSString * )type {
+    if (m_stackDict && [m_stackDict[KEY_STACKTYPE] isEqualToString:type]) {
+        int limit = [m_stackDict[KEY_STACKLIMIT] intValue];
+        limit--;
+        
+        // update
+        [m_stackDict setValue:[NSNumber numberWithInt:limit] forKey:KEY_STACKLIMIT];
+        
+        return limit;
+    }
+    return -1;
+}
+
+
+- (NSDictionary * ) flush {
+    return m_stackDict;
 }
 
 @end

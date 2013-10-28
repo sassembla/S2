@@ -192,7 +192,7 @@
 - (void) testIgniteThenStart {
     [cChamber ignite:TEST_COMPILEBASEPATH];
 
-    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILING], @"not match, %@", [cChamber state]);
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILED], @"not match, %@", [cChamber state]);
 }
 
 - (void) testIgniteAndAbortThenAbortedThenSpinupping {
