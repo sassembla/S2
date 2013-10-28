@@ -14,6 +14,6 @@
 - (NSString * ) generateReadyMessage;
 - (NSString * ) genereateFilteredMessage:(NSString * )message withPriority:(int)priority;
 
-- (NSString * ) filtering:(NSString * )message;
+- (NSArray * ) filtering:(NSString * )message withSign:(NSString * )sign;
 
 @end

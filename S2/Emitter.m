@@ -52,7 +52,7 @@ int i;
 /**
  フィルタ、特定のキーワードを抜き出す。
  */
-- (NSString * ) filtering:(NSString * )message {
+- (NSArray * ) filtering:(NSString * )message withSign:(NSString * )sign {
     NSLog(@"message %@", message);
     
     
@@ -63,7 +63,7 @@ int i;
     
     // 改行で始まっているなら最初の改行を取り除く
     if ([message hasPrefix:@"\n"]) {
-        return [self filtering:[message substringFromIndex:1]];
+        return [self filtering:[message substringFromIndex:1] withSign:sign];
     }
     
     i++;
@@ -168,8 +168,7 @@ int i;
     {
         NSArray * re = [m_regex_compileSucceeded matchesInString:message options:0 range:NSMakeRange(0, [message length])];
         for (NSTextCheckingResult * match in re) {
-            NSString * matchText = [message substringWithRange:[match range]];
-            return @"2013/10/28 9:12:54";
+            return @[sign, @"BUILD SUCCESSFUL"];
         }
     }
     
@@ -205,7 +204,7 @@ int i;
             NSLog(@"group1: %@", [message substringWithRange:group1]);
             //        NSLog(@"group2: %@", [message substringWithRange:group2]);
             
-            return @"ss@showAtLog:{\"message\":\"S2 compile failed.\"}->showStatusMessage:{\"message\":\"S2 compile failed.\"}";
+            return @[@"ss@showAtLog:{\"message\":\"S2 compile failed.\"}->showStatusMessage:{\"message\":\"S2 compile failed.\"}"];
         }
     }
     return nil;

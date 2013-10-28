@@ -155,25 +155,34 @@
     }
     
     NSFileHandle * publishHandle = [currentOut fileHandleForReading];
-
+    NSString * sign = [[NSString alloc]initWithString:[messenger myMID]];
+    
     char buffer[BUFSIZ];
     FILE * fp = fdopen([publishHandle fileDescriptor], "r");
     while(fgets(buffer, BUFSIZ, fp)) {
         NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
         
-        NSString * result = nil;
-        if ((result = [emitter filtering:message])) {
+        NSArray * resultArray = nil;
+        if ((resultArray = [emitter filtering:message withSign:sign])) {
+            
             // end
-            if ([result isEqualToString:@"2013/10/28 9:12:54"]) {
+            if ([resultArray[0] isEqualToString:sign]) {
+                if ([messenger hasParent]) {
+                    [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                     [messenger tag:@"id" val:m_chamberId],
+                     [messenger tag:@"message" val:resultArray[1]],
+                     nil];
+                }
+                
                 // stop listening
                 break;
             }
-            
+
             // not end
             if ([messenger hasParent]) {
                 [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
                  [messenger tag:@"id" val:m_chamberId],
-                 [messenger tag:@"message" val:result],
+                 [messenger tag:@"message" val:resultArray[0]],
                  nil];
             }
         }
