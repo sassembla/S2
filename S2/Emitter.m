@@ -67,7 +67,7 @@
  フィルタ、特定のキーワードを抜き出す。
  */
 - (NSArray * ) filtering:(NSString * )message withSign:(NSString * )sign {
-    NSLog(@"message %@", message);
+    NSLog(@"before %@", message);
     
     
     // 改行だけなら逃げる
@@ -77,10 +77,9 @@
     
     // 改行で始まっているなら最初の改行を取り除く
     if ([message hasPrefix:@"\n"]) {
-        return [self filtering:[message substringFromIndex:1] withSign:sign];
+//        return [self filtering:[message substringFromIndex:1] withSign:sign];
     }
     
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 19:57:13" withLimitSec:100000 withComment:@"compileFail時は２発で帰る。これは現在のTaskのせいなのかな？"];
     /*
      1)//これはワンセット、この行の何文字目、という。 7の18、とかが出せると良い。
      [ant:scalac] /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:7: error: not found: type Samplaaae2,
@@ -99,6 +98,7 @@
     // 本来必要ではないが、正規表現のupを見るためのチェックをしよう
     {
         NSArray * ignoreMessages = @[
+        @"^Starting daemon process:.*",
         @"^Connected to the daemon[.].*",
         @"^The client will now receive all logging from the daemon.*",
         @"^Settings evaluated using empty settings script[.].*",
@@ -108,7 +108,8 @@
         @"^Compiling with Ant scalac task[.].*",
         @"^Compiling build file .*",
         @".* Compiling.*",
-        
+        @"^An attempt to initialize for well behaving parent process finished.",
+        @"^Successfully started process.*",
         
         @"^:classes.*",
         @"^:compileJava.*",
@@ -157,6 +158,23 @@
 //        @"^BUILD SUCCESSFUL.*",
         @"^Total time: (.*) secs.*",
         
+        // zinc error
+        @"(.*):([0-9].*): (.*)",//こいつが開始行かなー
+        
+        @"^Compiling with Zinc Scala compiler.*",
+        @"^FAILURE: Build failed with an exception.*",
+        @"^> Compilation failed.*",
+
+        
+        @"^[*] Try:.*",
+        @"^Run with .*",
+        @"^[*] What went wrong:.*",
+        
+        @"^Stopping [0-9].* Gradle compiler daemon[(]s[)].*",
+        @"^Stopped [0-9].* Gradle compiler daemon[(]s[)].*",
+        @"^Execution failed for task.*",
+        @"^> Compile failed with.*",
+        
         @"empty"];
         
         /*
@@ -184,7 +202,7 @@
         }
     }
     
-    NSLog(@"message is %@", message);
+    NSLog(@"message %@", message);
     
     // antscala error
     // [ant:scalac] /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:7: error: not found: type Samplaaae2
@@ -239,7 +257,6 @@
         }
     }
     
-    NSLog(@"message 2 is %@", message);
     
     // [:compileScala FAILED]
     {
