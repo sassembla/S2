@@ -59,7 +59,6 @@
     // 特定のカウントずつpullする
     [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 16:24:50" withLimitSec:100000 withComment:@"とりあえず全部Pullしてたが100とかいくと不味くね？ リミッターをつけて、そのカウンタ分だけ回して、その数字を減らすように改造する、という必要があるかどうか。"];
     
-    
     // renew
     m_pullingPathDict = [[NSMutableDictionary alloc]init];
     

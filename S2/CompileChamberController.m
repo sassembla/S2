@@ -30,6 +30,8 @@
     ContentsPoolController * contentsPoolCont;
     
     NSMutableArray * m_chamberPriority;
+    
+    NSMutableDictionary * m_messageBuffer;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
@@ -46,6 +48,8 @@
         contentsPoolCont = [[ContentsPoolController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
         
         m_chamberPriority = [[NSMutableArray alloc]init];
+        
+        m_messageBuffer = [[NSMutableDictionary alloc]init];
     }
     return self;
 }
@@ -156,20 +160,12 @@
         
         case S2_COMPILECHAMBER_EXEC_IGNITED:{
             NSAssert(dict[@"id"], @"id required");
-            /*
-             イベントとしては、新しいigniteが来たタイミングで、
-             ・priorityが変わる(newが現れる)
-             ・それまでのnewがoldになる
-             ・メッセージのレベルが落ちるので、
-             clear
-             旧メッセージの送り込みを継続
-             になる。
-             
-             黄色で送り込むかな。messageQueue。
-             */
-
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 20:02:40" withLimitSec:100000 withComment:@"優先度のすげ替えが発生したので、一気に生きているチャンバーのinfoを塗り替える。で、そのチャンバーの残した結果を塗り替える。あんまり多く無いと思うんだよね。同時には。"];
             
+            // change priority to 0
+            [self setChamberPriorityFirst:dict[@"id"]];
+            
+            // resend all
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/29 18:08:04" withLimitSec:10000 withComment:@"旧プライオリティのものを下げて送り直す"];
             break;
         }
             
@@ -217,25 +213,34 @@
             NSAssert(dict[@"id"], @"id required");
             NSAssert(dict[@"message"], @"message required");
             
-            
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 20:02:58" withLimitSec:100000 withComment:@"要素を削る最前提は、レベルパラメータをみて行う。レベリングはここで行う。arrayにchamberIdを溜めていって、先頭のほうほどレベルが高い。みたいにする。chamberが死んだらそのchamberからのメッセージはすべて削る。とりあえずざっと送る プライオリティは仮。"];
-            
-//
-//            /*
-//             チャンバーの寿命は、igniteされたりabortされたりで替わる。現在塗りつぶし(既存runnningを破棄)は発生していないので、どうするかな。
-//             ー＞既存runnningで埋まった場合は何もしない、でOK
-//             */
+            // buffer
+            [self bufferMessage:dict[@"message"] to:dict[@"id"]];
             
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
              [messenger tag:@"message" val:dict[@"message"]],
-             [messenger tag:@"priority" val:[NSNumber numberWithInt:1]],
+             [messenger tag:@"priority" val:[self chamberPriority:dict[@"id"]]],
              nil];
             
             break;
         }
     }
-    
 }
+
+
+/**
+ set
+ */
+- (void) bufferMessage:(NSString * )message to:(NSString * )chamberId {
+    NSMutableArray * array = m_messageBuffer[chamberId];
+    if (array) {
+        [array addObject:message];
+    } else {
+        array = [[NSMutableArray alloc]init];
+        [m_messageBuffer setValue:array forKey:chamberId];
+    }
+}
+
+
 
 - (void) compileOrNot:(NSString * )path withSource:(NSString * )source {
     NSDictionary * poolInfoDict;
@@ -320,6 +325,14 @@
 
 - (BOOL) isFirstPriority:(NSString * )chamberId {
     return m_chamberPriority[0] == chamberId;
+}
+
+- (NSNumber * ) chamberPriority:(NSString * )chamberid {
+    NSUInteger index = -1;
+    if (-1 < (index = [m_chamberPriority indexOfObject:chamberid])) {
+        return [NSNumber numberWithInteger:index];
+    }
+    return @-1;
 }
 
 - (void) removePriority:(NSString * )chamberId {
