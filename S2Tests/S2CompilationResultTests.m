@@ -31,6 +31,8 @@
     
     NSMutableArray * m_ignitedChamberArray;
     NSMutableArray * m_compiledResults;
+    NSMutableArray * m_resendArray;
+    
     
     int m_repeatCount;
     int m_compiledCounts;
@@ -43,6 +45,7 @@
     
     m_ignitedChamberArray = [[NSMutableArray alloc]init];
     m_compiledResults = [[NSMutableArray alloc]init];
+    m_resendArray = [[NSMutableArray alloc] init];
     
     m_repeatCount = 0;
     m_compiledCounts = 0;
@@ -52,7 +55,7 @@
 {
     [m_ignitedChamberArray removeAllObjects];
     [m_compiledResults removeAllObjects];
-    
+    [m_resendArray removeAllObjects];
     
     [cont shutDown];
     [messenger closeConnection];
@@ -75,6 +78,11 @@
         case S2_CONT_EXEC_TICK:{
             NSAssert(wrappedDict[@"message"], @"message required");
             [m_compiledResults addObject:wrappedDict[@"message"]];
+            break;
+        }
+        case S2_CONT_EXEC_RESENDED:{
+            NSAssert(wrappedDict[@"message"], @"message required");
+            [m_resendArray addObject:wrappedDict[@"message"]];
             break;
         }
         case S2_CONT_EXEC_COMPILED:{
@@ -329,8 +337,44 @@
 
 
 /**
- 
+ resendが発生する
  */
+- (void) testResend {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
+    while ([cont state] != STATE_IGNITED) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+
+    // 一度目のコンパイル開始
+    NSArray * updateArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
+    
+    // updateを発生させる。 最後の一つでコンパイルが開始される。
+    for (NSString * path in updateArray) {
+        NSString * message3 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, path, [self readSource:path]];
+        [self connectClientTo:TEST_SERVER_URL withMessage:message3];
+    }
+    
+    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    
+    // この時点でさらにupdateを発生させる
+    NSString * message4 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, updateArray[0], [self readSource:updateArray[0]]];
+    [self connectClientTo:TEST_SERVER_URL withMessage:message4];
+    
+    
+    // +1つが着火状態
+    XCTAssertTrue([m_ignitedChamberArray count] == 2, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    
+    // flushが発生するはず
+    XCTAssertTrue([m_resendArray count] == 1, @"not match, %d", [m_resendArray count]);
+}
 
 
 /*

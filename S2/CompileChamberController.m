@@ -165,7 +165,9 @@
             [self setChamberPriorityFirst:dict[@"id"]];
             
             // resend all
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/29 18:08:04" withLimitSec:10000 withComment:@"旧プライオリティのものを下げて送り直す"];
+            [self resend];
+            
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_RESENDED, nil];
             break;
         }
             
@@ -276,6 +278,17 @@
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_ALLCHAMBERS_FILLED, nil];
         }
     }
+}
+
+/**
+ bufferの内容をresendする
+ */
+- (void) resend {
+    // reset
+    
+    // resend
+    
+    
 }
 
 

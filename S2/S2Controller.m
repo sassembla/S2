@@ -199,6 +199,9 @@
                     }
                     break;
                 }
+                case S2_COMPILECHAMBERCONT_EXEC_RESENDED:{
+                    [self callToMaster:S2_CONT_EXEC_RESENDED withMessageDict:dict];
+                }
             }
             break;
         }

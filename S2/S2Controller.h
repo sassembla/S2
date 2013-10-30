@@ -30,6 +30,8 @@ enum S2_CONT_EXEC {
     
     S2_CONT_EXEC_TICK,
     
+    S2_CONT_EXEC_RESENDED,
+    
     S2_CONT_EXEC_COMPILED,
 };
 
