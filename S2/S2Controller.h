@@ -42,6 +42,8 @@ enum S2_CONT_EXEC {
 
 - (id) initWithDict:(NSDictionary * )params withMasterName:(NSString * )masterNameAndId;
 
+- (void) setCompilerSettings:(NSDictionary * )settingsDict;
+
 - (int) state;
 
 - (void) callToMaster:(int)exec withMessageDict:(NSDictionary * )messageDict;

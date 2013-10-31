@@ -15,7 +15,8 @@
 
 #import "S2TestSupportDefines.h"
 
-#import "S2Token.h"
+#import "CompileSettingController.h"
+
 
 #import "TimeMine.h"
 
@@ -64,8 +65,6 @@
                   @"S2_COMPILECHAMBER_EXEC_TICK",
                   
                   @"S2_COMPILECHAMBER_EXEC_PURGE",
-                  
-                  @"S2_COMPILECHAMBER_EXEC_READ_SETTINGS"
                   ];
     XCTAssertTrue([execArray count] == NUM_OF_S2_COMPILECHAMBER_EXEC, @"not match, %lu", (unsigned long)[execArray count]);
 }

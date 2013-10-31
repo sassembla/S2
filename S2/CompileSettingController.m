@@ -7,8 +7,6 @@
 //
 
 #import "CompileSettingController.h"
-#import "S2Token.h"
-
 #import "CompileChamber.h"
 
 #import "KSMessenger.h"
@@ -28,15 +26,25 @@
 }
 
 - (void) receiver:(NSNotification * )notif {
-    switch ([messenger execFrom:S2_COMPILECHAMBER viaNotification:notif]) {
-        case S2_COMPILECHAMBER_EXEC_READ_SETTINGS:{
+    NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
+    
+    switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
+        case S2_COMPILERSETTINGCONTROLLER_EXEC_SET:{
+            NSAssert(dict[@"settingsDict"], @"settingsDict required");
+            m_settingsDict = [[NSDictionary alloc]initWithDictionary:dict[@"settingsDict"]];
+            break;
+        }
+    }
+    
+    switch ([messenger execFrom:S2_COMPILECHAMBER_SETTINGRECEIVER viaNotification:notif]) {
+        case S2_COMPILECHAMBER_SETTINGRECEIVER_EXEC_GET:{
             
             if (m_settingsDict) {
                 [messenger callback:notif,
                  [messenger tag:@"settingsDict" val:m_settingsDict],
                  nil];
             } else {
-                // return empty dict
+                // return empty dict as default
                 [messenger callback:notif,
                  [messenger tag:@"settingsDict" val:@{}],
                  nil];
@@ -44,9 +52,6 @@
             
             break;
         }
-            
-        default:
-            break;
     }
 }
 

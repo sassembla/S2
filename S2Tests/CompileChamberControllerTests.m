@@ -25,7 +25,7 @@
 
 #import "S2TestSupportDefines.h"
 
-#import "S2Token.h"
+#import "CompileSettingController.h"
 
 
 /**

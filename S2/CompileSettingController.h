@@ -8,6 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+#define S2_COMPILERSETTINGCONTROLLER    (@"S2_COMPILERSETTINGCONTROLLER")
+
+enum S2_COMPILERSETTINGCONTROLLER_EXEC {
+    S2_COMPILERSETTINGCONTROLLER_EXEC_SET,
+};
+
+
 @interface CompileSettingController : NSObject
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId;
 - (void)close;

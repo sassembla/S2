@@ -161,6 +161,8 @@
     
     cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
     
+    [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:1.0]}];
+    
     while ([cont state] != STATE_IGNITED) {
         if ([self countupThenFail]) {
             XCTFail(@"too long wait");
@@ -179,7 +181,7 @@
     
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
    
-    // さすがにまだ終わってないはず、、
+    // test時用のwaitをcompile時にかけるので、通過していない筈
     XCTAssertTrue(m_compiledCounts == 0, @"not match, %d", m_compiledCounts);
     
     
@@ -204,11 +206,11 @@
 }
 
 - (void) testCompileFailure {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/31 21:57:28" withLimitSec:10000 withComment:@"順で実行すると機能しない。原因を探そう。"];
     // 起動する
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
     cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:1.0]}];
     
     while ([cont state] != STATE_IGNITED) {
         if ([self countupThenFail]) {
@@ -261,6 +263,7 @@
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
     cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:1.0]}];
     
     while ([cont state] != STATE_IGNITED) {
         if ([self countupThenFail]) {
@@ -300,6 +303,7 @@
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
     cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:1.0]}];
     
     while ([cont state] != STATE_IGNITED) {
         if ([self countupThenFail]) {
@@ -351,6 +355,7 @@
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
     cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:1.0]}];
     
     while ([cont state] != STATE_IGNITED) {
         if ([self countupThenFail]) {

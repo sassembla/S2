@@ -76,6 +76,12 @@
 }
 
 
+- (void) setCompilerSettings:(NSDictionary * )settingsDict {
+    [messenger call:S2_COMPILERSETTINGCONTROLLER withExec:S2_COMPILERSETTINGCONTROLLER_EXEC_SET,
+     [messenger tag:@"settingsDict" val:settingsDict],
+     nil];
+}
+
 
 - (void) receiver:(NSNotification * )notif {
     
@@ -167,7 +173,7 @@
                     [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_COMPILE, nil];
                     
                     // notify to user.
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 20:20:17" withLimitSec:100000 withComment:@"pullが終わった段階での通知をしよう。内容は、pullに関するidが降られているといいんだろうなーと思うなど。pull = リセットだわ。ファイルの削除とかが発生したらリセットが必要。リセットでエイリアス作るか。"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 20:20:17" withLimitSec:100000 withComment:@"pullが終わった段階での通知をしよう。内容は、pullに関するidが降られているといいんだろうなーと思うなど。pull = リセットだわ。ファイルの削除とかが発生したらリセットが必要。リセットでエイリアス作るか。"];
                     NSString * pullCompletedMessage = @"pull overed";
                     
 

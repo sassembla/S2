@@ -9,8 +9,6 @@
 // defaut server path
 #define S2_DEFAULT_ADDR         (@"ws://127/0/0/1:8823")
 
-#define S2_COMPILERSETTINGCONTROLLER    (@"S2_COMPILERSETTINGCONTROLLER")
-
 
 // S2 specific API triggers
 #define S2_TRIGGER_PREFIX_LISTED   (@"listed")

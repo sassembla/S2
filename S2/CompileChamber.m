@@ -12,6 +12,8 @@
 #import "S2Token.h"
 #import "Emitter.h"
 
+#import "CompileSettingController.h"
+
 #import "TimeMine.h"
 
 @implementation CompileChamber {
@@ -31,11 +33,11 @@
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
     if (self = [super init]) {
-        // compile control only
+        // messenger that compile control only
         messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(compilationReceiver:) withName:S2_COMPILECHAMBER];
         [messenger connectParent:masterNameAndId];
         
-        // setting receive only
+        // messenger that setting receive only
         settingReceiver = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(settingReceiver:) withName:S2_COMPILECHAMBER_SETTINGRECEIVER];
         [settingReceiver connectParent:S2_COMPILERSETTINGCONTROLLER];
         
@@ -212,7 +214,7 @@
     NSString * sign = [[NSString alloc]initWithString:[messenger myMID]];
     
     // read setting
-    NSDictionary * compilationSetting = [settingReceiver callParent:S2_COMPILECHAMBER_EXEC_READ_SETTINGS, nil];
+    NSDictionary * compilationSetting = [settingReceiver callParent:S2_COMPILECHAMBER_SETTINGRECEIVER_EXEC_GET, nil][@"settingsDict"];
     
     float compileDelay = S2_COMPILER_WAIT_TIME;
     if (compilationSetting[@"compileDelay"]) compileDelay = [compilationSetting[@"compileDelay"] floatValue];
