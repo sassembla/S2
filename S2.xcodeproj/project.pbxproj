@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B7037FD21822A0250039D560 /* CompileSettingController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7037FD11822A0250039D560 /* CompileSettingController.m */; };
+		B7037FD31822A0250039D560 /* CompileSettingController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7037FD11822A0250039D560 /* CompileSettingController.m */; };
 		B73E04B117EF15D300CAEFD5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7DCEB7217EF126800E28C5C /* Security.framework */; };
 		B742D357180E8E2300EB43E5 /* MFTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D353180E8E2300EB43E5 /* MFTask.m */; };
 		B742D358180E8E2300EB43E5 /* MFTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D353180E8E2300EB43E5 /* MFTask.m */; };
@@ -65,6 +67,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B7037FD01822A0250039D560 /* CompileSettingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompileSettingController.h; sourceTree = "<group>"; };
+		B7037FD11822A0250039D560 /* CompileSettingController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompileSettingController.m; sourceTree = "<group>"; };
 		B742D352180E8E2300EB43E5 /* MFTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFTask.h; sourceTree = "<group>"; };
 		B742D353180E8E2300EB43E5 /* MFTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFTask.m; sourceTree = "<group>"; };
 		B742D354180E8E2300EB43E5 /* MFTaskDelegateProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFTaskDelegateProtocol.h; sourceTree = "<group>"; };
@@ -223,6 +227,8 @@
 				B7CA8978180AAFCF008B6C40 /* ContentsPoolController.m */,
 				B7B72FD318118BEE00EF8612 /* Emitter.h */,
 				B7B72FD418118BEE00EF8612 /* Emitter.m */,
+				B7037FD01822A0250039D560 /* CompileSettingController.h */,
+				B7037FD11822A0250039D560 /* CompileSettingController.m */,
 			);
 			path = S2;
 			sourceTree = "<group>";
@@ -387,6 +393,7 @@
 				B7987ECE17EE831F008F21F4 /* GCDAsyncSocket.m in Sources */,
 				B742D359180E8E2300EB43E5 /* MFTaskQueue.m in Sources */,
 				B743DB721811F15200E642A6 /* TimeMine.m in Sources */,
+				B7037FD21822A0250039D560 /* CompileSettingController.m in Sources */,
 				B7987ED417EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
 				B7FCEA0217EF1EB900C6B41A /* S2Controller.m in Sources */,
 				B7CA8979180AAFCF008B6C40 /* ContentsPoolController.m in Sources */,
@@ -411,6 +418,7 @@
 				B7987ED517EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
 				B7987ED117EE831F008F21F4 /* MBWebSocketServer.m in Sources */,
 				B7EB7721180A78D300FF959D /* CompileChamber.m in Sources */,
+				B7037FD31822A0250039D560 /* CompileSettingController.m in Sources */,
 				B7987EBD17EE82FB008F21F4 /* S2Tests.m in Sources */,
 				B7B6D44B1802EE06007AE06E /* CompileChamberControllerTests.m in Sources */,
 				B742D35A180E8E2300EB43E5 /* MFTaskQueue.m in Sources */,

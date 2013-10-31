@@ -25,6 +25,8 @@
 
 #import "S2TestSupportDefines.h"
 
+#import "S2Token.h"
+
 
 /**
  Chamberのコントロールを行う
@@ -40,6 +42,8 @@
 
 @implementation CompileChamberControllerTests  {
     KSMessenger * messenger;
+    KSMessenger * dummySettingMessenger;
+    
     CompileChamberController * cChambCont;
     
     NSMutableArray * m_chamberIgnitedArray;
@@ -55,6 +59,8 @@
 {
     [super setUp];
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
+    dummySettingMessenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(dummySettingReceiver:) withName:S2_COMPILERSETTINGCONTROLLER];
+    
     cChambCont = [[CompileChamberController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
     
     m_chamberIgnitedArray = [[NSMutableArray alloc] init];
@@ -75,6 +81,8 @@
     [m_resendedMessagesArray removeAllObjects];
     
     [cChambCont close];
+    
+    [dummySettingMessenger closeConnection];
     [messenger closeConnection];
     [super tearDown];
 }
@@ -116,6 +124,8 @@
             break;
     }
 }
+
+- (void) dummySettingReceiver:(NSNotification * )notif {}
 
 
 // util

@@ -16,6 +16,8 @@
 
 @implementation CompileChamber {
     KSMessenger * messenger;
+    KSMessenger * settingReceiver;
+    
     NSString * m_chamberId;
     
     NSArray * statesArray;
@@ -29,8 +31,13 @@
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
     if (self = [super init]) {
-        messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:S2_COMPILECHAMBER];
+        // compile control only
+        messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(compilationReceiver:) withName:S2_COMPILECHAMBER];
         [messenger connectParent:masterNameAndId];
+        
+        // setting receive only
+        settingReceiver = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(settingReceiver:) withName:S2_COMPILECHAMBER_SETTINGRECEIVER];
+        [settingReceiver connectParent:S2_COMPILERSETTINGCONTROLLER];
         
         statesArray = STATE_STR_ARRAY;
         
@@ -43,7 +50,7 @@
     return self;
 }
 
-- (void) receiver:(NSNotification * )notif {
+- (void) compilationReceiver:(NSNotification * )notif {
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
     
     switch ([messenger execFrom:[messenger myName] viaNotification:notif]) {
@@ -142,6 +149,10 @@
     }
 }
 
+
+- (void) settingReceiver:(NSNotification * )notif {}
+
+
 - (NSString * ) state {
     return m_state;
 }
@@ -200,8 +211,14 @@
     NSFileHandle * publishHandle = [currentOut fileHandleForReading];
     NSString * sign = [[NSString alloc]initWithString:[messenger myMID]];
     
+    // read setting
+    NSDictionary * compilationSetting = [settingReceiver callParent:S2_COMPILECHAMBER_EXEC_READ_SETTINGS, nil];
+    
+    float compileDelay = S2_COMPILER_WAIT_TIME;
+    if (compilationSetting[@"compileDelay"]) compileDelay = [compilationSetting[@"compileDelay"] floatValue];
+    
     [messenger callMyself:S2_COMPILECHAMBER_EXEC_COMPILE,
-     [messenger withDelay:S2_COMPILER_WAIT_TIME],
+     [messenger withDelay:compileDelay],
      [messenger tag:@"publishHandle" val:publishHandle],
      [messenger tag:@"sign" val:sign],
      nil];
@@ -229,6 +246,7 @@
 
 
 - (void) close {
+    [settingReceiver closeConnection];
     [messenger closeConnection];
 }
 @end

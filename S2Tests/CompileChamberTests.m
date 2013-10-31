@@ -15,6 +15,8 @@
 
 #import "S2TestSupportDefines.h"
 
+#import "S2Token.h"
+
 #import "TimeMine.h"
 
 @interface CompileChamberTests : XCTestCase
@@ -23,6 +25,8 @@
 
 @implementation CompileChamberTests {
     KSMessenger * messenger;
+    KSMessenger * settingDummyMessenger;
+    
     CompileChamber * cChamber;
     
     NSMutableDictionary * m_chamberResponseDict;
@@ -36,6 +40,8 @@
 {
     [super setUp];
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
+    settingDummyMessenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(dummySettingReceiver:) withName:S2_COMPILERSETTINGCONTROLLER];
+    
     cChamber = [[CompileChamber alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
     
     m_chamberResponseDict = [[NSMutableDictionary alloc]init];
@@ -57,7 +63,9 @@
                   
                   @"S2_COMPILECHAMBER_EXEC_TICK",
                   
-                  @"S2_COMPILECHAMBER_EXEC_PURGE"
+                  @"S2_COMPILECHAMBER_EXEC_PURGE",
+                  
+                  @"S2_COMPILECHAMBER_EXEC_READ_SETTINGS"
                   ];
     XCTAssertTrue([execArray count] == NUM_OF_S2_COMPILECHAMBER_EXEC, @"not match, %lu", (unsigned long)[execArray count]);
 }
@@ -67,6 +75,9 @@
     [m_chamberResponseDict removeAllObjects];
     
     [cChamber close];
+    
+    [settingDummyMessenger closeConnection];
+    
     [messenger closeConnection];
     [super tearDown];
 }
@@ -103,6 +114,8 @@
             break;
     }
 }
+
+- (void) dummySettingReceiver:(NSNotification * )notif {}
 
 
 
@@ -171,9 +184,9 @@
         bool result = [fMan createFileAtPath:targetPath contents:[pathAndSources[path] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
         
         if (result) {
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 19:56:30" withLimitSec:100000 withComment:@"f generated!"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 19:56:30" withLimitSec:100000 withComment:@"f generated!"];
         } else {
-            [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 19:56:34" withLimitSec:100000 withComment:@"f fail to generate"];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 19:56:34" withLimitSec:100000 withComment:@"f fail to generate"];
         }
         
         NSFileHandle * writeHandle = [NSFileHandle fileHandleForUpdatingAtPath:targetPath];

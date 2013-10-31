@@ -13,7 +13,11 @@
 
 #import "WebSocketConnectionOperation.h"
 #import "PullUpController.h"
+
 #import "CompileChamberController.h"
+#import "CompileSettingController.h"
+
+
 #import "Emitter.h"
 
 #import "S2Token.h"
@@ -33,6 +37,8 @@
     PullUpController * pullUpCont;
     
     CompileChamberController * cChamberCont;
+    
+    CompileSettingController * cSettingCont;
     
     Emitter * m_emitter;
 }
@@ -62,6 +68,9 @@
         
         // compile
         cChamberCont = [[CompileChamberController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
+        
+        // setting
+        cSettingCont = [[CompileSettingController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
     }
     return self;
 }
@@ -336,6 +345,8 @@
     [serverOperation shutDown];
     
     [cChamberCont close];
+    
+    [cSettingCont close];
     
     [pullUpCont close];
     
