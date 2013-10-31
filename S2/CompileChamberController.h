@@ -28,7 +28,7 @@ enum S2_COMPILECHAMBERCONT_EXEC {
     
     S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
     
-    S2_COMPILECHAMBERCONT_EXEC_RESENDED,
+    S2_COMPILECHAMBERCONT_EXEC_RESEND,
     
     S2_COMPILECHAMBERCONT_EXEC_CHAMBER_COMPILED,
 };
@@ -46,6 +46,11 @@ enum S2_COMPILECHAMBERCONT_EXEC {
 
 - (void) changeChamberStatus:(NSString * )chamberId to:(NSString * )state;
 - (NSString * ) igniteIdleChamber:(NSString * )compileBasePath;
+- (void) setChamberPriorityFirst:(NSString * )chamberId;
+
+- (void) bufferMessage:(NSString * )message to:(NSString * )chamberId;
+- (void) resendFrom:(int)index length:(int)len;
+
 - (void) close;
 
 @end

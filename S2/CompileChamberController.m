@@ -164,10 +164,9 @@
             // change priority to 0
             [self setChamberPriorityFirst:dict[@"id"]];
             
-            // resend all
-            [self resend];
-            
-            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_RESENDED, nil];
+            // resend
+            [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 17:43:35" withLimitSec:10000 withComment:@"length1まで送ればいいかなーって感じ。"];
+            [self resendFrom:1 length:1];
             break;
         }
             
@@ -238,6 +237,7 @@
         [array addObject:message];
     } else {
         array = [[NSMutableArray alloc]init];
+        [array addObject:message];
         [m_messageBuffer setValue:array forKey:chamberId];
     }
 }
@@ -283,12 +283,31 @@
 /**
  bufferの内容をresendする
  */
-- (void) resend {
-    // reset
+- (void) resendFrom:(int)index length:(int)len {
     
-    // resend
+    if ([m_chamberPriority count] < len) {
+        len = (int)[m_chamberPriority count];
+    }
+
     
+    // resend with priority-key
+    NSMutableDictionary * priorityDict = [[NSMutableDictionary alloc]init];
+    for (int i = index; i < len; i++) {
+        NSString * chamberId = nil;
+        if ((chamberId = m_chamberPriority[i])) {
+            NSDictionary * dict = nil;
+            if ((dict = m_messageBuffer[chamberId])) {
+                [priorityDict setValue:dict forKey:[[NSString alloc]initWithFormat:@"%d", i]];
+            }
+        }
+    }
     
+    if (0 < [priorityDict count]) {
+        // resend
+        [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_RESEND,
+         [messenger tag:@"priorityDict" val:priorityDict],
+         nil];
+    }
 }
 
 

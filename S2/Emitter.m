@@ -187,7 +187,8 @@
             {
                 NSArray * re = [m_regex_compileSucceeded matchesInString:message options:0 range:NSMakeRange(0, [message length])];
                 for (NSTextCheckingResult * match in re) {
-                    return @[sign, @"ss@showAtLog:{\"message\":\"S2 compile succeeded.\"}->showStatusMessage:{\"message\":\"S2 compile succeeded.\"}"];
+                    NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", [self generateShowMessage:@"S2 compile succeeded."]];
+                    return @[sign, output];
                 }
             }
         }
@@ -234,9 +235,9 @@
                                 NSDictionary * result = [self flush];
                                 
                                 // 表示列を光らせるメッセージを直撃で返す
-                                NSString * message = [[NSString alloc] initWithFormat:@"ss@showStatusMessage:{\"message\":\"%@\"}->showAtLog:{\"message\":\"%@\"}->appendRegion:{\"line\":\"%@\",\"message\":\"%@\",\"view\":\"%@\",\"condition\":\"keyword\"}", result[@"reason"], result[@"reason"], result[@"line"], result[@"reason"], result[@"filePath"]];
-                                
-                                return @[message];
+                                NSString * message = [self generateAppendRegionMessage:result rewritePriority:0];
+                                NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
+                                return @[output];
                             }
                             break;
                         }
@@ -253,7 +254,8 @@
                 NSArray * re = [m_regex_compileFailed matchesInString:message options:0 range:NSMakeRange(0, [message length])];
                 
                 for (NSTextCheckingResult * match in re) {
-                    return @[sign, @"ss@showAtLog:{\"message\":\"S2 compile failed.\"}->showStatusMessage:{\"message\":\"S2 compile failed.\"}"];
+                    NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", [self generateShowMessage:@"S2 compile failed."]];
+                    return @[sign, output];
                 }
             }
         }
@@ -281,7 +283,6 @@
                 // 残りの行の数で対応を変える
                 switch ([self countdown:STACKTYPE_ERRORLINES_ZINC]) {
                     case 1:{
-                        NSLog(@"gugu");
                         return nil;
                     }
                     case 0:{
@@ -294,9 +295,9 @@
                         NSDictionary * result = [self flush];
                         
                         // 表示列を光らせるメッセージを直撃で返す
-                        NSString * message = [[NSString alloc] initWithFormat:@"ss@showStatusMessage:{\"message\":\"%@\"}->showAtLog:{\"message\":\"%@\"}->appendRegion:{\"line\":\"%@\",\"message\":\"%@\",\"view\":\"%@\",\"condition\":\"keyword\"}", result[@"reason"], result[@"reason"], result[@"line"], result[@"reason"], result[@"filePath"]];
-                        
-                        return @[message];
+                        NSString * message = [self generateAppendRegionMessage:result rewritePriority:0];
+                        NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
+                        return @[output];
                     }
                         
                     default:
@@ -345,6 +346,45 @@
 - (NSDictionary * ) flush {
     [m_stackDict removeObjectForKey:KEY_STACKTYPE];
     return m_stackDict;
+}
+
+
+- (NSString * ) generateShowMessage:(NSString * )message {
+    return [[NSString alloc]initWithFormat:@"showAtLog:{\"message\":\"%@\"}->showStatusMessage:{\"message\":\"%@\"}", message, message];
+}
+
+
+
+- (NSString * ) generateAppendRegionMessage:(NSDictionary * )messageParam rewritePriority:(int)priority {
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 15:43:06" withLimitSec:10000 withComment:@"未完成、パターン出しがおわってない"];
+    // priorityに応じて表示カラーを変更
+    NSString * priorityStr = nil;
+    
+    switch (priority) {
+        case 0:{
+            priorityStr = @"keyword";
+            break;
+        }
+        case 1:{
+            priorityStr = @"none";
+            break;
+        }
+        case 2:{
+            priorityStr = @"none";
+            break;
+        }
+    }
+    
+    return [[NSString alloc]initWithFormat:@"appendRegion:{\"line\":\"%@\",\"message\":\"%@\",\"view\":\"%@\",\"condition\":\"%@\"}", messageParam[@"line"], messageParam[@"reason"], messageParam[@"filePath"], priorityStr];
+}
+
+
+/**
+ SublimeSocket用のshowを用意する
+ */
+- (NSString * ) combineMessages:(NSArray * )messageArray {
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 14:38:56" withLimitSec:10000 withComment:@"未完成、arrayにしておいて->でつなぐ。"];
+    return nil;
 }
 
 @end

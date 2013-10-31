@@ -199,8 +199,28 @@
                     }
                     break;
                 }
-                case S2_COMPILECHAMBERCONT_EXEC_RESENDED:{
-                    [self callToMaster:S2_CONT_EXEC_RESENDED withMessageDict:dict];
+                case S2_COMPILECHAMBERCONT_EXEC_RESEND:{
+                    NSAssert(dict[@"messagesArray"], @"messagesArray required");
+                    
+//                    NSMutableArray * arrayedMessage = [[NSMutableArray alloc]init];
+                    
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 14:38:28" withLimitSec:10000 withComment:@"連結させたメッセージでのpushを行う"];
+//                    for (NSDictionary * currentMessageDict in dict[@"messagesArray"]) {
+//                        NSString * filteredMessage = [m_emitter genereateFilteredMessage:currentMessageDict[@"message"] withPriority:[currentMessageDict[@"priority"] intValue]];
+//                        [arrayedMessage addObject:filteredMessage];
+//                    }
+                    
+//                    [m_emitter combineMessages:arrayedMessage];//こいつは辞書とpriorityのarray
+                    
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 14:33:56" withLimitSec:10000 withComment:@""];
+//                    if (filteredMessage) {
+//                        [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
+//                         [messenger tag:@"message" val:filteredMessage],
+//                         nil];
+//                        
+//                        [self callToMaster:S2_CONT_EXEC_TICK withMessageDict:dict];
+//                    }
+//                    [self callToMaster:S2_CONT_EXEC_RESENDED withMessageDict:dict];
                 }
             }
             break;

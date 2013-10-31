@@ -15,6 +15,9 @@
 
 #define TEST_CHAMBER_NUM_2  (2)
 
+#define TEST_MESSAGE    (@"TEST_MESSAGE")
+#define TEST_ID         (@"TEST_ID")
+
 
 #import "S2TestSupportDefines.h"
 
@@ -40,6 +43,8 @@
     NSMutableArray * m_chamberAbortedArray;
     
     int m_repeatCount;
+    
+    NSMutableArray * m_resendedMessagesArray;
 }
 
 - (void) setUp
@@ -53,6 +58,8 @@
     m_chamberAbortedArray = [[NSMutableArray alloc] init];
     
     m_repeatCount = 0;
+    
+    m_resendedMessagesArray = [[NSMutableArray alloc]init];
 }
 
 - (void) tearDown
@@ -61,6 +68,7 @@
     [m_chamberCompiledArray removeAllObjects];
     [m_chamberAbortedArray removeAllObjects];
     
+    [m_resendedMessagesArray removeAllObjects];
     
     [cChambCont close];
     [messenger closeConnection];
@@ -91,6 +99,11 @@
             
             NSAssert(dict[@"abortedChamberId"], @"abortedChamberId required");
             [m_chamberAbortedArray addObject:dict[@"abortedChamberId"]];
+            break;
+        }
+        case S2_COMPILECHAMBERCONT_EXEC_RESEND:{
+            NSAssert(dict[@"priorityDict"], @"priorityDict required");
+            [m_resendedMessagesArray addObject:dict[@"priorityDict"]];
             break;
         }
             
@@ -269,6 +282,36 @@
     
     // コンパイル開始サインはTEST_CHAMBER_NUM_2。
     XCTAssertTrue([m_chamberIgnitedArray count] == TEST_CHAMBER_NUM_2, @"not match, %lu", (unsigned long)[m_chamberIgnitedArray count]);
+}
+
+
+- (void) testResendContainsData {
+    // 一つをバッファに追加
+    [cChambCont bufferMessage:TEST_MESSAGE to:TEST_ID];
+    
+    // priorityを勝手に制御
+    [cChambCont setChamberPriorityFirst:TEST_ID];
+    
+    // index 1から上のみを再送する
+    [cChambCont resendFrom:0 length:1];
+    
+    // S2_COMPILECHAMBERCONT_EXEC_RESEND の件数が1つ
+    XCTAssertTrue([m_resendedMessagesArray count] == 1, @"not match, %lu", (unsigned long)[m_resendedMessagesArray count]);
+    
+    
+    /* 
+     [
+        {
+            priority : {id:[message,message,...]}
+        }
+     ]
+     */
+    NSDictionary * sample = m_resendedMessagesArray[0];
+    XCTAssertNotNil(sample[@"0"], @"is nil, %@", sample);
+    
+    NSDictionary * sample2 = sample[@"0"];
+    XCTAssertNotNil(sample2[TEST_ID], @"is nil, %@", sample2);
+    
 }
 
 

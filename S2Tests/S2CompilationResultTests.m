@@ -373,7 +373,7 @@
     XCTAssertTrue([m_ignitedChamberArray count] == 2, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
     
     // flushが発生するはず
-    XCTAssertTrue([m_resendArray count] == 1, @"not match, %d", [m_resendArray count]);
+    XCTAssertTrue([m_resendArray count] == 1, @"not match, %lu", (unsigned long)[m_resendArray count]);
 }
 
 
