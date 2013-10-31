@@ -147,8 +147,6 @@
     [killAllNsws2 setArguments:@[@"-9", @"nsws"]];
     [killAllNsws2 launch];
     [killAllNsws2 waitUntilExit];
-    
-    [[NSRunLoop mainRunLoop]runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
 }
 
 
@@ -181,6 +179,10 @@
     
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
    
+    // さすがにまだ終わってないはず、、
+    XCTAssertTrue(m_compiledCounts == 0, @"not match, %d", m_compiledCounts);
+    
+    
     while (m_compiledCounts == 0) {
         if ([self countupLongThenFail]) {
             XCTFail(@"too long wait");
@@ -368,8 +370,6 @@
     
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
     
-    // コンパイルが済んでいるわけがない
-    XCTAssertTrue(m_compiledCounts == 0, @"not match, %d", m_compiledCounts);
     
     // この時点でさらにupdateを発生させる
     NSString * message4 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, updateArray[0], [self readSource:updateArray[0]]];
