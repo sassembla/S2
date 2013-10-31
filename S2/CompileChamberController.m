@@ -252,11 +252,11 @@
     if (poolInfoDict) {
         NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
         
-        // spinup / compiling 状態のチャンバーを駆り出す
+        // spinup 状態のチャンバーを駆り出す
         NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath];
         
         if (currentIgnitedChamberId) {
-            // ignitedにする
+            // compilingにする
             [self changeChamberStatus:currentIgnitedChamberId to:static_chamber_states[STATE_COMPILING]];
 
             // priorityを上げる

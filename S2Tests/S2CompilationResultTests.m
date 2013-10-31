@@ -387,7 +387,7 @@
     XCTAssertTrue([m_ignitedChamberArray count] == 2, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
     
     while (m_compiledCounts < 2) {
-        if ([self countupThenFail]) {
+        if ([self countupLongThenFail]) {
             XCTFail(@"too long wait");
             break;
         }

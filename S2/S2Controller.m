@@ -195,7 +195,7 @@
                     break;
                 }
                 case S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED:{
-                    NSAssert(dict[@"ignitedChamberId"],@"ignitedChamberId required");
+                    NSAssert(dict[@"ignitedChamberId"], @"ignitedChamberId required");
                     
                     [self callToMaster:S2_CONT_EXEC_IGNITED withMessageDict:dict];
                     break;
