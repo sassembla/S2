@@ -72,9 +72,7 @@
  フィルタ、特定のキーワードを抜き出す。
  */
 - (NSArray * ) filtering:(NSString * )message withSign:(NSString * )sign {
-    NSLog(@"before %@", message);
-    
-    
+    NSLog(@"message:%@", message);
     // 改行だけなら逃げる
     if ([message isEqualToString:@"\n"]) {
         return nil;
@@ -173,11 +171,6 @@
 //        }
         
     }
-    
-    
-    
-    
-    NSLog(@"message %@", message);
     
     // gradle series
     {
@@ -356,7 +349,7 @@
 
 
 - (NSString * ) generateAppendRegionMessage:(NSDictionary * )messageParam rewritePriority:(int)priority {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 15:43:06" withLimitSec:10000 withComment:@"未完成、パターン出しがおわってない"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/31 20:42:32" withLimitSec:100000 withComment:@"未完成、パターン出しがおわってない"];
     // priorityに応じて表示カラーを変更
     NSString * priorityStr = nil;
     

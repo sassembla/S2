@@ -20,6 +20,8 @@
 
 #define TEST_MASTER (@"TEST_MASTER")
 
+#import "TimeMine.h"
+
 @interface S2CompilationResultTests : XCTestCase
 
 @end
@@ -178,6 +180,7 @@
     }
     
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+   
     while (m_compiledCounts == 0) {
         if ([self countupLongThenFail]) {
             XCTFail(@"too long wait");
@@ -196,10 +199,10 @@
      
      */
     XCTAssertTrue([m_compiledResults count] == 1, @"not match, %lu", (unsigned long)[m_compiledResults count]);
-    
 }
 
 - (void) testCompileFailure {
+    [TimeMine setTimeMineLocalizedFormat:@"2013/10/31 21:57:28" withLimitSec:10000 withComment:@"順で実行すると機能しない。原因を探そう。"];
     // 起動する
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
@@ -213,6 +216,8 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
+    XCTAssertTrue(m_compiledCounts == 0, @"not match, %d", m_compiledCounts);
+    
     // コンパイル失敗する組み合わせ
     NSArray * updateArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3_FAIL, TEST_COMPILEBASEPATH];
     
@@ -223,7 +228,7 @@
     }
     
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
-    while (m_compiledCounts == 0) {
+    while (m_compiledCounts < 1) {
         if ([self countupLongThenFail]) {
             XCTFail(@"too long wait");
             break;
@@ -352,8 +357,7 @@
         }
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
-
-    // 一度目のコンパイル開始
+    
     NSArray * updateArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
     
     // updateを発生させる。 最後の一つでコンパイルが開始される。
@@ -364,15 +368,28 @@
     
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
     
+    // コンパイルが済んでいるわけがない
+    XCTAssertTrue(m_compiledCounts == 0, @"not match, %d", m_compiledCounts);
+    
     // この時点でさらにupdateを発生させる
     NSString * message4 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, updateArray[0], [self readSource:updateArray[0]]];
     [self connectClientTo:TEST_SERVER_URL withMessage:message4];
+    
+    XCTAssertTrue(m_compiledCounts == 0, @"not match, %d", m_compiledCounts);
     
     
     // +1つが着火状態
     XCTAssertTrue([m_ignitedChamberArray count] == 2, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
     
-    // flushが発生するはず
+    while (m_compiledCounts < 2) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    // コンパイル済メッセージが最低でも2つ入っているので、resendが発生しているはず
     XCTAssertTrue([m_resendArray count] == 1, @"not match, %lu", (unsigned long)[m_resendArray count]);
 }
 

@@ -24,6 +24,8 @@
 
 #define S2_DEFAULT_CHAMBER_COUNT    (8)
 #define S2_DEFAULT_SPINUP_TIME      (0.001)
+#define S2_COMPILER_WAIT_TIME       (0.001)
+#define S2_RESEND_DEPTH             (2)
 
 
 #define S2_BASEPATH_SUFFIX          (@"build.gradle")

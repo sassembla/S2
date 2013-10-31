@@ -41,16 +41,25 @@
     m_chamberResponseDict = [[NSMutableDictionary alloc]init];
     m_repeatCount = 0;
     
-    execArray = @[@"SPINUP",
-                @"SPINUP_WITH_ASYNC",
-                @"SPINUPPED",
-                @"IGNITE",
-                @"IGNITED",
-                @"COMPILED",
-                @"ABORTED",
-                @"TICK",
-                @"PURGE"];
-    
+    execArray = @[
+                  @"S2_COMPILECHAMBER_EXEC_SPINUP",
+                  @"S2_COMPILECHAMBER_EXEC_SPINUP_WITH_ASYNC",
+                  @"S2_COMPILECHAMBER_EXEC_SPINUPPED",
+                  
+                  @"S2_COMPILECHAMBER_EXEC_IGNITE",
+                  @"S2_COMPILECHAMBER_EXEC_IGNITED",
+                  
+                  @"S2_COMPILECHAMBER_EXEC_COMPILE",
+                  @"S2_COMPILECHAMBER_EXEC_COMPILED",
+                  
+                  @"S2_COMPILECHAMBER_EXEC_ABORT",
+                  @"S2_COMPILECHAMBER_EXEC_ABORTED",
+                  
+                  @"S2_COMPILECHAMBER_EXEC_TICK",
+                  
+                  @"S2_COMPILECHAMBER_EXEC_PURGE"
+                  ];
+    XCTAssertTrue([execArray count] == NUM_OF_S2_COMPILECHAMBER_EXEC, @"not match, %lu", (unsigned long)[execArray count]);
 }
 
 - (void) tearDown
@@ -102,6 +111,8 @@
 - (void) update:(NSString * )chamberId to:(int)index {
     NSMutableArray * array = [m_chamberResponseDict valueForKey:chamberId];
     if (array) {} else array = [[NSMutableArray alloc]init];
+    
+    NSAssert(index < [execArray count], @"over, %d", index);
     
     [array addObject:execArray[index]];
     [m_chamberResponseDict setObject:array forKey:chamberId];
@@ -192,7 +203,7 @@
 - (void) testIgniteThenStart {
     [cChamber ignite:TEST_COMPILEBASEPATH];
 
-    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILED], @"not match, %@", [cChamber state]);
+    XCTAssertTrue([cChamber state] == [self targetState:STATE_COMPILING], @"not match, %@", [cChamber state]);
 }
 
 - (void) testIgniteAndAbortThenAbortedThenSpinupping {

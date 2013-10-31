@@ -15,8 +15,12 @@
 
 #define TEST_CHAMBER_NUM_2  (2)
 
-#define TEST_MESSAGE    (@"TEST_MESSAGE")
-#define TEST_ID         (@"TEST_ID")
+
+#define TEST_ID             (@"TEST_ID")
+#define TEST_ID_2           (@"TEST_ID_2")
+
+#define TEST_MESSAGE        (@"TEST_MESSAGE")
+#define TEST_MESSAGE_2      (@"TEST_MESSAGE_2")
 
 
 #import "S2TestSupportDefines.h"
@@ -286,7 +290,7 @@
 
 
 - (void) testResendContainsData {
-    // 一つをバッファに追加
+    // 1つをバッファに追加
     [cChambCont bufferMessage:TEST_MESSAGE to:TEST_ID];
     
     // priorityを勝手に制御
@@ -299,20 +303,89 @@
     XCTAssertTrue([m_resendedMessagesArray count] == 1, @"not match, %lu", (unsigned long)[m_resendedMessagesArray count]);
     
     
-    /* 
-     [
-        {
-            priority : {id:[message,message,...]}
-        }
-     ]
-     */
     NSDictionary * sample = m_resendedMessagesArray[0];
     XCTAssertNotNil(sample[@"0"], @"is nil, %@", sample);
     
     NSDictionary * sample2 = sample[@"0"];
     XCTAssertNotNil(sample2[TEST_ID], @"is nil, %@", sample2);
     
+    NSArray * array = sample2[TEST_ID];
+    XCTAssertTrue([array count] == 1, @"not match, %lu", (unsigned long)[array count]);
+    
+    XCTAssertTrue([array[0] isEqualToString:TEST_MESSAGE], @"not match, %@", array[0]);
 }
 
+
+- (void) testResendContainsDataWithPriorityChange {
+    // 2つを別バッファに追加
+    [cChambCont bufferMessage:TEST_MESSAGE to:TEST_ID];
+    [cChambCont bufferMessage:TEST_MESSAGE_2 to:TEST_ID_2];
+    
+    // priorityを勝手に制御、
+    [cChambCont setChamberPriorityFirst:TEST_ID];
+    [cChambCont setChamberPriorityFirst:TEST_ID_2];// TEST_ID_2がtopに、TEST_IDは2ndに。
+    
+    // index 1から上のみを再送する
+    [cChambCont resendFrom:1 length:1];
+    
+    // S2_COMPILECHAMBERCONT_EXEC_RESEND の件数が1つ
+    XCTAssertTrue([m_resendedMessagesArray count] == 1, @"not match, %lu", (unsigned long)[m_resendedMessagesArray count]);
+    
+    
+    NSDictionary * sample = m_resendedMessagesArray[0];
+    XCTAssertNotNil(sample[@"1"], @"is nil, %@", sample);
+    
+    NSDictionary * sample2 = sample[@"1"];
+    XCTAssertNotNil(sample2[TEST_ID], @"is nil, %@", sample2);
+}
+
+
+- (void) testResendContains2Data {
+    // TEST_IDバッファに２つ,TEST_ID_2には何もなし
+    [cChambCont bufferMessage:TEST_MESSAGE to:TEST_ID];
+    [cChambCont bufferMessage:TEST_MESSAGE_2 to:TEST_ID];
+    
+    // priorityを勝手に制御
+    [cChambCont setChamberPriorityFirst:TEST_ID];
+    [cChambCont setChamberPriorityFirst:TEST_ID_2];// TEST_ID_2がtopに、TEST_IDは2ndに。
+    
+    // index 1から上のみを再送する
+    [cChambCont resendFrom:1 length:1];
+    
+    // S2_COMPILECHAMBERCONT_EXEC_RESEND の件数が1つ
+    XCTAssertTrue([m_resendedMessagesArray count] == 1, @"not match, %lu", (unsigned long)[m_resendedMessagesArray count]);
+    
+    
+    NSDictionary * sample = m_resendedMessagesArray[0];
+    XCTAssertNotNil(sample[@"1"], @"is nil, %@", sample);
+    
+    NSDictionary * sample2 = sample[@"1"];
+    XCTAssertNotNil(sample2[TEST_ID], @"is nil, %@", sample2);
+}
+
+- (void) testResendContains2DataWithNotEmpty2 {
+    // TEST_IDバッファに２つ,TEST_ID_2には何もなし
+    [cChambCont bufferMessage:TEST_MESSAGE to:TEST_ID];
+    [cChambCont bufferMessage:TEST_MESSAGE_2 to:TEST_ID];
+    
+    [cChambCont bufferMessage:TEST_MESSAGE to:TEST_ID_2];
+    
+    // priorityを勝手に制御
+    [cChambCont setChamberPriorityFirst:TEST_ID];
+    [cChambCont setChamberPriorityFirst:TEST_ID_2];// TEST_ID_2がtopに、TEST_IDは2ndに。
+    
+    // index 1から上のみを再送する
+    [cChambCont resendFrom:1 length:1];
+    
+    // S2_COMPILECHAMBERCONT_EXEC_RESEND の件数が1つ
+    XCTAssertTrue([m_resendedMessagesArray count] == 1, @"not match, %lu", (unsigned long)[m_resendedMessagesArray count]);
+    
+    
+    NSDictionary * sample = m_resendedMessagesArray[0];
+    XCTAssertNotNil(sample[@"1"], @"is nil, %@", sample);
+    
+    NSDictionary * sample2 = sample[@"1"];
+    XCTAssertNotNil(sample2[TEST_ID], @"is nil, %@", sample2);
+}
 
 @end

@@ -61,6 +61,53 @@
             [self spinup];
             return;
         }
+        case S2_COMPILECHAMBER_EXEC_COMPILE:{
+            NSAssert(dict[@"publishHandle"], @"publishHandle required");
+            NSAssert(dict[@"sign"], @"sign required");
+            
+            
+            char buffer[BUFSIZ];
+            FILE * fp = fdopen([dict[@"publishHandle"] fileDescriptor], "r");
+            while(fgets(buffer, BUFSIZ, fp)) {
+                NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
+                
+                NSArray * resultArray = nil;
+                if ((resultArray = [emitter filtering:message withSign:dict[@"sign"]])) {
+                    
+                    // end
+                    if ([resultArray[0] isEqualToString:dict[@"sign"]]) {
+                        if ([messenger hasParent]) {
+                            [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                             [messenger tag:@"id" val:m_chamberId],
+                             [messenger tag:@"message" val:resultArray[1]],
+                             nil];
+                        }
+                        
+                        // stop listening
+                        break;
+                    }
+                    
+                    // not end
+                    if ([messenger hasParent]) {
+                        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                         [messenger tag:@"id" val:m_chamberId],
+                         [messenger tag:@"message" val:resultArray[0]],
+                         nil];
+                    }
+                }
+                
+            }
+            
+            m_state = statesArray[STATE_COMPILED];
+            
+            if ([messenger hasParent]) {
+                [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+                 [messenger tag:@"id" val:m_chamberId],
+                 nil];
+            }
+            
+            return;
+        }
     }
     
     // 自分以外からのmessageは、chamberIdのチェックを行う
@@ -109,7 +156,7 @@
  スピンアップ
  */
 - (void) spinup {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 11:51:25" withLimitSec:100000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではこのブロック内でロックしてOK。今回は瞬間でSpinUpしたことにする。"];
+    [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 11:51:25" withLimitSec:100000 withComment:@"スピンアップ処理、gradleを途中で止めておけるとベスト。スピンアップ終了まではこのブロック内でロックしてOK。今回は瞬間でSpinUpしたことにする。"];
     
     // spinupping
     m_state = statesArray[STATE_SPINUPPED];
@@ -128,16 +175,12 @@
 - (void) ignite:(NSString * )compileBasePath {
     
     m_compileTask = [[NSTask alloc] init];
-//    [m_compileTask setDelegate:self];
     
-    
-    // [m_compileTask setLaunchPath:@"/usr/local/bin/gradle"];
     [m_compileTask setLaunchPath:@"/bin/sh"];
     
     NSString * gradlebuildStr = [[NSString alloc]initWithFormat:@"/usr/local/bin/gradle --daemon -b %@ build -i", compileBasePath];
     NSArray * currentParams = @[@"-c", gradlebuildStr];
-//    NSArray * currentParams = @[@"--daemon", @"-b", compileBasePath, @"build", @"-i"];
-    
+
     [m_compileTask setArguments:currentParams];
 
     NSPipe * currentOut = [[NSPipe alloc]init];
@@ -157,46 +200,11 @@
     NSFileHandle * publishHandle = [currentOut fileHandleForReading];
     NSString * sign = [[NSString alloc]initWithString:[messenger myMID]];
     
-    char buffer[BUFSIZ];
-    FILE * fp = fdopen([publishHandle fileDescriptor], "r");
-    while(fgets(buffer, BUFSIZ, fp)) {
-        NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
-        
-        NSArray * resultArray = nil;
-        if ((resultArray = [emitter filtering:message withSign:sign])) {
-            
-            // end
-            if ([resultArray[0] isEqualToString:sign]) {
-                if ([messenger hasParent]) {
-                    [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-                     [messenger tag:@"id" val:m_chamberId],
-                     [messenger tag:@"message" val:resultArray[1]],
-                     nil];
-                }
-                
-                // stop listening
-                break;
-            }
-
-            // not end
-            if ([messenger hasParent]) {
-                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-                 [messenger tag:@"id" val:m_chamberId],
-                 [messenger tag:@"message" val:resultArray[0]],
-                 nil];
-            }
-        }
-    
-    }
-    
-    m_state = statesArray[STATE_COMPILED];
-    
-    if ([messenger hasParent]) {
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-         [messenger tag:@"id" val:m_chamberId],
-         nil];
-    }
-    
+    [messenger callMyself:S2_COMPILECHAMBER_EXEC_COMPILE,
+     [messenger withDelay:S2_COMPILER_WAIT_TIME],
+     [messenger tag:@"publishHandle" val:publishHandle],
+     [messenger tag:@"sign" val:sign],
+     nil];
 }
 
 - (BOOL) isCompiling {

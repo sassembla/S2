@@ -322,12 +322,9 @@
                           S2_TRIGGER_PREFIX_LISTED, KEY_LISTED_DELIM,
                           [pullArray componentsJoinedByString:KEY_LISTED_DELIM]
                           ];
-    int resetCount = 0;
-    
     
     // listUpdate送付
     [self connectClientTo:TEST_SERVER_URL withMessage:message];// 1
-    resetCount++;
     
     while ([m_pullingDict count] < [pullArray count]) {
         if ([self countupThenFail]) {
@@ -344,8 +341,7 @@
                                key, KEY_LISTED_DELIM, [self readSource:key]
                                ];
         
-        [self connectClientTo:TEST_SERVER_URL withMessage:message2];// 2,3　通信回数に応じて初期化が行われてしまうので、spinuppedのカウントが上がってしまう。
-        resetCount++;
+        [self connectClientTo:TEST_SERVER_URL withMessage:message2];
     }
     
     // spinupが終わるまで待つ
@@ -357,7 +353,7 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    XCTAssertTrue([m_spinuppedArray count] == S2_DEFAULT_CHAMBER_COUNT*resetCount, @"not match, %lu", (unsigned long)[m_spinuppedArray count]);
+    XCTAssertTrue([m_spinuppedArray count] == S2_DEFAULT_CHAMBER_COUNT, @"not match, %lu", (unsigned long)[m_spinuppedArray count]);
 }
 
 /**
