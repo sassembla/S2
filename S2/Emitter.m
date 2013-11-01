@@ -344,25 +344,33 @@
 - (NSString * ) generateAppendRegionMessage:(NSDictionary * )messageParam priority:(int)priority {
     NSAssert(0 <= priority, @"not positive or 0, %d", priority);
     
-    // priorityに応じて表示カラーを変更
-    NSString * priorityStr = nil;
-    
-    switch (priority) {
-        case 0:{
-            priorityStr = @"keyword";
-            break;
+    if (messageParam[@"reason"] && messageParam[@"filePath"] && messageParam[@"line"]) {
+        
+        
+            
+        
+        // priorityに応じて表示カラーを変更
+        NSString * priorityStr = nil;
+        
+        switch (priority) {
+            case 0:{
+                priorityStr = @"keyword";
+                break;
+            }
+            case 1:{
+                priorityStr = @"keyword";
+                break;
+            }
+            case 2:{
+                priorityStr = @"keyword";
+                break;
+            }
         }
-        case 1:{
-            priorityStr = @"keyword";
-            break;
-        }
-        case 2:{
-            priorityStr = @"keyword";
-            break;
-        }
+        
+        return [[NSString alloc]initWithFormat:@"appendRegion:{\"line\":\"%@\",\"message\":\"%@\",\"view\":\"%@\",\"condition\":\"%@\"}", messageParam[@"line"], messageParam[@"reason"], messageParam[@"filePath"], priorityStr];
     }
     
-    return [[NSString alloc]initWithFormat:@"appendRegion:{\"line\":\"%@\",\"message\":\"%@\",\"view\":\"%@\",\"condition\":\"%@\"}", messageParam[@"line"], messageParam[@"reason"], messageParam[@"filePath"], priorityStr];
+    return nil;
 }
 
 

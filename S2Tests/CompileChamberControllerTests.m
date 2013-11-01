@@ -19,8 +19,8 @@
 #define TEST_ID             (@"TEST_ID")
 #define TEST_ID_2           (@"TEST_ID_2")
 
-#define TEST_MESSAGE        (@"TEST_MESSAGE")
-#define TEST_MESSAGE_2      (@"TEST_MESSAGE_2")
+#define TEST_MESSAGE        (@{@"TEST_KEY":@"TEST_MESSAGE"})
+#define TEST_MESSAGE_2      (@{@"TEST_KEY_2":@"TEST_MESSAGE_2"})
 
 
 #import "S2TestSupportDefines.h"
@@ -322,7 +322,9 @@
     NSArray * array = sample2[TEST_ID];
     XCTAssertTrue([array count] == 1, @"not match, %lu", (unsigned long)[array count]);
     
-    XCTAssertTrue([array[0] isEqualToString:TEST_MESSAGE], @"not match, %@", array[0]);
+    NSDictionary * dict = array[0];
+                           
+    XCTAssertTrue([[dict allKeys][0] isEqualToString:[TEST_MESSAGE allKeys][0]], @"not match, %@", array[0]);
 }
 
 

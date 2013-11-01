@@ -49,5 +49,7 @@ enum S2_CONT_EXEC {
 - (void) callToMaster:(int)exec withMessageDict:(NSDictionary * )messageDict;
 - (int) updatedCount;
 
+- (NSDictionary * )compileChamberControllersMessageBuffer;
+
 - (void) shutDown;
 @end

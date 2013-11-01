@@ -371,6 +371,10 @@
         [self connectClientTo:TEST_SERVER_URL withMessage:message3];
     }
     
+    // この時点でChamberContのmessageBufferにはignitedが入っている筈
+    NSDictionary * dict = [cont compileChamberControllersMessageBuffer];
+    XCTAssertTrue([dict count] == 1, @"not match, %lu", (unsigned long)[dict count]);
+    
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
     
     [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:5.0]}];

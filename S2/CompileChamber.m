@@ -149,15 +149,6 @@
             [self ignite:dict[@"compileBasePath"]];
             break;
         }
-        case S2_COMPILECHAMBER_EXEC_GETTICK:{
-            if ([messenger hasParent]) {
-                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-                 [messenger tag:@"id" val:m_chamberId],
-                 [messenger tag:@"message" val:@"ignited"],
-                 nil];
-            }
-            break;
-        }
         case S2_COMPILECHAMBER_EXEC_ABORT:{
             [self abort];
             break;

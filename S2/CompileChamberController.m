@@ -116,6 +116,7 @@
 
 - (void) receiver:(NSNotification * )notif {
     NSDictionary * dict = [messenger tagValueDictionaryFromNotification:notif];
+    
     switch ([messenger execFrom:[messenger myParentName] viaNotification:notif]) {
         case S2_COMPILECHAMBERCONT_EXEC_INITIALIZE:{
             NSAssert(dict[@"chamberCount"], @"chamberCount required");
@@ -146,6 +147,12 @@
             [self compileOrNot:nil withSource:nil];
             break;
         }
+        case S2_COMPILECHAMBERCONT_EXEC_MESSAGEBUFFER:{
+            [messenger callback:notif,
+             [messenger tag:@"messageBuffer" val:m_messageBuffer],
+             nil];
+            break;
+        }
     }
     
     // チャンバーからのメッセージ
@@ -160,6 +167,36 @@
         
         case S2_COMPILECHAMBER_EXEC_IGNITED:{
             NSAssert(dict[@"id"], @"id required");
+            
+            NSString * currentIgnitedChamberId = dict[@"id"];
+            
+            // compilingにする
+            [self changeChamberStatus:currentIgnitedChamberId to:static_chamber_states[STATE_COMPILING]];
+            
+            // priorityを上げる
+            [self setChamberPriorityFirst:currentIgnitedChamberId];
+            
+            // messageBufferに起動メッセージを足す
+            [self bufferMessage:@{@"here":@"ignited"} to:currentIgnitedChamberId];
+            
+            
+            
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
+             [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
+             nil];
+            
+            NSString * message = @"ignited";
+            
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
+             [messenger tag:@"message" val:message],
+             [messenger tag:@"priority" val:[self chamberPriority:dict[@"id"]]],
+             nil];
+
+            
+            
+            // resendを発生させる
+            [self resendFrom:1 length:S2_RESEND_DEPTH];
+
             break;
         }
             
@@ -224,13 +261,13 @@
 /**
  set
  */
-- (void) bufferMessage:(NSString * )message to:(NSString * )chamberId {
+- (void) bufferMessage:(NSDictionary * )messageDict to:(NSString * )chamberId {
     NSMutableArray * array = m_messageBuffer[chamberId];
     if (array) {
-        [array addObject:message];
+        [array addObject:messageDict];
     } else {
         array = [[NSMutableArray alloc]init];
-        [array addObject:message];
+        [array addObject:messageDict];
         [m_messageBuffer setValue:array forKey:chamberId];
     }
 }
@@ -253,30 +290,7 @@
         NSString * compileBasePath = poolInfoDict[@"compileBasePath"];
         
         // spinup 状態のチャンバーを駆り出す
-        NSString * currentIgnitedChamberId = [self igniteIdleChamber:compileBasePath];
-        
-        if (currentIgnitedChamberId) {
-            // compilingにする
-            [self changeChamberStatus:currentIgnitedChamberId to:static_chamber_states[STATE_COMPILING]];
-
-            // priorityを上げる
-            [self setChamberPriorityFirst:currentIgnitedChamberId];
-            
-            // ignitedメッセージを引き出す
-            [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_GETTICK,
-             [messenger tag:@"id" val:currentIgnitedChamberId],
-             nil];
-            
-            
-            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
-             [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
-             nil];
-            
-            
-            // resendを発生させる
-            [self resendFrom:1 length:S2_RESEND_DEPTH];
-            
-        } else {
+        if ([self igniteIdleChamber:compileBasePath]) {} else {
             // all chambers are full.
             // 全てのチャンバーがspinup中かコンパイル中。
             
@@ -289,26 +303,23 @@
  bufferの内容をresendする
  */
 - (void) resendFrom:(int)index length:(int)len {
+    if ([m_chamberPriority count] <= index) return;
     
-    if ([m_chamberPriority count] < len) {
-        len = (int)[m_chamberPriority count];
+    // 1 ~ length - index
+    if ([m_chamberPriority count] < index + len) {
+        len = (int)[m_chamberPriority count] - index;
     }
     
     // resend with priority-key
     NSMutableDictionary * priorityDict = [[NSMutableDictionary alloc]init];
     for (int i = index; i < index + len; i++) {
         
-        if ([m_chamberPriority count] <= i) {
-            break;
-        }
         
-        NSString * chamberId = nil;
-        if ((chamberId = m_chamberPriority[i])) {
-            if ((m_messageBuffer[chamberId])) {
-                // chamberId:Array なので、これをそのままKey-Value としてコピーして渡す
-                NSDictionary * currentDict = @{chamberId:m_messageBuffer[chamberId]};
-                [priorityDict setValue:currentDict forKey:[[NSString alloc]initWithFormat:@"%d", i]];
-            }
+        NSString * chamberId = m_chamberPriority[i];
+        if ((m_messageBuffer[chamberId])) {
+            // chamberId:Array なので、これをそのままKey-Value としてコピーして渡す
+            NSDictionary * currentDict = @{chamberId:m_messageBuffer[chamberId]};
+            [priorityDict setValue:currentDict forKey:[[NSString alloc]initWithFormat:@"%d", i]];
         }
     }
     

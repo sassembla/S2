@@ -219,12 +219,6 @@
                 }
                 case S2_COMPILECHAMBERCONT_EXEC_RESEND:{
                     NSAssert(dict[@"priorityDict"], @"priorityDict required");
-                    NSLog(@"messages, %@", dict[@"priorityDict"]);
-                    
-                    // keyがpriority、辞書keyがidentity、中身がarrayなので、これを最終的に
-                    // stringにする。
-                    
-                    
                     
                     NSMutableArray * messageArray = [[NSMutableArray alloc]init];
                     
@@ -243,28 +237,20 @@
                             /*
                              messageごとに、appendRegionを組み立てる
                              */
-                         //   NSString * filteredMessage = [m_emitter generateAppendRegionMessage:rawMessageDict priority:priorityInt];
+                            NSString * filteredMessage = [m_emitter generateAppendRegionMessage:rawMessageDict priority:priorityInt];
                             
-//                            [messageArray addObject:<#(id)#>]
+                            if (filteredMessage) [messageArray addObject:filteredMessage];
                         }
                     }
-//                    for (NSDictionary * currentMessageDict in dict[@"messagesArray"]) {
-//                        NSString * filteredMessage = [m_emitter genereateFilteredMessage:currentMessageDict[@"message"] withPriority:[currentMessageDict[@"priority"] intValue]];
-//                        [arrayedMessage addObject:filteredMessage];
-//                    }
                     
-//                    [m_emitter combineMessages:arrayedMessage];//こいつは辞書とpriorityのarray
+                    NSString * combined = [messageArray componentsJoinedByString:@"->"];
                     
-//                    if (filteredMessage) {
-//                        [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
-//                         [messenger tag:@"message" val:filteredMessage],
-//                         nil];
-//                        
-//                        [self callToMaster:S2_CONT_EXEC_TICK withMessageDict:dict];
-//                    }
+                    if (0 < [combined length]) {
+                        [TimeMine setTimeMineLocalizedFormat:@"2013/11/01 22:04:42" withLimitSec:10000 withComment:@"ふむ、outputするに足る形になった。"];
+                    }
                     
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/01 9:06:21" withLimitSec:10000 withComment:@"まだ通すわけには"];
-//                [self callToMaster:S2_CONT_EXEC_RESENDED withMessageDict:dict];
+                    NSDictionary * messageDict = @{@"message":combined};
+                    [self callToMaster:S2_CONT_EXEC_RESENDED withMessageDict:messageDict];
                 }
             }
             break;
@@ -367,6 +353,9 @@
     }
 }
 
+- (NSDictionary * )compileChamberControllersMessageBuffer {
+    return [messenger call:S2_COMPILECHAMBERCONT withExec:S2_COMPILECHAMBERCONT_EXEC_MESSAGEBUFFER, nil][@"messageBuffer"];
+}
 
 
 /**

@@ -29,6 +29,7 @@ enum S2_COMPILECHAMBERCONT_EXEC {
     S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
     
     S2_COMPILECHAMBERCONT_EXEC_RESEND,
+    S2_COMPILECHAMBERCONT_EXEC_MESSAGEBUFFER,
     
     S2_COMPILECHAMBERCONT_EXEC_CHAMBER_COMPILED,
 };
@@ -48,7 +49,7 @@ enum S2_COMPILECHAMBERCONT_EXEC {
 - (NSString * ) igniteIdleChamber:(NSString * )compileBasePath;
 - (void) setChamberPriorityFirst:(NSString * )chamberId;
 
-- (void) bufferMessage:(NSString * )message to:(NSString * )chamberId;
+- (void) bufferMessage:(NSDictionary * )messageDict to:(NSString * )chamberId;
 - (void) resendFrom:(int)index length:(int)len;
 
 - (void) close;
