@@ -355,7 +355,7 @@
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
     cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
-    [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:1.0]}];
+    [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:10.0]}];
     
     while ([cont state] != STATE_IGNITED) {
         if ([self countupThenFail]) {
@@ -375,13 +375,11 @@
     
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
     
+    [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:5.0]}];
     
     // この時点でさらにupdateを発生させる
     NSString * message4 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, updateArray[0], [self readSource:updateArray[0]]];
     [self connectClientTo:TEST_SERVER_URL withMessage:message4];
-    
-    XCTAssertTrue(m_compiledCounts == 0, @"not match, %d", m_compiledCounts);
-    
     
     // +1つが着火状態
     XCTAssertTrue([m_ignitedChamberArray count] == 2, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);

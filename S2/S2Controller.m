@@ -209,7 +209,7 @@
                     NSAssert(dict[@"message"], @"message required");
                     NSAssert(dict[@"priority"], @"priority required");
                     
-                    NSString * filteredMessage = [m_emitter genereateFilteredMessage:dict[@"message"] withPriority:[dict[@"priority"] intValue]];
+                    NSString * filteredMessage = [m_emitter generateAppendRegionMessage:dict[@"message"] priority:[dict[@"priority"] intValue]];
                     if (filteredMessage) {
                         [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
                          [messenger tag:@"message" val:filteredMessage],
@@ -220,11 +220,36 @@
                     break;
                 }
                 case S2_COMPILECHAMBERCONT_EXEC_RESEND:{
-                    NSAssert(dict[@"messagesArray"], @"messagesArray required");
-                    NSLog(@"messages, %@", dict[@"messagesArray"]);
-//                    NSMutableArray * arrayedMessage = [[NSMutableArray alloc]init];
+                    NSAssert(dict[@"priorityDict"], @"priorityDict required");
+                    NSLog(@"messages, %@", dict[@"priorityDict"]);
                     
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 14:38:28" withLimitSec:10000 withComment:@"連結させたメッセージでのpushを行う"];
+                    // keyがpriority、辞書keyがidentity、中身がarrayなので、これを最終的に
+                    // stringにする。
+                    
+                    
+                    
+                    NSMutableArray * messageArray = [[NSMutableArray alloc]init];
+                    
+                    // keyで列挙、順は問わないが値は使う。
+                    for (NSString * priorityKeyStr in [dict[@"priorityDict"] keyEnumerator]) {
+                        int priorityInt = [priorityKeyStr intValue];
+                        
+                        NSDictionary * identityAndMessageArray = dict[@"priorityDict"][priorityKeyStr];
+                        
+                        // 要素1で、内容はarray。 identityは使用しない。
+                        NSArray * messageArraySourceArray = [identityAndMessageArray allValues][0];
+                        
+                        
+                        // このmessageに対してkeyInt priorityでのメッセージ生成を行う
+                        for (NSString * message in messageArraySourceArray) {
+                            /*
+                             messageごとに、appendRegionを組み立てる
+                             */
+                            NSString * filteredMessage = [m_emitter generateAppendRegionMessage:message priority:priorityInt];
+                            
+//                            [messageArray addObject:<#(id)#>]
+                        }
+                    }
 //                    for (NSDictionary * currentMessageDict in dict[@"messagesArray"]) {
 //                        NSString * filteredMessage = [m_emitter genereateFilteredMessage:currentMessageDict[@"message"] withPriority:[currentMessageDict[@"priority"] intValue]];
 //                        [arrayedMessage addObject:filteredMessage];
@@ -239,7 +264,9 @@
 //                        
 //                        [self callToMaster:S2_CONT_EXEC_TICK withMessageDict:dict];
 //                    }
-//                    [self callToMaster:S2_CONT_EXEC_RESENDED withMessageDict:dict];
+                    
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/01 9:06:21" withLimitSec:10000 withComment:@"まだ通すわけには"];
+//                [self callToMaster:S2_CONT_EXEC_RESENDED withMessageDict:dict];
                 }
             }
             break;

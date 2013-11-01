@@ -61,13 +61,6 @@
     return @"ss@showAtLog:{\"message\":\"S2 compileChamber spinup over.\"}->showStatusMessage:{\"message\":\"S2 compileChamber spinup over.\"}";
 }
 
-
-- (NSString * ) genereateFilteredMessage:(NSString * )message withPriority:(int)priority {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 20:06:45" withLimitSec:100000 withComment:@"直にラインを光らせる処理とか、、は、ちょっとあとで。負荷がかかるけどフィルタを流す。ss@つけるとか。上っ面の処理を施す。キーが増える予感がする。その場合は分けるか。typeを持つ。"];
-    
-    return message;
-}
-
 /**
  フィルタ、特定のキーワードを抜き出す。
  */
@@ -227,8 +220,8 @@
                                 
                                 NSDictionary * result = [self flush];
                                 
-                                // 表示列を光らせるメッセージを直撃で返す
-                                NSString * message = [self generateAppendRegionMessage:result rewritePriority:0];
+                                // 表示列を光らせるメッセージを直撃で返す 優先度は0固定
+                                NSString * message = [self generateAppendRegionMessage:result priority:0];
                                 NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
                                 return @[output];
                             }
@@ -347,9 +340,7 @@
 }
 
 
-
-- (NSString * ) generateAppendRegionMessage:(NSDictionary * )messageParam rewritePriority:(int)priority {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/31 20:42:32" withLimitSec:100000 withComment:@"未完成、パターン出しがおわってない"];
+- (NSString * ) generateAppendRegionMessage:(NSDictionary * )messageParam priority:(int)priority {
     // priorityに応じて表示カラーを変更
     NSString * priorityStr = nil;
     
@@ -359,11 +350,11 @@
             break;
         }
         case 1:{
-            priorityStr = @"none";
+            priorityStr = @"keyword";
             break;
         }
         case 2:{
-            priorityStr = @"none";
+            priorityStr = @"keyword";
             break;
         }
     }

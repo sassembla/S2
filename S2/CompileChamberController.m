@@ -206,9 +206,10 @@
         case S2_COMPILECHAMBER_EXEC_TICK:{
             NSAssert(dict[@"id"], @"id required");
             NSAssert(dict[@"message"], @"message required");
+            NSAssert(dict[@"rawMessage"], @"rawMessage required");
             
             // buffer
-            [self bufferMessage:dict[@"message"] to:dict[@"id"]];
+            [self bufferMessage:dict[@"rawMessage"] to:dict[@"id"]];
             
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
              [messenger tag:@"message" val:dict[@"message"]],
@@ -288,8 +289,6 @@
     if ([m_chamberPriority count] < len) {
         len = (int)[m_chamberPriority count];
     }
-    
-//    ここを二回目に通る時点でm_chamberPriorityに新しいチャンバーが設定されていないとおかしい。
     
     // resend with priority-key
     NSMutableDictionary * priorityDict = [[NSMutableDictionary alloc]init];

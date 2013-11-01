@@ -208,7 +208,13 @@
         [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
          [messenger tag:@"id" val:m_chamberId],
          nil];
+        
+        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+         [messenger tag:@"id" val:m_chamberId],
+         [messenger tag:@"message" val:@"ignited"],
+         nil];
     }
+    
     
     NSFileHandle * publishHandle = [currentOut fileHandleForReading];
     NSString * sign = [[NSString alloc]initWithString:[messenger myMID]];
