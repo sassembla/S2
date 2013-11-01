@@ -56,6 +56,8 @@
                   @"S2_COMPILECHAMBER_EXEC_IGNITE",
                   @"S2_COMPILECHAMBER_EXEC_IGNITED",
                   
+                  @"S2_COMPILECHAMBER_EXEC_GETTICK",
+                  
                   @"S2_COMPILECHAMBER_EXEC_COMPILE",
                   @"S2_COMPILECHAMBER_EXEC_COMPILED",
                   

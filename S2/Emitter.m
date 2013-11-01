@@ -66,6 +66,7 @@
  */
 - (NSArray * ) filtering:(NSString * )message withSign:(NSString * )sign {
     NSLog(@"message:%@", message);
+    
     // 改行だけなら逃げる
     if ([message isEqualToString:@"\n"]) {
         return nil;
@@ -74,80 +75,80 @@
     
     // 本来必要ではないが、正規表現のupを見るためのチェックをしよう
     {
-        NSArray * ignoreMessages = @[
-                                     @"^Starting daemon process:.*",
-                                     @"^Connected to the daemon[.].*",
-                                     @"^The client will now receive all logging from the daemon.*",
-                                     @"^Settings evaluated using empty settings script[.].*",
-                                     @"^Evaluating root project.*",
-                                     @"^All projects evaluated[.].*",
-                                     @"^Selected primary task.*",
-                                     @"^Compiling with Ant scalac task[.].*",
-                                     @"^Compiling build file .*",
-                                     @".* Compiling.*",
-                                     @"^An attempt to initialize for well behaving parent process finished.",
-                                     @"^Successfully started process.*",
-
-                                     @"^:classes.*",
-                                     @"^:compileJava.*",
-                                     @"^:compileScala.*",
-                                     @"^:compileTestJava.*",
-                                     @"^:compileTestScala.*",
-                                     @"^:jar.*",
-                                     @"^:testClasses.*",
-                                     @"^:processTestResources.*",
-                                     @"^Tasks to be executed.*",
-                                     @"^Skipping task.*",
-                                     @"^Projects loaded. Root project using build file (.*)[.].*",
-                                     
-                                     @"^Included projects:.*",
-                                     @"^Starting Build.*",
-                                     @"^Starting Gradle compiler daemon with fork options.*",
-                                     @"^Starting Gradle daemon.*",
-                                     @"^Started Gradle compiler daemon with fork options.*",
-                                     @"^Executing.*",
-                                     @"^:assemble",
-                                     @"^:build",@"^:test.*",
-                                     @"^:processResources.*",
-                                     @"^:check.*",
-                                     @"^Received command.*",
-                                     @"^Process .*",
-//                                     @"[[]ant:scalac[]] (.*)",
-
-                                     @"  No history is available.",
-                                     @"Starting process.*",
-
-                                     @"^Exception executing.*",
-                                     @"^Compiling ([0-9.*]) Scala sources.*",
-
-                                     @"^Executing build with daemon context:",
-
-                                     @"^file or directory .*",
-
-
-                                     @"^BUILD FAILED",
-                                     @"^BUILD SUCCESSFUL.*",
-                                     @"^Total time: (.*) secs.*",
-
-                                     // zinc error
-//                                     @"(.*):([0-9].*): (.*)",
-
-                                     @"^Compiling with Zinc Scala compiler.*",
-                                     @"^FAILURE: Build failed with an exception.*",
-                                     @"^> Compilation failed.*",
-
-
-                                     @"^[*] Try:.*",
-                                     @"^Run with .*",
-                                     @"^[*] What went wrong:.*",
-
-                                     @"^Stopping [0-9].* Gradle compiler daemon[(]s[)].*",
-                                     @"^Stopped [0-9].* Gradle compiler daemon[(]s[)].*",
-                                     @"^Execution failed for task.*",
-                                     @"^> Compile failed with.*",
-                                     
-                                     @"empty"
-                                     ];
+//        NSArray * ignoreMessages = @[
+//                                     @"^Starting daemon process:.*",
+//                                     @"^Connected to the daemon[.].*",
+//                                     @"^The client will now receive all logging from the daemon.*",
+//                                     @"^Settings evaluated using empty settings script[.].*",
+//                                     @"^Evaluating root project.*",
+//                                     @"^All projects evaluated[.].*",
+//                                     @"^Selected primary task.*",
+//                                     @"^Compiling with Ant scalac task[.].*",
+//                                     @"^Compiling build file .*",
+//                                     @".* Compiling.*",
+//                                     @"^An attempt to initialize for well behaving parent process finished.",
+//                                     @"^Successfully started process.*",
+//
+//                                     @"^:classes.*",
+//                                     @"^:compileJava.*",
+//                                     @"^:compileScala.*",
+//                                     @"^:compileTestJava.*",
+//                                     @"^:compileTestScala.*",
+//                                     @"^:jar.*",
+//                                     @"^:testClasses.*",
+//                                     @"^:processTestResources.*",
+//                                     @"^Tasks to be executed.*",
+//                                     @"^Skipping task.*",
+//                                     @"^Projects loaded. Root project using build file (.*)[.].*",
+//                                     
+//                                     @"^Included projects:.*",
+//                                     @"^Starting Build.*",
+//                                     @"^Starting Gradle compiler daemon with fork options.*",
+//                                     @"^Starting Gradle daemon.*",
+//                                     @"^Started Gradle compiler daemon with fork options.*",
+//                                     @"^Executing.*",
+//                                     @"^:assemble",
+//                                     @"^:build",@"^:test.*",
+//                                     @"^:processResources.*",
+//                                     @"^:check.*",
+//                                     @"^Received command.*",
+//                                     @"^Process .*",
+////                                     @"[[]ant:scalac[]] (.*)",
+//
+//                                     @"  No history is available.",
+//                                     @"Starting process.*",
+//
+//                                     @"^Exception executing.*",
+//                                     @"^Compiling ([0-9.*]) Scala sources.*",
+//
+//                                     @"^Executing build with daemon context:",
+//
+//                                     @"^file or directory .*",
+//
+//
+//                                     @"^BUILD FAILED",
+//                                     @"^BUILD SUCCESSFUL.*",
+//                                     @"^Total time: (.*) secs.*",
+//
+//                                     // zinc error
+////                                     @"(.*):([0-9].*): (.*)",
+//
+//                                     @"^Compiling with Zinc Scala compiler.*",
+//                                     @"^FAILURE: Build failed with an exception.*",
+//                                     @"^> Compilation failed.*",
+//
+//
+//                                     @"^[*] Try:.*",
+//                                     @"^Run with .*",
+//                                     @"^[*] What went wrong:.*",
+//
+//                                     @"^Stopping [0-9].* Gradle compiler daemon[(]s[)].*",
+//                                     @"^Stopped [0-9].* Gradle compiler daemon[(]s[)].*",
+//                                     @"^Execution failed for task.*",
+//                                     @"^> Compile failed with.*",
+//                                     
+//                                     @"empty"
+//                                     ];
         
         /*
          [ant:scalac] /Users/highvision/Desktop/S2/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:1: error: TestProject is already defined as object TestProject
@@ -223,7 +224,7 @@
                                 // 表示列を光らせるメッセージを直撃で返す 優先度は0固定
                                 NSString * message = [self generateAppendRegionMessage:result priority:0];
                                 NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
-                                return @[output];
+                                return @[output, result];
                             }
                             break;
                         }
@@ -281,9 +282,9 @@
                         NSDictionary * result = [self flush];
                         
                         // 表示列を光らせるメッセージを直撃で返す
-                        NSString * message = [self generateAppendRegionMessage:result rewritePriority:0];
+                        NSString * message = [self generateAppendRegionMessage:result priority:0];
                         NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
-                        return @[output];
+                        return @[output, result];
                     }
                         
                     default:
@@ -341,6 +342,8 @@
 
 
 - (NSString * ) generateAppendRegionMessage:(NSDictionary * )messageParam priority:(int)priority {
+    NSAssert(0 <= priority, @"not positive or 0, %d", priority);
+    
     // priorityに応じて表示カラーを変更
     NSString * priorityStr = nil;
     

@@ -195,14 +195,12 @@
     
     /*
      -daemon ver
-     Starting Build
-     
-     BUILD SUCCESSFUL これだけあればOK
-     Total time: (.*) secs
-     
+
+     ignite と
+     BUILD SUCCESSFUL
      
      */
-    XCTAssertTrue([m_compiledResults count] == 1, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    XCTAssertTrue([m_compiledResults count] == 2, @"not match, %lu", (unsigned long)[m_compiledResults count]);
 }
 
 - (void) testCompileFailure {
@@ -242,6 +240,8 @@
     
     /*
      -daemon ver
+
+     0)ignite
      
      1)//これはワンセット、この行の何文字目、という。 7の18、とかが出せると良い。 3行かな。
      [ant:scalac] /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:7: error: not found: type Samplaaae2,
@@ -253,7 +253,7 @@
      */
     
     //ここでは、上記のもののみ受け取るのが正しい。
-    XCTAssertTrue([m_compiledResults count] == 2, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    XCTAssertTrue([m_compiledResults count] == 3, @"not match, %lu", (unsigned long)[m_compiledResults count]);
 }
 
 
@@ -293,9 +293,11 @@
     /*
      -zinc ver
      なんか普通にやろうとしても失敗するんだが。
-     3件の失敗と1件のfailedが入る。
+     1件の起動と
+     3件の失敗と
+     1件のfailedが入る。
      */
-    XCTAssertTrue([m_compiledResults count] == 4, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    XCTAssertTrue([m_compiledResults count] == 5, @"not match, %lu", (unsigned long)[m_compiledResults count]);
 }
 
 - (void) testCompileFailureWithZinc {
@@ -334,16 +336,12 @@
     /*
      -zinc ver
      
-     FAILURE: Build failed with an exception.
-     BUILD FAILED
-     
-     * Where:
-     Build file '/Users/t.inoue/Desktop/S2/S2Tests/TestResource/sampleProject_gradle_zinc/build.gradle' line: 24
-     ,
-     
+     1件の起動と
+     3件の失敗と
+     1件のfailedが入る。
      
      */
-    XCTAssertTrue([m_compiledResults count] == 4, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    XCTAssertTrue([m_compiledResults count] == 5, @"not match, %lu", (unsigned long)[m_compiledResults count]);
 }
 
 

@@ -208,15 +208,13 @@
                 case S2_COMPILECHAMBERCONT_EXEC_OUTPUT:{
                     NSAssert(dict[@"message"], @"message required");
                     NSAssert(dict[@"priority"], @"priority required");
+                    NSLog(@"message %@", dict[@"message"]);
                     
-                    NSString * filteredMessage = [m_emitter generateAppendRegionMessage:dict[@"message"] priority:[dict[@"priority"] intValue]];
-                    if (filteredMessage) {
-                        [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
-                         [messenger tag:@"message" val:filteredMessage],
-                         nil];
-                        
-                        [self callToMaster:S2_CONT_EXEC_TICK withMessageDict:dict];
-                    }
+                    [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
+                     [messenger tag:@"message" val:dict[@"message"]],
+                     nil];
+                    
+                    [self callToMaster:S2_CONT_EXEC_TICK withMessageDict:dict];
                     break;
                 }
                 case S2_COMPILECHAMBERCONT_EXEC_RESEND:{
@@ -241,11 +239,11 @@
                         
                         
                         // このmessageに対してkeyInt priorityでのメッセージ生成を行う
-                        for (NSString * message in messageArraySourceArray) {
+                        for (NSDictionary * rawMessageDict in messageArraySourceArray) {
                             /*
                              messageごとに、appendRegionを組み立てる
                              */
-                            NSString * filteredMessage = [m_emitter generateAppendRegionMessage:message priority:priorityInt];
+                         //   NSString * filteredMessage = [m_emitter generateAppendRegionMessage:rawMessageDict priority:priorityInt];
                             
 //                            [messageArray addObject:<#(id)#>]
                         }

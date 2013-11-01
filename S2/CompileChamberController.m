@@ -206,10 +206,9 @@
         case S2_COMPILECHAMBER_EXEC_TICK:{
             NSAssert(dict[@"id"], @"id required");
             NSAssert(dict[@"message"], @"message required");
-            NSAssert(dict[@"rawMessage"], @"rawMessage required");
             
             // buffer
-            [self bufferMessage:dict[@"rawMessage"] to:dict[@"id"]];
+            if (dict[@"rawMessageDict"]) [self bufferMessage:dict[@"rawMessageDict"] to:dict[@"id"]];
             
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
              [messenger tag:@"message" val:dict[@"message"]],
@@ -262,6 +261,11 @@
 
             // priorityを上げる
             [self setChamberPriorityFirst:currentIgnitedChamberId];
+            
+            // ignitedメッセージを引き出す
+            [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_GETTICK,
+             [messenger tag:@"id" val:currentIgnitedChamberId],
+             nil];
             
             
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
@@ -368,10 +372,13 @@
 }
 
 - (NSNumber * ) chamberPriority:(NSString * )chamberid {
-    NSUInteger index = -1;
-    if (-1 < (index = [m_chamberPriority indexOfObject:chamberid])) {
-        return [NSNumber numberWithInteger:index];
+   
+    if ([m_chamberPriority containsObject:chamberid]) {
+        return [NSNumber numberWithInteger:[m_chamberPriority indexOfObject:chamberid]];
     }
+    
+    NSAssert(false, @"should not reach here");
+    
     return @-1;
 }
 

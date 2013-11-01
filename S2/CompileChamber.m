@@ -71,20 +71,29 @@
             return;
         }
         case S2_COMPILECHAMBER_EXEC_COMPILE:{
-            NSAssert(dict[@"publishHandle"], @"publishHandle required");
-            NSAssert(dict[@"sign"], @"sign required");
+            NSAssert(dict[@"compileTask"], @"compileTask required");
             
+            NSPipe * currentOut = [[NSPipe alloc]init];
+            
+            [dict[@"compileTask"] setStandardOutput:currentOut];
+            [dict[@"compileTask"] setStandardError:currentOut];
+            
+            NSFileHandle * publishHandle = [currentOut fileHandleForReading];
+            NSString * sign = [[NSString alloc]initWithString:[messenger myMID]];
+
+            // launch
+            [dict[@"compileTask"] launch];
             
             char buffer[BUFSIZ];
-            FILE * fp = fdopen([dict[@"publishHandle"] fileDescriptor], "r");
+            FILE * fp = fdopen([publishHandle fileDescriptor], "r");
             while(fgets(buffer, BUFSIZ, fp)) {
                 NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
                 
                 NSArray * resultArray = nil;
-                if ((resultArray = [emitter filtering:message withSign:dict[@"sign"]])) {
+                if ((resultArray = [emitter filtering:message withSign:sign])) {
                     
                     // end
-                    if ([resultArray[0] isEqualToString:dict[@"sign"]]) {
+                    if ([resultArray[0] isEqualToString:sign]) {
                         if ([messenger hasParent]) {
                             [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
                              [messenger tag:@"id" val:m_chamberId],
@@ -101,6 +110,7 @@
                         [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
                          [messenger tag:@"id" val:m_chamberId],
                          [messenger tag:@"message" val:resultArray[0]],
+                         [messenger tag:@"rawMessageDict" val:resultArray[1]],
                          nil];
                     }
                 }
@@ -137,6 +147,15 @@
             NSAssert(dict[@"compileBasePath"], @"compileBasePath required");
             
             [self ignite:dict[@"compileBasePath"]];
+            break;
+        }
+        case S2_COMPILECHAMBER_EXEC_GETTICK:{
+            if ([messenger hasParent]) {
+                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                 [messenger tag:@"id" val:m_chamberId],
+                 [messenger tag:@"message" val:@"ignited"],
+                 nil];
+            }
             break;
         }
         case S2_COMPILECHAMBER_EXEC_ABORT:{
@@ -195,29 +214,14 @@
     NSArray * currentParams = @[@"-c", gradlebuildStr];
 
     [m_compileTask setArguments:currentParams];
-
-    NSPipe * currentOut = [[NSPipe alloc]init];
-    [m_compileTask setStandardOutput:currentOut];
-    [m_compileTask setStandardError:currentOut];
-
-    // compile start
-    [m_compileTask launch];
+    
     m_state = statesArray[STATE_COMPILING];
     
     if ([messenger hasParent]) {
         [messenger callParent:S2_COMPILECHAMBER_EXEC_IGNITED,
          [messenger tag:@"id" val:m_chamberId],
          nil];
-        
-        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-         [messenger tag:@"id" val:m_chamberId],
-         [messenger tag:@"message" val:@"ignited"],
-         nil];
     }
-    
-    
-    NSFileHandle * publishHandle = [currentOut fileHandleForReading];
-    NSString * sign = [[NSString alloc]initWithString:[messenger myMID]];
     
     // read setting
     NSDictionary * compilationSetting = [settingReceiver callParent:S2_COMPILECHAMBER_SETTINGRECEIVER_EXEC_GET, nil][@"settingsDict"];
@@ -227,8 +231,7 @@
     
     [messenger callMyself:S2_COMPILECHAMBER_EXEC_COMPILE,
      [messenger withDelay:compileDelay],
-     [messenger tag:@"publishHandle" val:publishHandle],
-     [messenger tag:@"sign" val:sign],
+     [messenger tag:@"compileTask" val:m_compileTask],
      nil];
 }
 
