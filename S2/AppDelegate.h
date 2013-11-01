@@ -10,6 +10,8 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
+- (id) initAppDelegateWithParam:(NSDictionary * )dict;
+
 @property (assign) IBOutlet NSWindow *window;
 
 @end
