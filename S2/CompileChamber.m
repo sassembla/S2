@@ -97,7 +97,7 @@
                         if ([messenger hasParent]) {
                             [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
                              [messenger tag:@"id" val:m_chamberId],
-                             [messenger tag:@"message" val:resultArray[1]],
+                             [messenger tag:@"messageDict" val:resultArray[1]],
                              nil];
                         }
                         
@@ -105,12 +105,11 @@
                         break;
                     }
                     
-                    // not end
+                    // not sign, not end
                     if ([messenger hasParent]) {
                         [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
                          [messenger tag:@"id" val:m_chamberId],
-                         [messenger tag:@"message" val:resultArray[0]],
-                         [messenger tag:@"rawMessageDict" val:resultArray[1]],
+                         [messenger tag:@"messageDict" val:resultArray[1]],
                          nil];
                     }
                 }

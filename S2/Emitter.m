@@ -174,8 +174,8 @@
             {
                 NSArray * re = [m_regex_compileSucceeded matchesInString:message options:0 range:NSMakeRange(0, [message length])];
                 for (NSTextCheckingResult * match in re) {
-                    NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", [self generateShowMessage:@"S2 compile succeeded."]];
-                    return @[sign, output];
+                    NSDictionary * dict = @{@"message":@"S2 compile succeeded."};
+                    return @[sign, dict];
                 }
             }
         }
@@ -221,10 +221,7 @@
                                 
                                 NSDictionary * result = [self flush];
                                 
-                                // 表示列を光らせるメッセージを直撃で返す 優先度は0固定
-                                NSString * message = [self generateAppendRegionMessage:result priority:0];
-                                NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
-                                return @[output, result];
+                                return @[@"appendRegion", result];
                             }
                             break;
                         }
@@ -241,8 +238,8 @@
                 NSArray * re = [m_regex_compileFailed matchesInString:message options:0 range:NSMakeRange(0, [message length])];
                 
                 for (NSTextCheckingResult * match in re) {
-                    NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", [self generateShowMessage:@"S2 compile failed."]];
-                    return @[sign, output];
+                    NSDictionary * dict = @{@"message":@"S2 compile failed."};
+                    return @[sign, dict];
                 }
             }
         }
@@ -280,11 +277,7 @@
                         [self append:dict];
                         
                         NSDictionary * result = [self flush];
-                        
-                        // 表示列を光らせるメッセージを直撃で返す
-                        NSString * message = [self generateAppendRegionMessage:result priority:0];
-                        NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
-                        return @[output, result];
+                        return @[@"appendRegion", result];
                     }
                         
                     default:
@@ -341,13 +334,10 @@
 }
 
 
-- (NSString * ) generateAppendRegionMessage:(NSDictionary * )messageParam priority:(int)priority {
+- (NSString * ) generateMessage:(NSDictionary * )messageParam priority:(int)priority {
     NSAssert(0 <= priority, @"not positive or 0, %d", priority);
     
     if (messageParam[@"reason"] && messageParam[@"filePath"] && messageParam[@"line"]) {
-        
-        
-            
         
         // priorityに応じて表示カラーを変更
         NSString * priorityStr = nil;
@@ -368,6 +358,11 @@
         }
         
         return [[NSString alloc]initWithFormat:@"appendRegion:{\"line\":\"%@\",\"message\":\"%@\",\"view\":\"%@\",\"condition\":\"%@\"}", messageParam[@"line"], messageParam[@"reason"], messageParam[@"filePath"], priorityStr];
+    }
+    
+    if (messageParam[@"message"]) {
+        
+        return [self generateShowMessage:messageParam[@"message"]];
     }
     
     return nil;

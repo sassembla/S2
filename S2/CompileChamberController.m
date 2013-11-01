@@ -14,6 +14,8 @@
 #import "ContentsPoolController.h"
 
 #import "S2Token.h"
+#import "Emitter.h"
+
 
 #import "TimeMine.h"
 
@@ -32,6 +34,8 @@
     NSMutableArray * m_chamberPriority;
     
     NSMutableDictionary * m_messageBuffer;
+    
+    Emitter * m_emitter;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
@@ -50,6 +54,8 @@
         m_chamberPriority = [[NSMutableArray alloc]init];
         
         m_messageBuffer = [[NSMutableDictionary alloc]init];
+        
+        m_emitter = [[Emitter alloc]init];
     }
     return self;
 }
@@ -242,15 +248,22 @@
             
         case S2_COMPILECHAMBER_EXEC_TICK:{
             NSAssert(dict[@"id"], @"id required");
-            NSAssert(dict[@"message"], @"message required");
+            NSAssert(dict[@"messageDict"], @"messageDict required");
             
-            // buffer
-            if (dict[@"rawMessageDict"]) [self bufferMessage:dict[@"rawMessageDict"] to:dict[@"id"]];
-            
-            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
-             [messenger tag:@"message" val:dict[@"message"]],
-             [messenger tag:@"priority" val:[self chamberPriority:dict[@"id"]]],
-             nil];
+            // 最新のみ
+            if ([self isFirstPriority:dict[@"id"]]) {
+                // buffer
+                if (dict[@"messageDict"]) [self bufferMessage:dict[@"messageDict"] to:dict[@"id"]];
+                
+                // メッセージを出力
+                NSString * message = [m_emitter generateMessage:dict[@"messageDict"] priority:0];
+                NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
+                
+                [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
+                 [messenger tag:@"message" val:output],
+                 [messenger tag:@"priority" val:[self chamberPriority:dict[@"id"]]],
+                 nil];
+            }
             
             break;
         }

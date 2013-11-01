@@ -228,16 +228,12 @@
                         
                         NSDictionary * identityAndMessageArray = dict[@"priorityDict"][priorityKeyStr];
                         
-                        // 要素1で、内容はarray。 identityは使用しない。
+                        // 要素1で、内容はarray
                         NSArray * messageArraySourceArray = [identityAndMessageArray allValues][0];
-                        
                         
                         // このmessageに対してkeyInt priorityでのメッセージ生成を行う
                         for (NSDictionary * rawMessageDict in messageArraySourceArray) {
-                            /*
-                             messageごとに、appendRegionを組み立てる
-                             */
-                            NSString * filteredMessage = [m_emitter generateAppendRegionMessage:rawMessageDict priority:priorityInt];
+                            NSString * filteredMessage = [m_emitter generateMessage:rawMessageDict priority:priorityInt];
                             
                             if (filteredMessage) [messageArray addObject:filteredMessage];
                         }
@@ -246,7 +242,8 @@
                     NSString * combined = [messageArray componentsJoinedByString:@"->"];
                     
                     if (0 < [combined length]) {
-                        [TimeMine setTimeMineLocalizedFormat:@"2013/11/01 22:04:42" withLimitSec:10000 withComment:@"ふむ、outputするに足る形になった。"];
+                        
+                        [TimeMine setTimeMineLocalizedFormat:@"2013/11/01 22:04:42" withLimitSec:10000 withComment:@"ふむ、outputするに足る形になった。ヘッダをつけて送り出す"];
                     }
                     
                     NSDictionary * messageDict = @{@"message":combined};

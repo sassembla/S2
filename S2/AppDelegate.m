@@ -32,7 +32,7 @@
     NSDictionary * paramDict = @{KEY_WEBSOCKETSERVER_ADDRESS:S2_DEFAULT_ADDR};
     
     // App main controller with WebSocketServer
-//    S2Controller * cont = [[S2Controller alloc]initWithDict:paramDict withMasterName:[messenger myNameAndMID]];
+    S2Controller * cont = [[S2Controller alloc]initWithDict:paramDict withMasterName:[messenger myNameAndMID]];
     
 }
 

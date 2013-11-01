@@ -344,11 +344,71 @@
     XCTAssertTrue([m_compiledResults count] == 5, @"not match, %lu", (unsigned long)[m_compiledResults count]);
 }
 
+/**
+ resendがコンパイル後に発生する
+ */
+- (void) testResendAfterCompile {
+    // 起動する
+    NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
+    
+    cont = [[S2Controller alloc]initWithDict:serverSettingDict withMasterName:[messenger myNameAndMID]];
+    
+    while ([cont state] != STATE_IGNITED) {
+        if ([self countupThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    NSArray * updateArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
+    
+    // updateを発生させる。 最後の一つでコンパイルが開始される。
+    for (NSString * path in updateArray) {
+        NSString * message3 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, path, [self readSource:path]];
+        [self connectClientTo:TEST_SERVER_URL withMessage:message3];
+    }
+    
+    // この時点でChamberContのmessageBufferにはignitedが入っている筈
+    NSDictionary * dict = [cont compileChamberControllersMessageBuffer];
+    XCTAssertTrue([dict count] == 1, @"not match, %lu", (unsigned long)[dict count]);
+    
+    XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    
+    while (m_compiledCounts < 1) {
+        if ([self countupLongThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    
+    // この時点でさらにupdateを発生させる
+    NSString * message4 = [[NSString alloc]initWithFormat:@"%@:%@ %@", S2_TRIGGER_PREFIX_UPDATED, updateArray[0], [self readSource:updateArray[0]]];
+    [self connectClientTo:TEST_SERVER_URL withMessage:message4];
+    
+    // +1つが着火状態
+    XCTAssertTrue([m_ignitedChamberArray count] == 2, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    
+    while (m_compiledCounts < 2) {
+        if ([self countupLongThenFail]) {
+            XCTFail(@"too long wait");
+            break;
+        }
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    // コンパイルタイミングが重ならないので、直前のものが消えるだけで、resendは発生しない。
+    XCTAssertTrue([m_resendArray count] == 0, @"not match, %lu", (unsigned long)[m_resendArray count]);
+}
+
 
 /**
- resendが発生する
+ コンパイルが重複して発生する
+ 新コンパイル発生時、新しいものを優先するために、resendでログの上書きが行われる。
  */
-- (void) testResend {
+- (void) testResendCross {
     // 起動する
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
     
@@ -397,6 +457,10 @@
     // コンパイル済メッセージが最低でも2つ入っているので、resendが発生しているはず
     XCTAssertTrue([m_resendArray count] == 1, @"not match, %lu", (unsigned long)[m_resendArray count]);
 }
+
+
+
+
 
 
 /*

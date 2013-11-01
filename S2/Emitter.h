@@ -12,7 +12,7 @@
 
 - (NSString * ) generatePullMessage:(NSString * )emitId withPath:(NSString * )path;
 - (NSString * ) generateReadyMessage;
-- (NSString * ) generateAppendRegionMessage:(NSDictionary * )messageParam priority:(int)priority;
+- (NSString * ) generateMessage:(NSDictionary * )messageParam priority:(int)priority;
 
 - (NSArray * ) filtering:(NSString * )message withSign:(NSString * )sign;
 
