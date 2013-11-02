@@ -23,7 +23,6 @@
     KSMessenger * messenger;
 
     NSMutableDictionary * m_chamberDict;
-    NSMutableDictionary * m_messageDict;
     
     int m_count;
     
@@ -89,8 +88,6 @@
         
         [m_chamberDict setValue:chamberInfoDict forKey:currentChamberId];
     }
-    
-    m_messageDict = [[NSMutableDictionary alloc]init];
 }
 
 
@@ -183,22 +180,21 @@
             [self setChamberPriorityFirst:currentIgnitedChamberId];
             
             // messageBufferに起動メッセージを足す
-            [self bufferMessage:@{@"here":@"ignited"} to:currentIgnitedChamberId];
+            [self bufferMessage:@{@"message":@"ignited"} withType:@(EMITTER_MESSAGE_TYPE_MESSAGE) to:currentIgnitedChamberId];
             
-            
-            
+
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
              [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
              nil];
             
-            NSString * message = @"ignited";
+            NSString * message = [m_emitter generateMessage:EMITTER_MESSAGE_TYPE_MESSAGE withParam:@{@"message":[[NSString alloc]initWithFormat:@"chamber ignited:%@", currentIgnitedChamberId]} priority:0];
+            
+            NSString * withHead = [[NSString alloc]initWithFormat:@"ss@%@", message];
             
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
-             [messenger tag:@"message" val:message],
-             [messenger tag:@"priority" val:[self chamberPriority:dict[@"id"]]],
+             [messenger tag:@"message" val:withHead],
              nil];
 
-            
             
             // resendを発生させる
             [self resendFrom:1 length:S2_RESEND_DEPTH];
@@ -211,8 +207,6 @@
             
             [self removePriority:dict[@"id"]];
 
-            // 特定チャンバーのメッセージを消す。　内部で消すだけで、flushはしない。
-            [m_messageDict removeObjectForKey:dict[@"id"]];
             
             
             // spinup
@@ -248,21 +242,24 @@
             
         case S2_COMPILECHAMBER_EXEC_TICK:{
             NSAssert(dict[@"id"], @"id required");
+            NSAssert(dict[@"type"], @"type required");
             NSAssert(dict[@"messageDict"], @"messageDict required");
             
             // 最新のみ
             if ([self isFirstPriority:dict[@"id"]]) {
+                
                 // buffer
-                if (dict[@"messageDict"]) [self bufferMessage:dict[@"messageDict"] to:dict[@"id"]];
+                if (dict[@"messageDict"]) [self bufferMessage:dict[@"messageDict"] withType:dict[@"type"] to:dict[@"id"]];
                 
                 // メッセージを出力
-                NSString * message = [m_emitter generateMessage:dict[@"messageDict"] priority:0];
-                NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
-                
-                [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
-                 [messenger tag:@"message" val:output],
-                 [messenger tag:@"priority" val:[self chamberPriority:dict[@"id"]]],
-                 nil];
+                NSString * message = [m_emitter generateMessage:[dict[@"type"] intValue] withParam:dict[@"messageDict"] priority:0];
+                if (message) {
+                    NSString * output = [[NSString alloc]initWithFormat:@"ss@%@", message];
+                    
+                    [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
+                     [messenger tag:@"message" val:output],
+                     nil];
+                }
             }
             
             break;
@@ -274,13 +271,18 @@
 /**
  set
  */
-- (void) bufferMessage:(NSDictionary * )messageDict to:(NSString * )chamberId {
+- (void) bufferMessage:(NSDictionary * )messageDict withType:(NSNumber * )type to:(NSString * )chamberId {
     NSMutableArray * array = m_messageBuffer[chamberId];
+    
+    // add type param
+    NSMutableDictionary * bufDict = [[NSMutableDictionary alloc]initWithDictionary:messageDict];
+    [bufDict setValue:type forKey:COMPILECHAMBERCONT_BUFFFERED_MESSAGETYPE];
+    
     if (array) {
-        [array addObject:messageDict];
+        [array addObject:bufDict];
     } else {
         array = [[NSMutableArray alloc]init];
-        [array addObject:messageDict];
+        [array addObject:bufDict];
         [m_messageBuffer setValue:array forKey:chamberId];
     }
 }
@@ -338,9 +340,41 @@
     
     if (0 < [priorityDict count]) {
         // resend
-        [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_RESEND,
-         [messenger tag:@"priorityDict" val:priorityDict],
-         nil];
+        NSMutableArray * messageArray = [[NSMutableArray alloc]init];
+        
+        // keyで列挙、順は問わないが値は使う。
+        for (NSString * priorityKeyStr in [priorityDict keyEnumerator]) {
+            int priorityInt = [priorityKeyStr intValue];
+            
+            NSDictionary * identityAndMessageArray = priorityDict[priorityKeyStr];
+            
+            // 要素1で、内容はarray
+            NSArray * messageArraySourceArray = [identityAndMessageArray allValues][0];
+            
+            // このmessageに対してkeyInt priorityでのメッセージ生成を行う
+            for (NSDictionary * rawMessageDict in messageArraySourceArray) {
+                NSAssert1(rawMessageDict[COMPILECHAMBERCONT_BUFFFERED_MESSAGETYPE], @"%@ required", COMPILECHAMBERCONT_BUFFFERED_MESSAGETYPE);
+                int type = [rawMessageDict[COMPILECHAMBERCONT_BUFFFERED_MESSAGETYPE] intValue];
+                NSString * filteredMessage = [m_emitter generateMessage:type withParam:rawMessageDict priority:priorityInt];
+                
+                if (filteredMessage) [messageArray addObject:filteredMessage];
+            }
+        }
+        
+        NSString * combined = [m_emitter combineMessages:messageArray];
+        
+        if (0 < [combined length]) {
+            NSString * withHead = [[NSString alloc]initWithFormat:@"ss@%@", combined];
+            
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
+             [messenger tag:@"message" val:withHead],
+             nil];
+            
+            // send for information
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_RESEND,
+             [messenger tag:@"message" val:withHead],
+             nil];
+        }
     }
 }
 

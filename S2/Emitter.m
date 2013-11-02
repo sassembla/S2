@@ -64,7 +64,7 @@
 /**
  フィルタ、特定のキーワードを抜き出す。
  */
-- (NSArray * ) filtering:(NSString * )message withSign:(NSString * )sign {
+- (NSArray * ) filtering:(NSString * )message {
     NSLog(@"message:%@", message);
     
     // 改行だけなら逃げる
@@ -175,7 +175,7 @@
                 NSArray * re = [m_regex_compileSucceeded matchesInString:message options:0 range:NSMakeRange(0, [message length])];
                 for (NSTextCheckingResult * match in re) {
                     NSDictionary * dict = @{@"message":@"S2 compile succeeded."};
-                    return @[sign, dict];
+                    return @[@(EMITTER_MESSAGE_TYPE_CONTROL), dict];
                 }
             }
         }
@@ -221,7 +221,7 @@
                                 
                                 NSDictionary * result = [self flush];
                                 
-                                return @[@"appendRegion", result];
+                                return @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), result];
                             }
                             break;
                         }
@@ -239,7 +239,7 @@
                 
                 for (NSTextCheckingResult * match in re) {
                     NSDictionary * dict = @{@"message":@"S2 compile failed."};
-                    return @[sign, dict];
+                    return @[@(EMITTER_MESSAGE_TYPE_CONTROL), dict];
                 }
             }
         }
@@ -277,7 +277,7 @@
                         [self append:dict];
                         
                         NSDictionary * result = [self flush];
-                        return @[@"appendRegion", result];
+                        return @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), result];
                     }
                         
                     default:
@@ -329,40 +329,60 @@
 }
 
 
-- (NSString * ) generateShowMessage:(NSString * )message {
+
+
+- (NSString * ) generateShowMessage:(NSDictionary * )messageDict {
+    NSAssert(messageDict[@"message"], @"message required");
+    
+    NSString * message = messageDict[@"message"];
     return [[NSString alloc]initWithFormat:@"showAtLog:{\"message\":\"%@\"}->showStatusMessage:{\"message\":\"%@\"}", message, message];
 }
 
-
-- (NSString * ) generateMessage:(NSDictionary * )messageParam priority:(int)priority {
-    NSAssert(0 <= priority, @"not positive or 0, %d", priority);
+- (NSString * )generateAppendRegionMessage:(NSDictionary * )regionDict withPriority:(int)priority {
+    NSAssert(regionDict[@"reason"], @"reason required");
+    NSAssert(regionDict[@"filePath"], @"filePath required");
+    NSAssert(regionDict[@"line"], @"line required");
     
-    if (messageParam[@"reason"] && messageParam[@"filePath"] && messageParam[@"line"]) {
-        
-        // priorityに応じて表示カラーを変更
-        NSString * priorityStr = nil;
-        
-        switch (priority) {
-            case 0:{
-                priorityStr = @"keyword";
-                break;
-            }
-            case 1:{
-                priorityStr = @"keyword";
-                break;
-            }
-            case 2:{
-                priorityStr = @"keyword";
-                break;
-            }
+    // priorityに応じて表示カラーを変更
+    NSString * priorityStr = nil;
+    
+    switch (priority) {
+        case 0:{
+            priorityStr = @"keyword";
+            break;
         }
-        
-        return [[NSString alloc]initWithFormat:@"appendRegion:{\"line\":\"%@\",\"message\":\"%@\",\"view\":\"%@\",\"condition\":\"%@\"}", messageParam[@"line"], messageParam[@"reason"], messageParam[@"filePath"], priorityStr];
+        case 1:{
+            priorityStr = @"keyword";
+            break;
+        }
+        case 2:{
+            priorityStr = @"keyword";
+            break;
+        }
     }
     
-    if (messageParam[@"message"]) {
-        
-        return [self generateShowMessage:messageParam[@"message"]];
+    return [[NSString alloc]initWithFormat:@"appendRegion:{\"line\":\"%@\",\"message\":\"%@\",\"view\":\"%@\",\"condition\":\"%@\"}", regionDict[@"line"], regionDict[@"reason"], regionDict[@"filePath"], priorityStr];
+}
+
+
+- (NSString * ) generateMessage:(int)type withParam:(NSDictionary * )messageParam priority:(int)priority {
+    NSAssert(0 <= priority, @"not positive or 0, %d", priority);
+    
+    switch (type) {
+        case EMITTER_MESSAGE_TYPE_APPENDREGION:{
+            return [self generateAppendRegionMessage:messageParam withPriority:priority];
+        }
+        case EMITTER_MESSAGE_TYPE_MESSAGE:{
+            if (priority == 0) return [self generateShowMessage:messageParam];
+            break;
+        }
+        case EMITTER_MESSAGE_TYPE_CONTROL:{
+            if (priority == 0) return [self generateShowMessage:messageParam];
+            break;
+        }
+            
+        default:
+            return nil;
     }
     
     return nil;
@@ -370,11 +390,10 @@
 
 
 /**
- SublimeSocket用のshowを用意する
+ SublimeSocket用のメッセージ連結を行う
  */
 - (NSString * ) combineMessages:(NSArray * )messageArray {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/10/30 14:38:56" withLimitSec:10000 withComment:@"未完成、arrayにしておいて->でつなぐ。"];
-    return nil;
+    return [messageArray componentsJoinedByString:@"->"];
 }
 
 @end

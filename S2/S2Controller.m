@@ -103,6 +103,7 @@
             switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
                 case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
                     
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/03 1:06:45" withLimitSec:100000 withComment:@"リセットまでは必要ないけど、繋ぎ直しによるイベントとかを発行しないとなー。何がおこったか解らなくなる。"];
                     if (m_connectionDict) {
                         return;
                     }
@@ -207,47 +208,17 @@
                 }
                 case S2_COMPILECHAMBERCONT_EXEC_OUTPUT:{
                     NSAssert(dict[@"message"], @"message required");
-                    NSAssert(dict[@"priority"], @"priority required");
-                    NSLog(@"message %@", dict[@"message"]);
                     
                     [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
                      [messenger tag:@"message" val:dict[@"message"]],
                      nil];
                     
-                    [self callToMaster:S2_CONT_EXEC_TICK withMessageDict:dict];
+                    [self callToMaster:S2_CONT_EXEC_OUTPUTTED withMessageDict:dict];
                     break;
                 }
                 case S2_COMPILECHAMBERCONT_EXEC_RESEND:{
-                    NSAssert(dict[@"priorityDict"], @"priorityDict required");
-                    
-                    NSMutableArray * messageArray = [[NSMutableArray alloc]init];
-                    
-                    // keyで列挙、順は問わないが値は使う。
-                    for (NSString * priorityKeyStr in [dict[@"priorityDict"] keyEnumerator]) {
-                        int priorityInt = [priorityKeyStr intValue];
-                        
-                        NSDictionary * identityAndMessageArray = dict[@"priorityDict"][priorityKeyStr];
-                        
-                        // 要素1で、内容はarray
-                        NSArray * messageArraySourceArray = [identityAndMessageArray allValues][0];
-                        
-                        // このmessageに対してkeyInt priorityでのメッセージ生成を行う
-                        for (NSDictionary * rawMessageDict in messageArraySourceArray) {
-                            NSString * filteredMessage = [m_emitter generateMessage:rawMessageDict priority:priorityInt];
-                            
-                            if (filteredMessage) [messageArray addObject:filteredMessage];
-                        }
-                    }
-                    
-                    NSString * combined = [messageArray componentsJoinedByString:@"->"];
-                    
-                    if (0 < [combined length]) {
-                        
-                        [TimeMine setTimeMineLocalizedFormat:@"2013/11/01 22:04:42" withLimitSec:10000 withComment:@"ふむ、outputするに足る形になった。ヘッダをつけて送り出す"];
-                    }
-                    
-                    NSDictionary * messageDict = @{@"message":combined};
-                    [self callToMaster:S2_CONT_EXEC_RESENDED withMessageDict:messageDict];
+                    NSAssert(dict[@"message"],  @"message required");
+                    [self callToMaster:S2_CONT_EXEC_RESENDED withMessageDict:dict];
                 }
             }
             break;

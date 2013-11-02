@@ -77,7 +77,7 @@
             [m_ignitedChamberArray addObject:wrappedDict[@"ignitedChamberId"]];
             break;
         }
-        case S2_CONT_EXEC_TICK:{
+        case S2_CONT_EXEC_OUTPUTTED:{
             NSAssert(wrappedDict[@"message"], @"message required");
             [m_compiledResults addObject:wrappedDict[@"message"]];
             break;

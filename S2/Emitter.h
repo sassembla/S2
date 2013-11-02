@@ -8,13 +8,23 @@
 
 #import <Foundation/Foundation.h>
 
+
+enum EMITTER_MESSAGE_TYPE {
+    EMITTER_MESSAGE_TYPE_CONTROL,
+    EMITTER_MESSAGE_TYPE_MESSAGE,
+    EMITTER_MESSAGE_TYPE_APPENDREGION,
+};
+
+
+
 @interface Emitter : NSObject
 
 - (NSString * ) generatePullMessage:(NSString * )emitId withPath:(NSString * )path;
-- (NSString * ) generateReadyMessage;
-- (NSString * ) generateMessage:(NSDictionary * )messageParam priority:(int)priority;
+- (NSString * ) generateMessage:(int)type withParam:(NSDictionary * )messageParam priority:(int)priority;
 
-- (NSArray * ) filtering:(NSString * )message withSign:(NSString * )sign;
+- (NSString * ) generateReadyMessage;
+
+- (NSArray * ) filtering:(NSString * )message;
 
 - (NSString * ) combineMessages:(NSArray * )messageArray;
 @end

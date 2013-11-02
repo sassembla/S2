@@ -90,30 +90,18 @@
                 NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
                 
                 NSArray * resultArray = nil;
-                if ((resultArray = [emitter filtering:message withSign:sign])) {
-                    
-                    // end
-                    if ([resultArray[0] isEqualToString:sign]) {
-                        if ([messenger hasParent]) {
-                            [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-                             [messenger tag:@"id" val:m_chamberId],
-                             [messenger tag:@"messageDict" val:resultArray[1]],
-                             nil];
-                        }
-                        
-                        // stop listening
-                        break;
-                    }
-                    
-                    // not sign, not end
+                if ((resultArray = [emitter filtering:message])) {
                     if ([messenger hasParent]) {
                         [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
                          [messenger tag:@"id" val:m_chamberId],
+                         [messenger tag:@"type" val:resultArray[0]],
                          [messenger tag:@"messageDict" val:resultArray[1]],
                          nil];
                     }
+                    
+                    int type = [resultArray[0] intValue];
+                    if (type == EMITTER_MESSAGE_TYPE_CONTROL) break;
                 }
-                
             }
             
             m_state = statesArray[STATE_COMPILED];

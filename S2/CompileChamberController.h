@@ -10,6 +10,8 @@
 
 #define S2_COMPILECHAMBERCONT   (@"S2_COMPILECHAMBERCONT")
 
+#define COMPILECHAMBERCONT_BUFFFERED_MESSAGETYPE    (@"COMPILECHAMBERCONT_BUFFFERED_MESSAGETYPE")
+
 
 enum S2_COMPILECHAMBERCONT_EXEC {
     S2_COMPILECHAMBERCONT_EXEC_INITIALIZE,
@@ -49,7 +51,7 @@ enum S2_COMPILECHAMBERCONT_EXEC {
 - (NSString * ) igniteIdleChamber:(NSString * )compileBasePath;
 - (void) setChamberPriorityFirst:(NSString * )chamberId;
 
-- (void) bufferMessage:(NSDictionary * )messageDict to:(NSString * )chamberId;
+- (void) bufferMessage:(NSDictionary * )messageDict withType:(NSNumber * )type to:(NSString * )chamberId;
 - (void) resendFrom:(int)index length:(int)len;
 
 - (void) close;

@@ -7,7 +7,7 @@
 //
 
 // defaut server path
-#define S2_DEFAULT_ADDR         (@"ws://127/0/0/1:8823")
+#define S2_DEFAULT_ADDR         (@"ws://127/0/0/1:8824")
 
 
 // S2 specific API triggers

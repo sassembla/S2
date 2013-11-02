@@ -28,7 +28,7 @@ enum S2_CONT_EXEC {
     
     S2_CONT_EXEC_IGNITED,
     
-    S2_CONT_EXEC_TICK,
+    S2_CONT_EXEC_OUTPUTTED,
     
     S2_CONT_EXEC_RESENDED,
     
