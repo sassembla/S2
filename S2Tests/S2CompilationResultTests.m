@@ -407,6 +407,8 @@
 /**
  コンパイルが重複して発生する
  新コンパイル発生時、新しいものを優先するために、resendでログの上書きが行われる。
+ 
+ メッセージもresendで送る前提でないと機能しない。
  */
 - (void) testResendCross {
     // 起動する
@@ -423,7 +425,8 @@
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    NSArray * updateArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3, TEST_COMPILEBASEPATH];
+    // エラーを発生させる。エラーのregionはresendされる。
+    NSArray * updateArray = @[TEST_SCALA_1, TEST_SCALA_2, TEST_SCALA_3_FAIL, TEST_COMPILEBASEPATH];
     
     // updateを発生させる。 最後の一つでコンパイルが開始される。
     for (NSString * path in updateArray) {
@@ -437,6 +440,7 @@
     
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
     
+    // 意図的に出すには、其れ用の手段がかっちり動かないとダメだ。で、それが実現できる手法が思いつかない。ビルドではなくダミーを流すくらいだけど、それなら下層のテストで済む。
     [cont setCompilerSettings:@{@"compileDelay":[NSNumber numberWithFloat:5.0]}];
     
     // この時点でさらにupdateを発生させる

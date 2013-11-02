@@ -357,7 +357,16 @@
                 int type = [rawMessageDict[COMPILECHAMBERCONT_BUFFFERED_MESSAGETYPE] intValue];
                 NSString * filteredMessage = [m_emitter generateMessage:type withParam:rawMessageDict priority:priorityInt];
                 
-                if (filteredMessage) [messageArray addObject:filteredMessage];
+                // limit by type and priority
+                switch (type) {
+                    case EMITTER_MESSAGE_TYPE_APPENDREGION:{
+                        [messageArray addObject:filteredMessage];
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                
             }
         }
         

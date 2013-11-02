@@ -373,11 +373,11 @@
             return [self generateAppendRegionMessage:messageParam withPriority:priority];
         }
         case EMITTER_MESSAGE_TYPE_MESSAGE:{
-            if (priority == 0) return [self generateShowMessage:messageParam];
+            return [self generateShowMessage:messageParam];
             break;
         }
         case EMITTER_MESSAGE_TYPE_CONTROL:{
-            if (priority == 0) return [self generateShowMessage:messageParam];
+            return [self generateShowMessage:messageParam];
             break;
         }
             
