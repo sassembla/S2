@@ -7,7 +7,9 @@
 //
 
 #import "CompileSettingController.h"
+
 #import "CompileChamber.h"
+#import "CompileChamberController.h"
 
 #import "KSMessenger.h"
 
@@ -32,6 +34,12 @@
         case S2_COMPILERSETTINGCONTROLLER_EXEC_SET:{
             NSAssert(dict[@"settingsDict"], @"settingsDict required");
             m_settingsDict = [[NSDictionary alloc]initWithDictionary:dict[@"settingsDict"]];
+            
+            for (NSString * childName in [[messenger childrenDict] allValues]) {
+                [messenger call:childName withExec:S2_COMPILERSETTINGCONTROLLER_EXEC_UPDATED,
+                 [messenger tag:@"settingsDict" val:m_settingsDict],
+                 nil];
+            }
             break;
         }
     }

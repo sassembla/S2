@@ -59,6 +59,9 @@
         
         m_emitter = [[Emitter alloc]init];
         
+        // setting
+        cSettingCont = [[CompileSettingController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
+
         
         // serve
         serverOperation = [[WebSocketConnectionOperation alloc]initWebSocketConnectionOperationWithMaster:[messenger myNameAndMID] withAddressAndPort:paramDict[KEY_WEBSOCKETSERVER_ADDRESS]];
@@ -69,8 +72,6 @@
         // compile
         cChamberCont = [[CompileChamberController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
         
-        // setting
-        cSettingCont = [[CompileSettingController alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
     }
     return self;
 }

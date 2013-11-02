@@ -32,10 +32,19 @@
         if (dict[@"-XCTest"]) {}
         else {
             // set default server path
-            NSDictionary * paramDict = @{KEY_WEBSOCKETSERVER_ADDRESS:S2_DEFAULT_ADDR};
+            NSDictionary * serverParamDict;
+            if (dict[S2_COMPILERSETTING_KEY_SERVEADDR]) {
+                // set specific server addr
+                serverParamDict = @{KEY_WEBSOCKETSERVER_ADDRESS:S2_DEFAULT_ADDR};
+
+            } else {
+                // set default server addr
+                serverParamDict = @{KEY_WEBSOCKETSERVER_ADDRESS:S2_DEFAULT_ADDR};
+            }
             
             // App main controller with WebSocketServer
-            S2Controller * cont = [[S2Controller alloc]initWithDict:paramDict withMasterName:[messenger myNameAndMID]];
+            S2Controller * cont = [[S2Controller alloc]initWithDict:serverParamDict withMasterName:[messenger myNameAndMID]];
+            [cont setCompilerSettings:dict];
         }
     }
     return self;

@@ -26,10 +26,18 @@
 #define S2_DEFAULT_SPINUP_TIME      (0.001)
 #define S2_COMPILER_WAIT_TIME       (0.001)
 #define S2_RESEND_DEPTH             (2)
+#define S2_DEFAULT_FILECACHE_PATH           (@"/Users/highvision/S2.fcache")
 
 
 #define S2_BASEPATH_SUFFIX          (@"build.gradle")
 
 #define S2_COMPILER_KEYWORDS        (@[@"BUILD SUCCESSFUL", @"Total time: "])
 
-#define S2_FILECACHE_PATH           (@"/Users/highvision/S2.fcache")
+
+#define S2_COMPILERSETTING_KEY_COMPILEDELAY     (@"compileDelay")
+#define S2_COMPILERSETTING_KEY_COMPILETHENSLEEP (@"compileThenSleep")
+#define S2_COMPILERSETTING_KEY_FILECACHE_PATH   (@"fileCachePath")
+#define S2_COMPILERSETTING_KEY_SERVEADDR        (@"serveAddr")
+
+
+

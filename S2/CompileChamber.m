@@ -79,8 +79,7 @@
             [dict[@"compileTask"] setStandardError:currentOut];
             
             NSFileHandle * publishHandle = [currentOut fileHandleForReading];
-            NSString * sign = [[NSString alloc]initWithString:[messenger myMID]];
-
+            
             // launch
             [dict[@"compileTask"] launch];
             

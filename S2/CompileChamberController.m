@@ -16,6 +16,7 @@
 #import "S2Token.h"
 #import "Emitter.h"
 
+#import "CompileSettingController.h"
 
 #import "TimeMine.h"
 
@@ -35,12 +36,21 @@
     NSMutableDictionary * m_messageBuffer;
     
     Emitter * m_emitter;
+    
+    
+    
+    KSMessenger * settingReceiveMessenger;
+    NSDictionary * m_compilerSetting;
 }
 
 - (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
     if (self = [super init]) {
         messenger = [[KSMessenger alloc] initWithBodyID:self withSelector:@selector(receiver:) withName:S2_COMPILECHAMBERCONT];
         [messenger connectParent:masterNameAndId];
+        
+        settingReceiveMessenger = [[KSMessenger alloc] initWithBodyID:self withSelector:@selector(settingReceiver:) withName:S2_COMPILECHAMBERCONT_SETTINGRECEIVER];
+        [settingReceiveMessenger connectParent:S2_COMPILERSETTINGCONTROLLER];
+        
         
         m_count = 0;
         
@@ -205,15 +215,16 @@
         case S2_COMPILECHAMBER_EXEC_COMPILED:{
             NSAssert(dict[@"id"], @"id required");
             
-            [self removePriority:dict[@"id"]];
-
+            if (m_compilerSetting[S2_COMPILERSETTING_KEY_COMPILETHENSLEEP]) {
             
-            
-            // spinup
-            [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_SPINUP,
-             [messenger tag:@"id" val:dict[@"id"]],
-             nil];
-            
+            } else {
+                [self removePriority:dict[@"id"]];
+                
+                // spinup
+                [messenger call:S2_COMPILECHAMBER withExec:S2_COMPILECHAMBER_EXEC_SPINUP,
+                 [messenger tag:@"id" val:dict[@"id"]],
+                 nil];
+            }
             
             // 通知
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_COMPILED,
@@ -264,6 +275,22 @@
             
             break;
         }
+    }
+}
+
+
+- (void) settingReceiver:(NSNotification * )notif {
+    NSDictionary * dict = [settingReceiveMessenger tagValueDictionaryFromNotification:notif];
+    
+    switch ([settingReceiveMessenger execFrom:[settingReceiveMessenger myParentName] viaNotification:notif]) {
+        case S2_COMPILERSETTINGCONTROLLER_EXEC_UPDATED:{
+            NSAssert(dict[@"settingsDict"], @"settingsDict reqired");
+            m_compilerSetting = [[NSDictionary alloc]initWithDictionary:dict[@"settingsDict"]];
+            break;
+        }
+            
+        default:
+            break;
     }
 }
 
@@ -473,8 +500,9 @@
     }
     
     [messenger call:S2_CONTENTSPOOLCONT withExec:S2_CONTENTSPOOLCONT_EXEC_PURGE, nil];
-    
     [messenger closeConnection];
+    
+    [settingReceiveMessenger closeConnection];
 }
 
 @end

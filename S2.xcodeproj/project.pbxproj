@@ -10,10 +10,6 @@
 		B7037FD21822A0250039D560 /* CompileSettingController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7037FD11822A0250039D560 /* CompileSettingController.m */; };
 		B7037FD31822A0250039D560 /* CompileSettingController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7037FD11822A0250039D560 /* CompileSettingController.m */; };
 		B73E04B117EF15D300CAEFD5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7DCEB7217EF126800E28C5C /* Security.framework */; };
-		B742D357180E8E2300EB43E5 /* MFTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D353180E8E2300EB43E5 /* MFTask.m */; };
-		B742D358180E8E2300EB43E5 /* MFTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D353180E8E2300EB43E5 /* MFTask.m */; };
-		B742D359180E8E2300EB43E5 /* MFTaskQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D356180E8E2300EB43E5 /* MFTaskQueue.m */; };
-		B742D35A180E8E2300EB43E5 /* MFTaskQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B742D356180E8E2300EB43E5 /* MFTaskQueue.m */; };
 		B743DB721811F15200E642A6 /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B743DB711811F15200E642A6 /* TimeMine.m */; };
 		B743DB731811F15200E642A6 /* TimeMine.m in Sources */ = {isa = PBXBuildFile; fileRef = B743DB711811F15200E642A6 /* TimeMine.m */; };
 		B763968A18158DF900941C7A /* S2CompilationResultTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B763968918158DF900941C7A /* S2CompilationResultTests.m */; };
@@ -71,11 +67,6 @@
 /* Begin PBXFileReference section */
 		B7037FD01822A0250039D560 /* CompileSettingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompileSettingController.h; sourceTree = "<group>"; };
 		B7037FD11822A0250039D560 /* CompileSettingController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompileSettingController.m; sourceTree = "<group>"; };
-		B742D352180E8E2300EB43E5 /* MFTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFTask.h; sourceTree = "<group>"; };
-		B742D353180E8E2300EB43E5 /* MFTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFTask.m; sourceTree = "<group>"; };
-		B742D354180E8E2300EB43E5 /* MFTaskDelegateProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFTaskDelegateProtocol.h; sourceTree = "<group>"; };
-		B742D355180E8E2300EB43E5 /* MFTaskQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFTaskQueue.h; sourceTree = "<group>"; };
-		B742D356180E8E2300EB43E5 /* MFTaskQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFTaskQueue.m; sourceTree = "<group>"; };
 		B743DB701811F15200E642A6 /* TimeMine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeMine.h; path = S2/TimeMine.h; sourceTree = "<group>"; };
 		B743DB711811F15200E642A6 /* TimeMine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TimeMine.m; path = S2/TimeMine.m; sourceTree = "<group>"; };
 		B763968918158DF900941C7A /* S2CompilationResultTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = S2CompilationResultTests.m; sourceTree = "<group>"; };
@@ -153,24 +144,11 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B742D351180E8E2300EB43E5 /* MFTask */ = {
-			isa = PBXGroup;
-			children = (
-				B742D352180E8E2300EB43E5 /* MFTask.h */,
-				B742D353180E8E2300EB43E5 /* MFTask.m */,
-				B742D354180E8E2300EB43E5 /* MFTaskDelegateProtocol.h */,
-				B742D355180E8E2300EB43E5 /* MFTaskQueue.h */,
-				B742D356180E8E2300EB43E5 /* MFTaskQueue.m */,
-			);
-			path = MFTask;
-			sourceTree = "<group>";
-		};
 		B7987E8617EE82FB008F21F4 = {
 			isa = PBXGroup;
 			children = (
 				B743DB701811F15200E642A6 /* TimeMine.h */,
 				B743DB711811F15200E642A6 /* TimeMine.m */,
-				B742D351180E8E2300EB43E5 /* MFTask */,
 				B7987F2217EE835D008F21F4 /* KSMessenger */,
 				B7987EC617EE831F008F21F4 /* MBWebSocketServer */,
 				B7987E9817EE82FB008F21F4 /* S2 */,
@@ -398,14 +376,12 @@
 			files = (
 				B78F2223182405C30065341E /* S2.m in Sources */,
 				B7987ECE17EE831F008F21F4 /* GCDAsyncSocket.m in Sources */,
-				B742D359180E8E2300EB43E5 /* MFTaskQueue.m in Sources */,
 				B743DB721811F15200E642A6 /* TimeMine.m in Sources */,
 				B7037FD21822A0250039D560 /* CompileSettingController.m in Sources */,
 				B7987ED417EE831F008F21F4 /* WebSocketConnectionOperation.m in Sources */,
 				B7FCEA0217EF1EB900C6B41A /* S2Controller.m in Sources */,
 				B7CA8979180AAFCF008B6C40 /* ContentsPoolController.m in Sources */,
 				B7987EA617EE82FB008F21F4 /* AppDelegate.m in Sources */,
-				B742D357180E8E2300EB43E5 /* MFTask.m in Sources */,
 				B7EB771C180A78C800FF959D /* CompileChamberController.m in Sources */,
 				B7EB7720180A78D300FF959D /* CompileChamber.m in Sources */,
 				B7987F2517EE835D008F21F4 /* KSMessenger.m in Sources */,
@@ -428,7 +404,6 @@
 				B7037FD31822A0250039D560 /* CompileSettingController.m in Sources */,
 				B7987EBD17EE82FB008F21F4 /* S2Tests.m in Sources */,
 				B7B6D44B1802EE06007AE06E /* CompileChamberControllerTests.m in Sources */,
-				B742D35A180E8E2300EB43E5 /* MFTaskQueue.m in Sources */,
 				B7CA897C180AAFE9008B6C40 /* ContentsPoolControllerTests.m in Sources */,
 				B7FCEA0917EFECC500C6B41A /* EmitterTests.m in Sources */,
 				B7FCEA0317EF1EB900C6B41A /* S2Controller.m in Sources */,
@@ -438,7 +413,6 @@
 				B7EB771D180A78C800FF959D /* CompileChamberController.m in Sources */,
 				B78F2224182405C30065341E /* S2.m in Sources */,
 				B7987F2617EE835D008F21F4 /* KSMessenger.m in Sources */,
-				B742D358180E8E2300EB43E5 /* MFTask.m in Sources */,
 				B7B6D44D1802F176007AE06E /* PullUpControllerTests.m in Sources */,
 				B743DB731811F15200E642A6 /* TimeMine.m in Sources */,
 				B7B6D4491802EDF2007AE06E /* CompileChamberTests.m in Sources */,

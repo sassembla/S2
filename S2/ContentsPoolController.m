@@ -63,13 +63,13 @@
  */
 - (void) pool:(NSString * )path withContents:(NSString * )contents {
     // 特定箇所にgenerate
-    [self generateFileCache:@{path:contents} to:S2_FILECACHE_PATH];
+    [self generateFileCache:@{path:contents} to:S2_DEFAULT_FILECACHE_PATH];
 }
 
 
 - (void) drain:(NSString * )path backTo:(NSNotification * )notif {
     if ([path hasSuffix:S2_BASEPATH_SUFFIX]) {
-        m_compileBasePath = [[NSString alloc]initWithString:[self absoluteCachePath:path toTargetPath:S2_FILECACHE_PATH]];
+        m_compileBasePath = [[NSString alloc]initWithString:[self absoluteCachePath:path toTargetPath:S2_DEFAULT_FILECACHE_PATH]];
     }
     
     // そのまま内容を返信 or 何もしない
@@ -137,7 +137,7 @@
 
 
 - (void) close {
-    [self deleteFileCache:S2_FILECACHE_PATH];
+    [self deleteFileCache:S2_DEFAULT_FILECACHE_PATH];
     [messenger closeConnection];
 }
 @end
