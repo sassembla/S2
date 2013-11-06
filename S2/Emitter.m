@@ -65,7 +65,6 @@
  フィルタ、特定のキーワードを抜き出す。
  */
 - (NSArray * ) filtering:(NSString * )message {
-    NSLog(@"message:%@", message);
     
     // 改行だけなら逃げる
     if ([message isEqualToString:@"\n"]) {
@@ -75,96 +74,103 @@
     
     // 本来必要ではないが、正規表現のupを見るためのチェックをしよう
     {
-//        NSArray * ignoreMessages = @[
-//                                     @"^Starting daemon process:.*",
-//                                     @"^Connected to the daemon[.].*",
-//                                     @"^The client will now receive all logging from the daemon.*",
-//                                     @"^Settings evaluated using empty settings script[.].*",
-//                                     @"^Evaluating root project.*",
-//                                     @"^All projects evaluated[.].*",
-//                                     @"^Selected primary task.*",
-//                                     @"^Compiling with Ant scalac task[.].*",
-//                                     @"^Compiling build file .*",
-//                                     @".* Compiling.*",
-//                                     @"^An attempt to initialize for well behaving parent process finished.",
-//                                     @"^Successfully started process.*",
-//
-//                                     @"^:classes.*",
-//                                     @"^:compileJava.*",
-//                                     @"^:compileScala.*",
-//                                     @"^:compileTestJava.*",
-//                                     @"^:compileTestScala.*",
-//                                     @"^:jar.*",
-//                                     @"^:testClasses.*",
-//                                     @"^:processTestResources.*",
-//                                     @"^Tasks to be executed.*",
-//                                     @"^Skipping task.*",
-//                                     @"^Projects loaded. Root project using build file (.*)[.].*",
-//                                     
-//                                     @"^Included projects:.*",
-//                                     @"^Starting Build.*",
-//                                     @"^Starting Gradle compiler daemon with fork options.*",
-//                                     @"^Starting Gradle daemon.*",
-//                                     @"^Started Gradle compiler daemon with fork options.*",
-//                                     @"^Executing.*",
-//                                     @"^:assemble",
-//                                     @"^:build",@"^:test.*",
-//                                     @"^:processResources.*",
-//                                     @"^:check.*",
-//                                     @"^Received command.*",
-//                                     @"^Process .*",
-////                                     @"[[]ant:scalac[]] (.*)",
-//
-//                                     @"  No history is available.",
-//                                     @"Starting process.*",
-//
-//                                     @"^Exception executing.*",
-//                                     @"^Compiling ([0-9.*]) Scala sources.*",
-//
-//                                     @"^Executing build with daemon context:",
-//
-//                                     @"^file or directory .*",
-//
-//
-//                                     @"^BUILD FAILED",
-//                                     @"^BUILD SUCCESSFUL.*",
-//                                     @"^Total time: (.*) secs.*",
-//
-//                                     // zinc error
-////                                     @"(.*):([0-9].*): (.*)",
-//
-//                                     @"^Compiling with Zinc Scala compiler.*",
-//                                     @"^FAILURE: Build failed with an exception.*",
-//                                     @"^> Compilation failed.*",
-//
-//
-//                                     @"^[*] Try:.*",
-//                                     @"^Run with .*",
-//                                     @"^[*] What went wrong:.*",
-//
-//                                     @"^Stopping [0-9].* Gradle compiler daemon[(]s[)].*",
-//                                     @"^Stopped [0-9].* Gradle compiler daemon[(]s[)].*",
-//                                     @"^Execution failed for task.*",
-//                                     @"^> Compile failed with.*",
-//                                     
-//                                     @"empty"
-//                                     ];
-        
-        /*
-         [ant:scalac] /Users/highvision/Desktop/S2/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:1: error: TestProject is already defined as object TestProject
+        NSArray * ignoreMessages = @[
+                                     @"^Starting daemon process:.*",
+                                     @"^Connected to the daemon[.].*",
+                                     @"^The client will now receive all logging from the daemon.*",
+                                     @"^Settings evaluated using empty settings script[.].*",
+                                     @"^Evaluating root project.*",
+                                     @"^All projects evaluated[.].*",
+                                     @"^Selected primary task.*",
+                                     @"^Compiling with Ant scalac task[.].*",
+                                     @"^Compiling build file .*",
+                                     @".* Compiling.*",
+                                     @"^An attempt to initialize for well behaving parent process finished.",
+                                     @"^Successfully started process.*",
 
-         */
+                                     @"^:classes.*",
+                                     @"^:compileJava.*",
+                                     @"^:compileScala.*",
+                                     @"^:compileTestJava.*",
+                                     @"^:compileTestScala.*",
+                                     @"^:jar.*",
+                                     @"^:testClasses.*",
+                                     @"^:processTestResources.*",
+                                     @"^Tasks to be executed.*",
+                                     @"^Skipping task.*",
+                                     @"^Projects loaded. Root project using build file (.*)[.].*",
+                                     
+                                     @"^Included projects:.*",
+                                     @"^Starting Build.*",
+                                     @"^Starting Gradle compiler daemon with fork options.*",
+                                     @"^Starting Gradle daemon.*",
+                                     @"^Started Gradle compiler daemon with fork options.*",
+                                     @"^Executing.*",
+                                     @"^:assemble",
+                                     @"^:build",@"^:test.*",
+                                     @"^:processResources.*",
+                                     @"^:check.*",
+                                     @"^Received command.*",
+                                     @"^Process .*",
+//                                     @"[[]ant:scalac[]] (.*)",
+
+                                     @"  No history is available.",
+                                     @"Starting process.*",
+
+                                     @"^Exception executing.*",
+                                     @"^Compiling ([0-9.*]) Scala sources.*",
+
+                                     @"^Executing build with daemon context:",
+
+                                     @"^file or directory .*",
+
+
+                                     @"^BUILD FAILED",
+                                     @"^BUILD SUCCESSFUL.*",
+                                     @"^Total time: (.*) secs.*",
+
+                                     // zinc error
+//                                     @"(.*):([0-9].*): (.*)",
+
+                                     @"^Compiling with Zinc Scala compiler.*",
+                                     @"^FAILURE: Build failed with an exception.*",
+                                     @"^> Compilation failed.*",
+
+
+                                     @"^[*] Try:.*",
+                                     @"^Run with .*",
+                                     @"^[*] What went wrong:.*",
+
+                                     @"^Stopping [0-9].* Gradle compiler daemon[(]s[)].*",
+                                     @"^Stopped [0-9].* Gradle compiler daemon[(]s[)].*",
+                                     @"^Execution failed for task.*",
+                                     @"^> Compile failed with.*"
+                                     ];
         
-//        for (NSString * ignoreTarget in ignoreMessages) {
-//            NSRegularExpression * e = [[NSRegularExpression alloc]initWithPattern:ignoreTarget options:0 error:nil];
-//            NSArray * result = [e matchesInString:message options:0 range:NSMakeRange(0, [message length])];
-//            
-//            if ([result count]) {
-//                return nil;
-//            }
-//        }
+        
+        for (NSString * ignoreTarget in ignoreMessages) {
+            NSRegularExpression * e = [[NSRegularExpression alloc]initWithPattern:ignoreTarget options:0 error:nil];
+            NSArray * result = [e matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+            
+            if ([result count]) {
+                return nil;
+            }
+        }
         
     }
+    // Output file /Users/highvision/S2.fcache/Users/highvision/Desktop/TestScala/build/classes/test/MyTest.class has been removed.
+    
+    // [ant:scalac] Element '/Users/highvision/S2.fcache/Users/highvision/Desktop/TestScala/build/resources/main' does not exist.
+    
+    // [ant:scalac] /Users/highvision/S2.fcache/Users/highvision/Desktop/TestScala/src/test/scala/MyTest.scala:2: error: not found: value dsa
+    
+    // [ant:scalac] 	dsa
+    
+    // [ant:scalac]         ^
+    
+    // [ant:scalac] one error found
+    
+    NSLog(@"message throughs are %@", message);
     
     // gradle series
     {

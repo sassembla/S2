@@ -189,22 +189,25 @@
             // priorityを上げる
             [self setChamberPriorityFirst:currentIgnitedChamberId];
             
+            // 着火メッセージ
+            NSString * message = [[NSString alloc]initWithFormat:@"chamber ignited:%@", currentIgnitedChamberId];
+            
             // messageBufferに起動メッセージを足す
-            [self bufferMessage:@{@"message":@"ignited"} withType:@(EMITTER_MESSAGE_TYPE_MESSAGE) to:currentIgnitedChamberId];
+            [self bufferMessage:@{@"message":message} withType:@(EMITTER_MESSAGE_TYPE_MESSAGE) to:currentIgnitedChamberId];
             
 
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CHAMBER_IGNITED,
              [messenger tag:@"ignitedChamberId" val:currentIgnitedChamberId],
              nil];
             
-            NSString * message = [m_emitter generateMessage:EMITTER_MESSAGE_TYPE_MESSAGE withParam:@{@"message":[[NSString alloc]initWithFormat:@"chamber ignited:%@", currentIgnitedChamberId]} priority:0];
+            NSString * sublimeSocketMessage = [m_emitter generateMessage:EMITTER_MESSAGE_TYPE_MESSAGE withParam:@{S2_SUBLIMESOCKET_API_MESSAGE:message} priority:0];
             
-            NSString * withHead = [[NSString alloc]initWithFormat:@"ss@%@", message];
+            NSString * withHead = [[NSString alloc]initWithFormat:@"%@%@", S2_SUBLIMESOCKET_APIHEADER, sublimeSocketMessage];
             
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
              [messenger tag:@"message" val:withHead],
              nil];
-
+            
             
             // resendを発生させる
             [self resendFrom:1 length:S2_RESEND_DEPTH];
@@ -261,6 +264,7 @@
                 
                 // buffer
                 if (dict[@"messageDict"]) [self bufferMessage:dict[@"messageDict"] withType:dict[@"type"] to:dict[@"id"]];
+                
                 
                 // メッセージを出力
                 NSString * message = [m_emitter generateMessage:[dict[@"type"] intValue] withParam:dict[@"messageDict"] priority:0];
@@ -369,6 +373,14 @@
         // resend
         NSMutableArray * messageArray = [[NSMutableArray alloc]init];
         
+        // reset first
+        [messageArray addObject:S2_SUBLIMESOCKET_API_RESET];
+        
+        // デバッグ用にメッセージを投げる
+        NSString * debugMessage = @"hereComes";
+        [messageArray addObject:debugMessage];
+        
+        
         // keyで列挙、順は問わないが値は使う。
         for (NSString * priorityKeyStr in [priorityDict keyEnumerator]) {
             int priorityInt = [priorityKeyStr intValue];
@@ -377,6 +389,7 @@
             
             // 要素1で、内容はarray
             NSArray * messageArraySourceArray = [identityAndMessageArray allValues][0];
+            
             
             // このmessageに対してkeyInt priorityでのメッセージ生成を行う
             for (NSDictionary * rawMessageDict in messageArraySourceArray) {
@@ -397,10 +410,19 @@
             }
         }
         
+        // デバッグ用にメッセージを投げる
+        [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
+         [messenger tag:@"message" val:@"hoooo"],
+         nil];
+        
         NSString * combined = [m_emitter combineMessages:messageArray];
         
         if (0 < [combined length]) {
-            NSString * withHead = [[NSString alloc]initWithFormat:@"ss@%@", combined];
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
+             [messenger tag:@"message" val:@"hoooo1"],
+             nil];
+            
+            NSString * withHead = [[NSString alloc]initWithFormat:@"%@%@", S2_SUBLIMESOCKET_APIHEADER, combined];
             
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
              [messenger tag:@"message" val:withHead],
@@ -411,6 +433,10 @@
              [messenger tag:@"message" val:withHead],
              nil];
         }
+        
+        [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
+         [messenger tag:@"message" val:@"hoooo2"],
+         nil];
     }
 }
 

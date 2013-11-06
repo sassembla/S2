@@ -3,8 +3,8 @@
 //SSからのメッセージを、SRで受けるためのClient
 id:SStoSR destination:ws://127.0.0.1:8823 option:type:client
 
-id:S2toSR destination:ws://127.0.0.1:8824 option:type:client
-//id:S2toSR destination:ws://36.244.167.177:80 option:type:client
+//id:S2toSR destination:ws://127.0.0.1:8824 option:type:client
+id:S2toSR destination:ws://36.244.195.101:80 option:type:client
 
 // 相互接続を行う
 connect:SStoSR to:S2toSR

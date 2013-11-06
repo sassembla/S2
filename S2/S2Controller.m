@@ -104,7 +104,7 @@
             switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
                 case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
                     
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/03 1:06:45" withLimitSec:100000 withComment:@"リセットまでは必要ないけど、繋ぎ直しによるイベントとかを発行しないとなー。何がおこったか解らなくなる。"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/14 1:06:45" withLimitSec:100000 withComment:@"リセットまでは必要ないけど、繋ぎ直しによるイベントとかを発行しないとなー。何がおこったか解らなくなる。"];
                     if (m_connectionDict) {
                         return;
                     }

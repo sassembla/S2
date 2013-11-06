@@ -41,3 +41,8 @@
 
 
 
+#define S2_SUBLIMESOCKET_APIHEADER      (@"ss@")
+
+#define S2_SUBLIMESOCKET_API_MESSAGE    (@"message")
+#define S2_SUBLIMESOCKET_API_RESET      (@"eraseAllRegion:{}")
+
