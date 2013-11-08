@@ -376,10 +376,6 @@
         // reset first
         [messageArray addObject:S2_SUBLIMESOCKET_API_RESET];
         
-        // デバッグ用にメッセージを投げる
-        NSString * debugMessage = @"hereComes";
-        [messageArray addObject:debugMessage];
-        
         
         // keyで列挙、順は問わないが値は使う。
         for (NSString * priorityKeyStr in [priorityDict keyEnumerator]) {
@@ -390,7 +386,7 @@
             // 要素1で、内容はarray
             NSArray * messageArraySourceArray = [identityAndMessageArray allValues][0];
             
-            
+
             // このmessageに対してkeyInt priorityでのメッセージ生成を行う
             for (NSDictionary * rawMessageDict in messageArraySourceArray) {
                 NSAssert1(rawMessageDict[COMPILECHAMBERCONT_BUFFFERED_MESSAGETYPE], @"%@ required", COMPILECHAMBERCONT_BUFFFERED_MESSAGETYPE);
@@ -410,16 +406,11 @@
             }
         }
         
-        // デバッグ用にメッセージを投げる
-        [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
-         [messenger tag:@"message" val:@"hoooo"],
-         nil];
-        
         NSString * combined = [m_emitter combineMessages:messageArray];
         
         if (0 < [combined length]) {
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
-             [messenger tag:@"message" val:@"hoooo1"],
+             [messenger tag:@"message" val:@"resend started. S2' will resend message."],
              nil];
             
             NSString * withHead = [[NSString alloc]initWithFormat:@"%@%@", S2_SUBLIMESOCKET_APIHEADER, combined];
@@ -433,10 +424,6 @@
              [messenger tag:@"message" val:withHead],
              nil];
         }
-        
-        [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
-         [messenger tag:@"message" val:@"hoooo2"],
-         nil];
     }
 }
 
