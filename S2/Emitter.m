@@ -125,8 +125,8 @@
                                      @"^file or directory .*",
 
 
-                                     @"^BUILD FAILED",
-                                     @"^BUILD SUCCESSFUL.*",
+//                                     @"^BUILD FAILED",
+//                                     @"^BUILD SUCCESSFUL.*",
                                      @"^Total time: (.*) secs.*",
 
                                      // zinc error
@@ -342,6 +342,13 @@
     
     NSString * message = messageDict[@"message"];
     return [[NSString alloc]initWithFormat:@"showAtLog:{\"message\":\"%@\"}->showStatusMessage:{\"message\":\"%@\"}", message, message];
+}
+
+- (NSString * ) generateResetMessage:(NSDictionary * ) messageDict {
+    NSAssert(messageDict[@"message"], @"message required");
+    
+    NSString * message = messageDict[@"message"];
+    return [[NSString alloc]initWithFormat:@"%@->showAtLog:{\"message\":\"%@\"}->showStatusMessage:{\"message\":\"%@\"}", S2_SUBLIMESOCKET_API_RESET, message, message];
 }
 
 - (NSString * )generateAppendRegionMessage:(NSDictionary * )regionDict withPriority:(int)priority {
