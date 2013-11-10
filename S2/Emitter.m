@@ -7,6 +7,7 @@
 //
 
 #import "Emitter.h"
+#import "S2Token.h"
 
 #import "TimeMine.h"
 
@@ -174,7 +175,7 @@
     
     // gradle series
     {
-        // gradle compile succeeded
+        // gradle compile succeeded or fail
         {
             // @"^BUILD SUCCESSFUL.*"
             {
@@ -245,7 +246,7 @@
                 
                 for (NSTextCheckingResult * match in re) {
                     NSDictionary * dict = @{@"message":@"S2 compile failed."};
-                    return @[@(EMITTER_MESSAGE_TYPE_CONTROL), dict];
+                    return @[@(EMITTER_MESSAGE_TYPE_MESSAGE), dict];
                 }
             }
         }

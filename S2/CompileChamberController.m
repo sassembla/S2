@@ -373,9 +373,6 @@
         // resend
         NSMutableArray * messageArray = [[NSMutableArray alloc]init];
         
-        // reset first
-        [messageArray addObject:S2_SUBLIMESOCKET_API_RESET];
-        
         
         // keyで列挙、順は問わないが値は使う。
         for (NSString * priorityKeyStr in [priorityDict keyEnumerator]) {
@@ -406,11 +403,17 @@
             }
         }
         
-        NSString * combined = [m_emitter combineMessages:messageArray];
-        
-        if (0 < [combined length]) {
+        if (0 < [messageArray count]) {
+            // reset first
+            [messageArray addObject:S2_SUBLIMESOCKET_API_RESET];
+            
+            NSString * combined = [m_emitter combineMessages:messageArray];
+            
+            // sample
+            NSString * resend = [[NSString alloc]initWithFormat:@"resend started. S2' will resend message. %@", combined];
+            
             [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
-             [messenger tag:@"message" val:@"resend started. S2' will resend message."],
+             [messenger tag:@"message" val:resend],
              nil];
             
             NSString * withHead = [[NSString alloc]initWithFormat:@"%@%@", S2_SUBLIMESOCKET_APIHEADER, combined];

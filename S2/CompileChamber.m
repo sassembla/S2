@@ -97,7 +97,7 @@
                          [messenger tag:@"messageDict" val:resultArray[1]],
                          nil];
                     }
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/08 1:24:13" withLimitSec:0 withComment:@"compiledを送ってないのでつらい。"];
+                    
                     int type = [resultArray[0] intValue];
                     if (type == EMITTER_MESSAGE_TYPE_CONTROL) {
                         break;
