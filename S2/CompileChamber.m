@@ -31,7 +31,7 @@
     NSString * m_state;
 }
 
-- (id) initWithMasterNameAndId:(NSString * )masterNameAndId {
+- (id) initWithChamberId:(NSString * )chamberId withMasterNameAndId:(NSString * )masterNameAndId {
     if (self = [super init]) {
         // messenger that compile control only
         messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(compilationReceiver:) withName:S2_COMPILECHAMBER];
@@ -45,7 +45,7 @@
         
         emitter = [[Emitter alloc]init];
         
-        m_chamberId = [[NSString alloc]initWithFormat:@"chamber_%@", [KSMessenger generateMID]];
+        m_chamberId = [[NSString alloc]initWithString:chamberId];
         
         [messenger callMyself:S2_COMPILECHAMBER_EXEC_SPINUP, nil];
     }
@@ -89,7 +89,7 @@
                 NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
                 
                 NSArray * resultArray = nil;
-                if ((resultArray = [emitter filtering:message])) {
+                if ((resultArray = [emitter filtering:message withChamberId:m_chamberId])) {
                     if ([messenger hasParent]) {
                         [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
                          [messenger tag:@"id" val:m_chamberId],

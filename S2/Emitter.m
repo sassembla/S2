@@ -65,7 +65,7 @@
 /**
  フィルタ、特定のキーワードを抜き出す。
  */
-- (NSArray * ) filtering:(NSString * )message {
+- (NSArray * ) filtering:(NSString * )message withChamberId:(NSString * )chamberId {
     
     // 改行だけなら逃げる
     if ([message isEqualToString:@"\n"]) {
@@ -181,7 +181,8 @@
             {
                 NSArray * re = [m_regex_compileSucceeded matchesInString:message options:0 range:NSMakeRange(0, [message length])];
                 for (NSTextCheckingResult * match in re) {
-                    NSDictionary * dict = @{@"message":@"S2 compile succeeded."};
+                    NSString * message = [[NSString alloc]initWithFormat:@"%@%@", @"S2 compile succeeded. ", chamberId];
+                    NSDictionary * dict = @{@"message":message};
                     return @[@(EMITTER_MESSAGE_TYPE_CONTROL), dict];
                 }
             }
@@ -245,7 +246,8 @@
                 NSArray * re = [m_regex_compileFailed matchesInString:message options:0 range:NSMakeRange(0, [message length])];
                 
                 for (NSTextCheckingResult * match in re) {
-                    NSDictionary * dict = @{@"message":@"S2 compile failed."};
+                    NSString * message = [[NSString alloc]initWithFormat:@"%@%@", @"S2 compile failed. ", chamberId];
+                    NSDictionary * dict = @{@"message":message};
                     return @[@(EMITTER_MESSAGE_TYPE_MESSAGE), dict];
                 }
             }
@@ -391,7 +393,7 @@
             break;
         }
         case EMITTER_MESSAGE_TYPE_CONTROL:{
-            return [self generateShowMessage:messageParam];
+            return [self generateResetMessage:messageParam];
             break;
         }
             

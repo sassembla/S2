@@ -57,7 +57,7 @@ enum STATE {
 
 @interface CompileChamber : NSObject
 
-- (id) initWithMasterNameAndId:(NSString * )masterNameAndId;
+- (id) initWithChamberId:(NSString * )chamberId withMasterNameAndId:(NSString * )masterNameAndId;
 
 - (NSString * ) state;
 - (NSString * ) chamberId;

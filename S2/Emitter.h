@@ -24,7 +24,7 @@ enum EMITTER_MESSAGE_TYPE {
 
 - (NSString * ) generateReadyMessage;
 
-- (NSArray * ) filtering:(NSString * )message;
+- (NSArray * ) filtering:(NSString * )message withChamberId:(NSString * )chamberId;
 
 - (NSString * ) combineMessages:(NSArray * )messageArray;
 @end

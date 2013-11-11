@@ -88,7 +88,9 @@
     m_count = count;
     m_chamberDict = [[NSMutableDictionary alloc]init];
     for (int i = 0; i < m_count; i++) {
-        CompileChamber * chamber = [[CompileChamber alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
+        NSString * chamberId = [[NSString alloc]initWithFormat:@"%d", i];
+        
+        CompileChamber * chamber = [[CompileChamber alloc]initWithChamberId:chamberId withMasterNameAndId:[messenger myNameAndMID]];
 
         NSString * currentChamberId = [NSString stringWithFormat:@"%@", [chamber chamberId]];
         NSString * currentChamberState = [NSString stringWithFormat:@"%@", [chamber state]];

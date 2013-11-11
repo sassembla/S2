@@ -17,6 +17,8 @@
 
 #import "CompileSettingController.h"
 
+#define TEST_CHAMBERID  (@"TEST_CHAMBERID")
+
 
 #import "TimeMine.h"
 
@@ -43,7 +45,7 @@
     messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:TEST_MASTER];
     settingDummyMessenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(dummySettingReceiver:) withName:S2_COMPILERSETTINGCONTROLLER];
     
-    cChamber = [[CompileChamber alloc]initWithMasterNameAndId:[messenger myNameAndMID]];
+    cChamber = [[CompileChamber alloc]initWithChamberId:TEST_CHAMBERID withMasterNameAndId:[messenger myNameAndMID]];
     
     m_chamberResponseDict = [[NSMutableDictionary alloc]init];
     m_repeatCount = 0;
