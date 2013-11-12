@@ -83,6 +83,8 @@
             // launch
             [dict[@"compileTask"] launch];
             
+            // ここが真面目に全体のデッドロックになってるみたいな感じ！？？だ！ MFTask復活させるか、、どうりで遅いと思った。
+            NSLog(@"start!, %@", m_chamberId);
             char buffer[BUFSIZ];
             FILE * fp = fdopen([publishHandle fileDescriptor], "r");
             while(fgets(buffer, BUFSIZ, fp)) {
@@ -104,6 +106,18 @@
                     }
                 }
             }
+            NSLog(@"end!, %@", m_chamberId);
+            
+            [TimeMine setTimeMineLocalizedFormat:@"2013/11/12 21:39:23" withLimitSec:10000 withComment:@"完了をトレースする。理由が特殊そうな気がする。"];
+            if ([messenger hasParent]) {
+                NSString * chamberIdAndMessage = [[NSString alloc]initWithFormat:@"%@ : %@", m_chamberId, @", コレだけが出てる、compiled!がありそう"];
+                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                 [messenger tag:@"id" val:m_chamberId],
+                 [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_MESSAGE)],
+                 [messenger tag:@"messageDict" val:@{@"message":chamberIdAndMessage}],
+                 nil];
+            }
+            
             
             m_state = statesArray[STATE_COMPILED];
             

@@ -176,7 +176,9 @@
             NSAssert(dict[@"id"], @"id required");
             [self changeChamberStatus:dict[@"id"] to:static_chamber_states[STATE_SPINUPPED]];
 
-            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CAHMBERSPINUPPED, nil];
+            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_CAHMBERSPINUPPED,
+             [messenger tag:@"id" val:dict[@"id"]],
+             nil];
             break;
         }
         
