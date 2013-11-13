@@ -263,6 +263,16 @@
             NSAssert(dict[@"type"], @"type required");
             NSAssert(dict[@"messageDict"], @"messageDict required");
             
+            NSString * chamberId = [[NSString alloc]initWithFormat:@"%@ : %@", @"とりあえずデバッグで全て流す", dict[@"id"]];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/11/15 0:22:30" withLimitSec:10000 withComment:chamberId];
+//            NSString * debugMessage = [[NSString alloc]initWithFormat:@"debug:%@", dict[@"messageDict"]];
+//            NSString * reLineRemoved = [debugMessage stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
+//            NSString * chamberIdAndRelined = [[NSString alloc]initWithFormat:@"%@:%@", chamberId, reLineRemoved];
+//            
+//            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
+//             [messenger tag:@"message" val:chamberIdAndRelined],
+//             nil];
+            
             // 最新のみ
             if ([self isFirstPriority:dict[@"id"]]) {
                 
@@ -482,6 +492,13 @@
 }
 
 - (BOOL) isFirstPriority:(NSString * )chamberId {
+    NSAssert(m_chamberPriority, @"m_chamberPriority is null.");
+    
+    if ([m_chamberPriority count] == 0) {
+        NSLog(@"ふむ");
+    }
+    NSAssert(0 < [m_chamberPriority count], @"m_chamberPriority is empty.");
+    
     return m_chamberPriority[0] == chamberId;
 }
 

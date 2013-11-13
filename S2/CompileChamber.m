@@ -26,7 +26,7 @@
     
     Emitter * emitter;
     
-    NSTask * m_compileTask;
+    MFTask * m_compileTask;
     
     NSString * m_state;
 }
@@ -72,61 +72,10 @@
         }
         case S2_COMPILECHAMBER_EXEC_COMPILE:{
             NSAssert(dict[@"compileTask"], @"compileTask required");
-            
-            NSPipe * currentOut = [[NSPipe alloc]init];
-            
-            [dict[@"compileTask"] setStandardOutput:currentOut];
-            [dict[@"compileTask"] setStandardError:currentOut];
-            
-            NSFileHandle * publishHandle = [currentOut fileHandleForReading];
+            MFTask * task = dict[@"compileTask"];
             
             // launch
-            [dict[@"compileTask"] launch];
-            
-            // ここが真面目に全体のデッドロックになってるみたいな感じ！？？だ！ MFTask復活させるか、、どうりで遅いと思った。
-            NSLog(@"start!, %@", m_chamberId);
-            char buffer[BUFSIZ];
-            FILE * fp = fdopen([publishHandle fileDescriptor], "r");
-            while(fgets(buffer, BUFSIZ, fp)) {
-                NSString * message = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
-                
-                NSArray * resultArray = nil;
-                if ((resultArray = [emitter filtering:message withChamberId:m_chamberId])) {
-                    if ([messenger hasParent]) {
-                        [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-                         [messenger tag:@"id" val:m_chamberId],
-                         [messenger tag:@"type" val:resultArray[0]],
-                         [messenger tag:@"messageDict" val:resultArray[1]],
-                         nil];
-                    }
-                    
-                    int type = [resultArray[0] intValue];
-                    if (type == EMITTER_MESSAGE_TYPE_CONTROL) {
-                        break;
-                    }
-                }
-            }
-            NSLog(@"end!, %@", m_chamberId);
-            
-            [TimeMine setTimeMineLocalizedFormat:@"2013/11/12 21:39:23" withLimitSec:10000 withComment:@"完了をトレースする。理由が特殊そうな気がする。"];
-            if ([messenger hasParent]) {
-                NSString * chamberIdAndMessage = [[NSString alloc]initWithFormat:@"%@ : %@", m_chamberId, @", コレだけが出てる、compiled!がありそう"];
-                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-                 [messenger tag:@"id" val:m_chamberId],
-                 [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_MESSAGE)],
-                 [messenger tag:@"messageDict" val:@{@"message":chamberIdAndMessage}],
-                 nil];
-            }
-            
-            
-            m_state = statesArray[STATE_COMPILED];
-            
-            if ([messenger hasParent]) {
-                [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-                 [messenger tag:@"id" val:m_chamberId],
-                 nil];
-            }
-            
+            [task launch];
             return;
         }
     }
@@ -199,7 +148,8 @@
  */
 - (void) ignite:(NSString * )compileBasePath {
     
-    m_compileTask = [[NSTask alloc] init];
+    m_compileTask = [[MFTask alloc] init];
+    [m_compileTask setDelegate:self];
     
     [m_compileTask setLaunchPath:@"/bin/sh"];
     
@@ -231,6 +181,74 @@
 - (BOOL) isCompiling {
     return m_state == statesArray[STATE_COMPILING];
 }
+
+
+
+- (void) taskDidRecieveData:(NSData*) theData fromTask:(MFTask*)task {
+    
+    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
+    
+    NSArray * resultArray = nil;
+    if ((resultArray = [emitter filtering:message withChamberId:m_chamberId])) {
+        if ([messenger hasParent]) {
+            [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+             [messenger tag:@"id" val:m_chamberId],
+             [messenger tag:@"type" val:resultArray[0]],
+             [messenger tag:@"messageDict" val:resultArray[1]],
+             nil];
+        }
+        
+        int type = [resultArray[0] intValue];
+        if (type == EMITTER_MESSAGE_TYPE_CONTROL) {
+            
+            if ([messenger hasParent]) {
+                [TimeMine setTimeMineLocalizedFormat:@"2013/11/15 0:26:45" withLimitSec:100000 withComment:@"コントロールされた完了をトレースする。理由が特殊そうな気がする。"];
+//                NSString * chamberIdAndMessage = [[NSString alloc]initWithFormat:@"%@ : %@", m_chamberId, @", コントロールされたcompiled!がありそう"];
+//                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+//                 [messenger tag:@"id" val:m_chamberId],
+//                 [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_MESSAGE)],
+//                 [messenger tag:@"messageDict" val:@{@"message":chamberIdAndMessage}],
+//                 nil];
+            }
+            
+            
+            m_state = statesArray[STATE_COMPILED];
+            
+            if ([messenger hasParent]) {
+                [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+                 [messenger tag:@"id" val:m_chamberId],
+                 nil];
+            }
+        }
+    }
+    
+}
+
+- (void) taskDidRecieveErrorData:(NSData*) theData fromTask:(MFTask*)task {
+    
+}
+
+- (void) taskDidTerminate:(MFTask*) theTask {
+    if (![m_state isEqualToString:statesArray[STATE_COMPILED]]) {
+        
+        m_state = statesArray[STATE_COMPILED];
+        
+        if ([messenger hasParent]) {
+            [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+             [messenger tag:@"id" val:m_chamberId],
+             nil];
+        }
+    }
+}
+
+- (void) taskDidRecieveInvalidate:(MFTask*) theTask {
+    
+}
+
+- (void) taskDidLaunch:(MFTask*) theTask {
+    
+}
+
 
 
 /**
