@@ -264,7 +264,6 @@
 }
 
 
-
 - (void) testCompileWithZincSucceededWithSpecificMessages {
     // 起動する
     NSDictionary * serverSettingDict = @{KEY_WEBSOCKETSERVER_ADDRESS: TEST_SERVER_URL};
@@ -299,12 +298,10 @@
     
     /*
      -zinc ver
-     なんか普通にやろうとしても失敗するんだが。
      1件の起動と
-     3件の失敗と
-     1件のfailedが入る。
+     1件のsucceededが入る。
      */
-    XCTAssertTrue([m_compiledResults count] == 5, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    XCTAssertTrue([m_compiledResults count] == 2, @"not match, %lu", (unsigned long)[m_compiledResults count]);
 }
 
 - (void) testCompileFailureWithZinc {
@@ -344,11 +341,12 @@
      -zinc ver
      
      1件の起動と
-     3件の失敗と
+     1件の失敗と
      1件のfailedが入る。
      
      */
-    XCTAssertTrue([m_compiledResults count] == 5, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    XCTAssertTrue([m_compiledResults count] == 3, @"not match, %lu", (unsigned long)[m_compiledResults count]);
+    NSLog(@"m_compiledResults %@", m_compiledResults);
 }
 
 

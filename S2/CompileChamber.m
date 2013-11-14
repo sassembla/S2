@@ -153,6 +153,8 @@
     
     [m_compileTask setLaunchPath:@"/bin/sh"];
     
+    
+    // zincとMFTaskの足し算だと取れないものがある。errorかな。
     NSString * gradlebuildStr = [[NSString alloc]initWithFormat:@"/usr/local/bin/gradle --daemon -b %@ build -i", compileBasePath];
     NSArray * currentParams = @[@"-c", gradlebuildStr];
 
@@ -185,9 +187,16 @@
 
 
 - (void) taskDidRecieveData:(NSData*) theData fromTask:(MFTask*)task {
-    
     NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
-    
+    [self filteringWithEmitter:message];
+}
+
+- (void) taskDidRecieveErrorData:(NSData*) theData fromTask:(MFTask*)task {
+    NSString * message = [[NSString alloc]initWithData:theData encoding:NSUTF8StringEncoding];
+    [self filteringWithEmitter:message];
+}
+
+- (void) filteringWithEmitter:(NSString * )message {
     NSArray * resultArray = nil;
     if ((resultArray = [emitter filtering:message withChamberId:m_chamberId])) {
         if ([messenger hasParent]) {
@@ -203,12 +212,12 @@
             
             if ([messenger hasParent]) {
                 [TimeMine setTimeMineLocalizedFormat:@"2013/11/15 0:26:45" withLimitSec:100000 withComment:@"コントロールされた完了をトレースする。理由が特殊そうな気がする。"];
-//                NSString * chamberIdAndMessage = [[NSString alloc]initWithFormat:@"%@ : %@", m_chamberId, @", コントロールされたcompiled!がありそう"];
-//                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-//                 [messenger tag:@"id" val:m_chamberId],
-//                 [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_MESSAGE)],
-//                 [messenger tag:@"messageDict" val:@{@"message":chamberIdAndMessage}],
-//                 nil];
+                //                NSString * chamberIdAndMessage = [[NSString alloc]initWithFormat:@"%@ : %@", m_chamberId, @", コントロールされたcompiled!がありそう"];
+                //                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                //                 [messenger tag:@"id" val:m_chamberId],
+                //                 [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_MESSAGE)],
+                //                 [messenger tag:@"messageDict" val:@{@"message":chamberIdAndMessage}],
+                //                 nil];
             }
             
             
@@ -221,11 +230,6 @@
             }
         }
     }
-    
-}
-
-- (void) taskDidRecieveErrorData:(NSData*) theData fromTask:(MFTask*)task {
-    
 }
 
 - (void) taskDidTerminate:(MFTask*) theTask {

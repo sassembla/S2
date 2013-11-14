@@ -43,7 +43,7 @@
         m_regex_compileFailed = [NSRegularExpression regularExpressionWithPattern:@"^BUILD FAILED" options:0 error:nil];
         
         // gradle + zinc
-        m_regex_zincError = [NSRegularExpression regularExpressionWithPattern:@"(.*):([0-9.*]): (.*)" options:0 error:nil];
+        m_regex_zincError = [NSRegularExpression regularExpressionWithPattern:@"(.*):([0-9].*): (.*)" options:0 error:nil];
     }
     return self;
 }
@@ -71,6 +71,14 @@
     if ([message isEqualToString:@"\n"]) {
         return nil;
     }
+    
+    NSString * strippedString = nil;
+    
+    if ([message hasPrefix:@"\n"]) {
+        strippedString = [[NSString alloc]initWithString:[message substringFromIndex:1]];
+    }
+    
+    
     
     
     // 本来必要ではないが、正規表現のupを見るためのチェックをしよう
@@ -130,8 +138,9 @@
 //                                     @"^BUILD SUCCESSFUL.*",
                                      @"^Total time: (.*) secs.*",
 
-                                     // zinc error
+                                 // zinc error
 //                                     @"(.*):([0-9].*): (.*)",
+                                     @"^Successfully executed.*",
 
                                      @"^Compiling with Zinc Scala compiler.*",
                                      @"^FAILURE: Build failed with an exception.*",
@@ -151,7 +160,7 @@
         
         for (NSString * ignoreTarget in ignoreMessages) {
             NSRegularExpression * e = [[NSRegularExpression alloc]initWithPattern:ignoreTarget options:0 error:nil];
-            NSArray * result = [e matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+            NSArray * result = [e matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
             
             if ([result count]) {
                 return nil;
@@ -159,19 +168,8 @@
         }
         
     }
-    // Output file /Users/highvision/S2.fcache/Users/highvision/Desktop/TestScala/build/classes/test/MyTest.class has been removed.
     
-    // [ant:scalac] Element '/Users/highvision/S2.fcache/Users/highvision/Desktop/TestScala/build/resources/main' does not exist.
-    
-    // [ant:scalac] /Users/highvision/S2.fcache/Users/highvision/Desktop/TestScala/src/test/scala/MyTest.scala:2: error: not found: value dsa
-    
-    // [ant:scalac] 	dsa
-    
-    // [ant:scalac]         ^
-    
-    // [ant:scalac] one error found
-    
-    NSLog(@"message throughs are %@", message);
+    NSLog(@"strippedString throughs are %@", strippedString);
     
     // gradle series
     {
@@ -179,7 +177,7 @@
         {
             // @"^BUILD SUCCESSFUL.*"
             {
-                NSArray * re = [m_regex_compileSucceeded matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+                NSArray * re = [m_regex_compileSucceeded matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                 for (NSTextCheckingResult * match in re) {
                     NSString * message = [[NSString alloc]initWithFormat:@"%@%@", @"S2 compile succeeded. ", chamberId];
                     NSDictionary * dict = @{@"message":message};
@@ -193,11 +191,11 @@
             // antscala error
             // [ant:scalac] /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:7: error: not found: type Samplaaae2
             {
-                NSArray * re = [m_regex_antscalaError matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+                NSArray * re = [m_regex_antscalaError matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                 for (NSTextCheckingResult * match in re) {
-                    NSString * filePath = [message substringWithRange:[match rangeAtIndex:1]];
-                    NSString * line = [message substringWithRange:[match rangeAtIndex:2]];
-                    NSString * reason = [message substringWithRange:[match rangeAtIndex:3]];
+                    NSString * filePath = [strippedString substringWithRange:[match rangeAtIndex:1]];
+                    NSString * line = [strippedString substringWithRange:[match rangeAtIndex:2]];
+                    NSString * reason = [strippedString substringWithRange:[match rangeAtIndex:3]];
                     
                     NSDictionary * dict = @{@"filePath":filePath,
                                             @"line":line,
@@ -208,7 +206,7 @@
                 }
                 
                 if ([m_stackDict[KEY_STACKTYPE] isEqualToString:STACKTYPE_ERRORLINES]) {
-                    NSArray * re2 = [m_regex_antscala matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+                    NSArray * re2 = [m_regex_antscala matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                     
                     // 残りの行の数で対応を変える
                     switch ([self countdown:STACKTYPE_ERRORLINES]) {
@@ -220,7 +218,7 @@
                         }
                         case 0:{
                             for (NSTextCheckingResult * match in re2) {
-                                NSString * markerPosStr = [message substringWithRange:[match rangeAtIndex:1]];
+                                NSString * markerPosStr = [strippedString substringWithRange:[match rangeAtIndex:1]];
                                 //markerPosStr ^までの長さを測る
                                 NSRange range = [markerPosStr rangeOfString:STRKEY_UPPER];
                                 NSUInteger index = range.location;
@@ -243,7 +241,7 @@
             
             // gradleでのコンパイル失敗
             {
-                NSArray * re = [m_regex_compileFailed matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+                NSArray * re = [m_regex_compileFailed matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                 
                 for (NSTextCheckingResult * match in re) {
                     NSString * message = [[NSString alloc]initWithFormat:@"%@%@", @"S2 compile failed. ", chamberId];
@@ -258,29 +256,57 @@
     {
         // /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle_zinc/src/main/scala/com/kissaki/TestProject/Sample.scala:1:
         {
-            NSArray * re = [m_regex_zincError matchesInString:message options:0 range:NSMakeRange(0, [message length])];
+            NSArray * re = [m_regex_zincError matchesInString:message options:0 range:NSMakeRange(0, [strippedString length])];
             for (NSTextCheckingResult * match in re) {
-                NSString * filePath = [message substringWithRange:[match rangeAtIndex:1]];
-                NSString * line = [message substringWithRange:[match rangeAtIndex:2]];
-                NSString * reason = [message substringWithRange:[match rangeAtIndex:3]];
+                NSString * filePath = [strippedString substringWithRange:[match rangeAtIndex:1]];
+                NSString * line = [strippedString substringWithRange:[match rangeAtIndex:2]];
+                NSString * reason = [strippedString substringWithRange:[match rangeAtIndex:3]];
                 
                 NSDictionary * dict = @{@"filePath":filePath,
                                         @"line":line,
                                         @"reason":reason};
+                [TimeMine setTimeMineLocalizedFormat:@"2013/11/15 23:39:29" withLimitSec:100000 withComment:@"一時的にstackをやめてみる。"];
+//                [self stack:dict withType:STACKTYPE_ERRORLINES_ZINC withLimit:@3];
+//                return nil;
                 
-                [self stack:dict withType:STACKTYPE_ERRORLINES_ZINC withLimit:@2];
-                return nil;
+                return @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), dict];
             }
             
+            // gradleとは違い、何行出るかは不明確? なのか、MFTask自体が不明確なのか。後者っぺえな、、
             if ([m_stackDict[KEY_STACKTYPE] isEqualToString:STACKTYPE_ERRORLINES_ZINC]) {
                 // 残りの行の数で対応を変える
+                // 変形がありそうだなー。複数エラーが出た場合とか。複数エラーのケースを足そう。
+                
                 switch ([self countdown:STACKTYPE_ERRORLINES_ZINC]) {
-                    case 1:{
+                    case 2:{
+                        /*
+                         Exception executing org.gradle.api.internal.tasks.scala.jdk6.ZincScalaCompiler@2f678f0e in compiler daemon: org.gradle.api.internal.tasks.compile.CompilationFailedException: Compilation failed.
+                         
+                         */
+                        return nil;
+                    }
+                    case 1:{//ここで
+                        /*
+                         
+                         val b = new Samplaaae2()// typo here
+                         ^
+                         one error found
+                         
+                         FAILURE: Build failed with an exception.
+                         
+                         * What went wrong:
+                         Execution failed for task ':compileScala'.
+                         > Compilation failed
+                         
+                         * Try:
+                         Run with --stacktrace option to get the stack trace. Run with --debug option to get more log output.
+
+                         */
                         return nil;
                     }
                     case 0:{
                         //markerPosStr ^までの長さを測る
-                        NSRange range = [message rangeOfString:STRKEY_UPPER];
+                        NSRange range = [strippedString rangeOfString:STRKEY_UPPER];
                         NSUInteger index = range.location;
                         NSDictionary * dict = @{@"index":[[NSString alloc]initWithFormat:@"%lu", (unsigned long)index]};
                         [self append:dict];
