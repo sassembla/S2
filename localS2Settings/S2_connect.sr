@@ -10,6 +10,6 @@ id:S2toSR destination:ws://127.0.0.1:8824 option:type:client
 connect:SStoSR to:S2toSR
 connect:S2toSR to:SStoSR
 
-//フィルタのセット、S2の着火
+//フィルタのセット、S2の着火(この部分をどうにかしたい。)
 emitfile:/Users/highvision/Desktop/S2/localS2Settings/tool/ScalaFilter.txt to:SStoSR
 

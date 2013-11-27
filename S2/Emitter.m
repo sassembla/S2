@@ -76,6 +76,8 @@
     
     if ([message hasPrefix:@"\n"]) {
         strippedString = [[NSString alloc]initWithString:[message substringFromIndex:1]];
+    } else {
+        strippedString = message;
     }
     
     
@@ -157,15 +159,15 @@
                                      @"^> Compile failed with.*"
                                      ];
         
-        
-        for (NSString * ignoreTarget in ignoreMessages) {
-            NSRegularExpression * e = [[NSRegularExpression alloc]initWithPattern:ignoreTarget options:0 error:nil];
-            NSArray * result = [e matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
-            
-            if ([result count]) {
-                return nil;
-            }
-        }
+
+//        for (NSString * ignoreTarget in ignoreMessages) {
+//            NSRegularExpression * e = [[NSRegularExpression alloc]initWithPattern:ignoreTarget options:0 error:nil];
+//            NSArray * result = [e matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
+//            
+//            if ([result count]) {
+//                return nil;
+//            }
+//        }
         
     }
     
@@ -177,6 +179,7 @@
         {
             // @"^BUILD SUCCESSFUL.*"
             {
+                NSLog(@"2013/11/26 18:28:42");
                 NSArray * re = [m_regex_compileSucceeded matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                 for (NSTextCheckingResult * match in re) {
                     NSString * message = [[NSString alloc]initWithFormat:@"%@%@", @"S2 compile succeeded. ", chamberId];
@@ -191,6 +194,7 @@
             // antscala error
             // [ant:scalac] /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:7: error: not found: type Samplaaae2
             {
+                NSLog(@"2013/11/26 18:28:53");
                 NSArray * re = [m_regex_antscalaError matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                 for (NSTextCheckingResult * match in re) {
                     NSString * filePath = [strippedString substringWithRange:[match rangeAtIndex:1]];
@@ -206,6 +210,7 @@
                 }
                 
                 if ([m_stackDict[KEY_STACKTYPE] isEqualToString:STACKTYPE_ERRORLINES]) {
+                    NSLog(@"2013/11/26 18:28:59");
                     NSArray * re2 = [m_regex_antscala matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                     
                     // 残りの行の数で対応を変える
@@ -241,6 +246,7 @@
             
             // gradleでのコンパイル失敗
             {
+                NSLog(@"2013/11/26 18:29:08");
                 NSArray * re = [m_regex_compileFailed matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                 
                 for (NSTextCheckingResult * match in re) {
@@ -256,6 +262,7 @@
     {
         // /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle_zinc/src/main/scala/com/kissaki/TestProject/Sample.scala:1:
         {
+            NSLog(@"2013/11/26 18:29:15");
             NSArray * re = [m_regex_zincError matchesInString:message options:0 range:NSMakeRange(0, [strippedString length])];
             for (NSTextCheckingResult * match in re) {
                 NSString * filePath = [strippedString substringWithRange:[match rangeAtIndex:1]];
@@ -265,7 +272,7 @@
                 NSDictionary * dict = @{@"filePath":filePath,
                                         @"line":line,
                                         @"reason":reason};
-                [TimeMine setTimeMineLocalizedFormat:@"2013/11/15 23:39:29" withLimitSec:100000 withComment:@"一時的にstackをやめてみる。"];
+                [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 23:39:29" withLimitSec:100000 withComment:@"一時的にstackをやめてみる。"];
 //                [self stack:dict withType:STACKTYPE_ERRORLINES_ZINC withLimit:@3];
 //                return nil;
                 

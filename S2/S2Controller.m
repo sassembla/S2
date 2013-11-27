@@ -104,7 +104,7 @@
             switch ([messenger execFrom:KS_WEBSOCKETCONNECTIONOPERATION viaNotification:notif]) {
                 case KS_WEBSOCKETCONNECTIONOPERATION_ESTABLISHED:{
                     
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/14 1:06:45" withLimitSec:100000 withComment:@"リセットまでは必要ないけど、繋ぎ直しによるイベントとかを発行しないとなー。何がおこったか解らなくなる。"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 1:06:45" withLimitSec:100000 withComment:@"リセットまでは必要ないけど、繋ぎ直しによるイベントとかを発行しないとなー。何がおこったか解らなくなる。"];
                     if (m_connectionDict) {
                         return;
                     }
@@ -192,7 +192,7 @@
             switch ([messenger execFrom:S2_COMPILECHAMBERCONT viaNotification:notif]) {
                 case S2_COMPILECHAMBERCONT_EXEC_CAHMBERSPINUPPED:{
                     NSAssert(dict[@"id"], @"id required");
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/15 0:24:48" withLimitSec:10000 withComment:@"スピンアップ完了を伝えてみる=このチャンバーが終了を感知できてないケースがある。なんだろ。"];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 0:24:48" withLimitSec:10000 withComment:@"スピンアップ完了を伝えてみる=このチャンバーが終了を感知できてないケースがある。なんだろ。"];
                     NSString * message = [[NSString alloc]initWithFormat:@"id %@ spinupped.", dict[@"id"]];
                     [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
                      [messenger tag:@"message" val:message],

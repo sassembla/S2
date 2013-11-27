@@ -264,7 +264,7 @@
             NSAssert(dict[@"messageDict"], @"messageDict required");
             
             NSString * chamberId = [[NSString alloc]initWithFormat:@"%@ : %@", @"とりあえずデバッグで全て流す", dict[@"id"]];
-            [TimeMine setTimeMineLocalizedFormat:@"2013/11/15 0:22:30" withLimitSec:10000 withComment:chamberId];
+            [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 18:22:31" withLimitSec:10000 withComment:chamberId];
 //            NSString * debugMessage = [[NSString alloc]initWithFormat:@"debug:%@", dict[@"messageDict"]];
 //            NSString * reLineRemoved = [debugMessage stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
 //            NSString * chamberIdAndRelined = [[NSString alloc]initWithFormat:@"%@:%@", chamberId, reLineRemoved];

@@ -233,16 +233,17 @@
 }
 
 - (void) taskDidTerminate:(MFTask*) theTask {
-    if (![m_state isEqualToString:statesArray[STATE_COMPILED]]) {
-        
-        m_state = statesArray[STATE_COMPILED];
-        
-        if ([messenger hasParent]) {
-            [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-             [messenger tag:@"id" val:m_chamberId],
-             nil];
-        }
-    }
+    [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 9:16:10" withLimitSec:1000 withComment:@"これ、compiledとは別けるべきなのか。"];
+//    if (![m_state isEqualToString:statesArray[STATE_COMPILED]]) {
+//        
+//        m_state = statesArray[STATE_COMPILED];
+//        
+//        if ([messenger hasParent]) {
+//            [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+//             [messenger tag:@"id" val:m_chamberId],
+//             nil];
+//        }
+//    }
 }
 
 - (void) taskDidRecieveInvalidate:(MFTask*) theTask {

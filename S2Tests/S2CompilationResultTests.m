@@ -85,6 +85,7 @@
         }
         case S2_CONT_EXEC_OUTPUTTED:{
             NSAssert(wrappedDict[@"message"], @"message required");
+            NSLog(@"S2_CONT_EXEC_OUTPUTTED　どっちが速いか");
             [m_compiledResults addObject:wrappedDict[@"message"]];
             break;
         }
@@ -94,6 +95,7 @@
             break;
         }
         case S2_CONT_EXEC_COMPILED:{
+            NSLog(@"S2_CONT_EXEC_COMPILED　どっちが速いか");
             m_compiledCounts++;
             break;
         }
@@ -110,7 +112,7 @@
 
 - (bool) countupLongThenFail {
     m_repeatCount++;
-    if (TEST_REPEAT_COUNT_5 < m_repeatCount) {
+    if (TEST_REPEAT_COUNT_6 < m_repeatCount) {
         return true;
     }
     return false;
@@ -237,6 +239,7 @@
     }
     
     XCTAssertTrue([m_ignitedChamberArray count] == 1, @"not match, %lu", (unsigned long)[m_ignitedChamberArray count]);
+    NSLog(@"m_compiledCounts %d", m_compiledCounts);
     while (m_compiledCounts < 1) {
         if ([self countupLongThenFail]) {
             XCTFail(@"too long wait");
@@ -244,6 +247,7 @@
         }
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
+    NSLog(@"m_compiledCounts2 %d", m_compiledCounts);
     
     /*
      -daemon ver
