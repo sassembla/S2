@@ -9,6 +9,8 @@
 #import "Emitter.h"
 #import "S2Token.h"
 
+#import "KSMessenger.h"
+
 #import "TimeMine.h"
 
 #define KEY_STACKTYPE   (@"KEY_STACKTYPE")
@@ -23,6 +25,8 @@
 
 
 @implementation Emitter {
+    KSMessenger * messenger;
+    
     NSRegularExpression * m_regex_antscala;
     NSRegularExpression * m_regex_antscalaError;
     NSRegularExpression * m_regex_compileSucceeded;
@@ -35,7 +39,15 @@
 }
 
 - (id) init {
+    if (self = [super init]) {}
+    return self;
+}
+
+- (id) initWithMasterName:(NSString * )masterNameAndId as:(NSString * )name {
     if (self = [super init]) {
+        messenger = [[KSMessenger alloc]initWithBodyID:self withSelector:@selector(receiver:) withName:name];
+        [messenger connectParent:masterNameAndId];
+        
         // gradle
         m_regex_antscala = [NSRegularExpression regularExpressionWithPattern:@".ant:scalac. (.*)" options:0 error:nil];
         m_regex_antscalaError = [NSRegularExpression regularExpressionWithPattern:@".ant:scalac. (.*):([0-9].*): error: (.*)" options:0 error:nil];
@@ -48,6 +60,7 @@
     return self;
 }
 
+- (void) receiver:(NSNotification * )notif {}
 
 
 - (NSString * ) generatePullMessage:(NSString * )emitId withPath:(NSString * )path {
@@ -65,11 +78,11 @@
 /**
  フィルタ、特定のキーワードを抜き出す。
  */
-- (NSArray * ) filtering:(NSString * )message withChamberId:(NSString * )chamberId {
+- (void) filtering:(NSString * )message withChamberId:(NSString * )chamberId {
     
     // 改行だけなら逃げる
     if ([message isEqualToString:@"\n"]) {
-        return nil;
+        return;
     }
     
     NSString * strippedString = nil;
@@ -81,7 +94,14 @@
     }
     
     
-    
+    // if contains linebreak, will recursive.
+    NSArray * lines = [strippedString componentsSeparatedByString:@"\n"];
+    if (1 < [lines count]) {
+        for (NSString * line in lines) {
+            NSLog(@"line is :%@:", line);
+            [self filtering:line withChamberId:chamberId];
+        }
+    }
     
     // 本来必要ではないが、正規表現のupを見るためのチェックをしよう
     {
@@ -160,15 +180,16 @@
                                      ];
         
 
-//        for (NSString * ignoreTarget in ignoreMessages) {
-//            NSRegularExpression * e = [[NSRegularExpression alloc]initWithPattern:ignoreTarget options:0 error:nil];
-//            NSArray * result = [e matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
-//            
-//            if ([result count]) {
-//                return nil;
-//            }
-//        }
+        for (NSString * ignoreTarget in ignoreMessages) {
+            NSRegularExpression * e = [[NSRegularExpression alloc]initWithPattern:ignoreTarget options:0 error:nil];
+            NSArray * result = [e matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
+            
+            if ([result count]) {
+                return;
+            }
+        }
         
+        NSLog(@"passed %@", strippedString);
     }
     
     NSLog(@"strippedString throughs are %@", strippedString);
@@ -184,7 +205,9 @@
                 for (NSTextCheckingResult * match in re) {
                     NSString * message = [[NSString alloc]initWithFormat:@"%@%@", @"S2 compile succeeded. ", chamberId];
                     NSDictionary * dict = @{@"message":message};
-                    return @[@(EMITTER_MESSAGE_TYPE_CONTROL), dict];
+                    NSArray * dummy = @[@(EMITTER_MESSAGE_TYPE_CONTROL), dict];
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:42:39" withLimitSec:10000 withComment:@"dummy1 親へと返す"];
+                    return ;
                 }
             }
         }
@@ -206,7 +229,7 @@
                                             @"reason":reason};
                     
                     [self stack:dict withType:STACKTYPE_ERRORLINES withLimit:@2];
-                    return nil;
+                    return;
                 }
                 
                 if ([m_stackDict[KEY_STACKTYPE] isEqualToString:STACKTYPE_ERRORLINES]) {
@@ -217,7 +240,7 @@
                     switch ([self countdown:STACKTYPE_ERRORLINES]) {
                         case 1:{
                             for (NSTextCheckingResult * match in re2) {
-                                return nil;
+                                return;
                             }
                             break;
                         }
@@ -231,8 +254,9 @@
                                 [self append:dict];
                                 
                                 NSDictionary * result = [self flush];
-                                
-                                return @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), result];
+                                NSArray * data = @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), result];
+                                [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:44:14" withLimitSec:10000 withComment:@"dummy2"];
+                                return;
                             }
                             break;
                         }
@@ -252,7 +276,10 @@
                 for (NSTextCheckingResult * match in re) {
                     NSString * message = [[NSString alloc]initWithFormat:@"%@%@", @"S2 compile failed. ", chamberId];
                     NSDictionary * dict = @{@"message":message};
-                    return @[@(EMITTER_MESSAGE_TYPE_MESSAGE), dict];
+                    NSArray * data = @[@(EMITTER_MESSAGE_TYPE_MESSAGE), dict];
+                    
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:45:11" withLimitSec:10000 withComment:@"dummy3"];
+                    return;
                 }
             }
         }
@@ -275,8 +302,9 @@
                 [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 23:39:29" withLimitSec:100000 withComment:@"一時的にstackをやめてみる。"];
 //                [self stack:dict withType:STACKTYPE_ERRORLINES_ZINC withLimit:@3];
 //                return nil;
-                
-                return @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), dict];
+                NSArray * data = @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), dict];
+                [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:45:48" withLimitSec:10000 withComment:@"dummy4"];
+                return;
             }
             
             // gradleとは違い、何行出るかは不明確? なのか、MFTask自体が不明確なのか。後者っぺえな、、
@@ -290,9 +318,9 @@
                          Exception executing org.gradle.api.internal.tasks.scala.jdk6.ZincScalaCompiler@2f678f0e in compiler daemon: org.gradle.api.internal.tasks.compile.CompilationFailedException: Compilation failed.
                          
                          */
-                        return nil;
+                        return;
                     }
-                    case 1:{//ここで
+                    case 1:{
                         /*
                          
                          val b = new Samplaaae2()// typo here
@@ -309,7 +337,7 @@
                          Run with --stacktrace option to get the stack trace. Run with --debug option to get more log output.
 
                          */
-                        return nil;
+                        return;
                     }
                     case 0:{
                         //markerPosStr ^までの長さを測る
@@ -319,19 +347,17 @@
                         [self append:dict];
                         
                         NSDictionary * result = [self flush];
-                        return @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), result];
+                        NSArray * data = @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), result];
+                        [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:46:29" withLimitSec:10000 withComment:@"dummy5"];
+                        return;
                     }
                         
                     default:
                         break;
                 }
             }
-            
-            
         }
     }
-    
-    return nil;
 }
 
 

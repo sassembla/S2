@@ -85,7 +85,7 @@
         }
         case S2_CONT_EXEC_OUTPUTTED:{
             NSAssert(wrappedDict[@"message"], @"message required");
-            NSLog(@"S2_CONT_EXEC_OUTPUTTED　どっちが速いか");
+            NSLog(@"S2_CONT_EXEC_OUTPUTTED　どっちが速いか　というか、発生してない場合があるので、その部分だな。改行の分解とかが必要な感じなのか、、まあいいけど。");
             [m_compiledResults addObject:wrappedDict[@"message"]];
             break;
         }
@@ -112,7 +112,7 @@
 
 - (bool) countupLongThenFail {
     m_repeatCount++;
-    if (TEST_REPEAT_COUNT_6 < m_repeatCount) {
+    if (TEST_REPEAT_COUNT_5 < m_repeatCount) {
         return true;
     }
     return false;

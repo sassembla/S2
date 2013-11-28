@@ -24,6 +24,7 @@
     
     NSArray * statesArray;
     
+    NSString * m_emitterId;
     Emitter * emitter;
     
     MFTask * m_compileTask;
@@ -42,8 +43,8 @@
         [settingReceiver connectParent:S2_COMPILERSETTINGCONTROLLER];
         
         statesArray = STATE_STR_ARRAY;
-        
-        emitter = [[Emitter alloc]init];
+        m_emitterId = [[NSString alloc]initWithString:[KSMessenger generateMID]];
+        emitter = [[Emitter alloc]initWithMasterName:[messenger myNameAndMID] as:m_emitterId];
         
         m_chamberId = [[NSString alloc]initWithString:chamberId];
         
@@ -107,6 +108,49 @@
         case S2_COMPILECHAMBER_EXEC_PURGE:{
             [self abort];
             [self close];
+            break;
+        }
+    }
+    
+    
+    // emitterからのmessage
+    switch ([messenger execFrom:m_emitterId viaNotification:notif]) {
+        case S2_EMITTER_EXEC_OUTPUT:{
+            NSAssert(dict[@"type"], @"type required");
+            NSAssert(dict[@"messageDict"], @"messageDict required");
+            
+            
+            int type = [dict[@"type"] intValue];
+            if ([messenger hasParent]) {
+                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                 [messenger tag:@"id" val:m_chamberId],
+                 [messenger tag:@"type" val:dict[@"type"]],
+                 [messenger tag:@"messageDict" val:dict[@"messageDict"]],
+                 nil];
+            }
+            
+            
+            if (type == EMITTER_MESSAGE_TYPE_CONTROL) {
+                
+                if ([messenger hasParent]) {
+                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 0:26:45" withLimitSec:100000 withComment:@"コントロールされた完了をトレースする。理由が特殊そうな気がする。"];
+                    //                NSString * chamberIdAndMessage = [[NSString alloc]initWithFormat:@"%@ : %@", m_chamberId, @", コントロールされたcompiled!がありそう"];
+                    //                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                    //                 [messenger tag:@"id" val:m_chamberId],
+                    //                 [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_MESSAGE)],
+                    //                 [messenger tag:@"messageDict" val:@{@"message":chamberIdAndMessage}],
+                    //                 nil];
+                }
+                
+                
+                m_state = statesArray[STATE_COMPILED];
+                
+                if ([messenger hasParent]) {
+                    [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+                     [messenger tag:@"id" val:m_chamberId],
+                     nil];
+                }
+            }
             break;
         }
     }
@@ -197,62 +241,14 @@
 }
 
 - (void) filteringWithEmitter:(NSString * )message {
-    NSArray * resultArray = nil;
-    if ((resultArray = [emitter filtering:message withChamberId:m_chamberId])) {
-        if ([messenger hasParent]) {
-            [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-             [messenger tag:@"id" val:m_chamberId],
-             [messenger tag:@"type" val:resultArray[0]],
-             [messenger tag:@"messageDict" val:resultArray[1]],
-             nil];
-        }
-        
-        int type = [resultArray[0] intValue];
-        if (type == EMITTER_MESSAGE_TYPE_CONTROL) {
-            
-            if ([messenger hasParent]) {
-                [TimeMine setTimeMineLocalizedFormat:@"2013/11/15 0:26:45" withLimitSec:100000 withComment:@"コントロールされた完了をトレースする。理由が特殊そうな気がする。"];
-                //                NSString * chamberIdAndMessage = [[NSString alloc]initWithFormat:@"%@ : %@", m_chamberId, @", コントロールされたcompiled!がありそう"];
-                //                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-                //                 [messenger tag:@"id" val:m_chamberId],
-                //                 [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_MESSAGE)],
-                //                 [messenger tag:@"messageDict" val:@{@"message":chamberIdAndMessage}],
-                //                 nil];
-            }
-            
-            
-            m_state = statesArray[STATE_COMPILED];
-            
-            if ([messenger hasParent]) {
-                [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-                 [messenger tag:@"id" val:m_chamberId],
-                 nil];
-            }
-        }
-    }
+    [emitter filtering:message withChamberId:m_chamberId];
 }
 
-- (void) taskDidTerminate:(MFTask*) theTask {
-    [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 9:16:10" withLimitSec:1000 withComment:@"これ、compiledとは別けるべきなのか。"];
-//    if (![m_state isEqualToString:statesArray[STATE_COMPILED]]) {
-//        
-//        m_state = statesArray[STATE_COMPILED];
-//        
-//        if ([messenger hasParent]) {
-//            [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-//             [messenger tag:@"id" val:m_chamberId],
-//             nil];
-//        }
-//    }
-}
+- (void) taskDidTerminate:(MFTask*) theTask {}
 
-- (void) taskDidRecieveInvalidate:(MFTask*) theTask {
-    
-}
+- (void) taskDidRecieveInvalidate:(MFTask*) theTask {}
 
-- (void) taskDidLaunch:(MFTask*) theTask {
-    
-}
+- (void) taskDidLaunch:(MFTask*) theTask {}
 
 
 

@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+enum S2_EMITTER_EXEC {
+    S2_EMITTER_EXEC_OUTPUT
+};
 
 enum EMITTER_MESSAGE_TYPE {
     EMITTER_MESSAGE_TYPE_CONTROL,
@@ -19,12 +22,15 @@ enum EMITTER_MESSAGE_TYPE {
 
 @interface Emitter : NSObject
 
+- (id) init;
+- (id) initWithMasterName:(NSString * )masterNameAndId as:(NSString * )name;
+
 - (NSString * ) generatePullMessage:(NSString * )emitId withPath:(NSString * )path;
 - (NSString * ) generateMessage:(int)type withParam:(NSDictionary * )messageParam priority:(int)priority;
 
 - (NSString * ) generateReadyMessage;
 
-- (NSArray * ) filtering:(NSString * )message withChamberId:(NSString * )chamberId;
+- (void) filtering:(NSString * )message withChamberId:(NSString * )chamberId;
 
 - (NSString * ) combineMessages:(NSArray * )messageArray;
 @end
