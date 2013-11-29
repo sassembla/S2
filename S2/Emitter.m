@@ -52,10 +52,10 @@
         m_regex_antscala = [NSRegularExpression regularExpressionWithPattern:@".ant:scalac. (.*)" options:0 error:nil];
         m_regex_antscalaError = [NSRegularExpression regularExpressionWithPattern:@".ant:scalac. (.*):([0-9].*): error: (.*)" options:0 error:nil];
         m_regex_compileSucceeded = [NSRegularExpression regularExpressionWithPattern:@"^BUILD SUCCESSFUL.*" options:0 error:nil];
-        m_regex_compileFailed = [NSRegularExpression regularExpressionWithPattern:@"^BUILD FAILED" options:0 error:nil];
+        m_regex_compileFailed = [NSRegularExpression regularExpressionWithPattern:@"^BUILD FAILED.*" options:0 error:nil];
         
         // gradle + zinc
-        m_regex_zincError = [NSRegularExpression regularExpressionWithPattern:@"(.*):([0-9].*): (.*)" options:0 error:nil];
+        m_regex_zincError = [NSRegularExpression regularExpressionWithPattern:@"(.*):([0-9].*?): (.*)" options:0 error:nil];
     }
     return self;
 }
@@ -99,8 +99,10 @@
     if (1 < [lines count]) {
         for (NSString * line in lines) {
             NSLog(@"line is :%@:", line);
+            if ([line length] == 0) continue;
             [self filtering:line withChamberId:chamberId];
         }
+        return;
     }
     
     // 本来必要ではないが、正規表現のupを見るためのチェックをしよう
@@ -192,7 +194,7 @@
         NSLog(@"passed %@", strippedString);
     }
     
-    NSLog(@"strippedString throughs are %@", strippedString);
+    NSLog(@"strippedString throughs finally, %@%@", strippedString, @"/end");
     
     // gradle series
     {
@@ -200,13 +202,16 @@
         {
             // @"^BUILD SUCCESSFUL.*"
             {
-                NSLog(@"2013/11/26 18:28:42");
                 NSArray * re = [m_regex_compileSucceeded matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                 for (NSTextCheckingResult * match in re) {
                     NSString * message = [[NSString alloc]initWithFormat:@"%@%@", @"S2 compile succeeded. ", chamberId];
                     NSDictionary * dict = @{@"message":message};
-                    NSArray * dummy = @[@(EMITTER_MESSAGE_TYPE_CONTROL), dict];
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:42:39" withLimitSec:10000 withComment:@"dummy1 親へと返す"];
+                    if ([messenger hasParent]) {
+                        [messenger callParent:S2_EMITTER_EXEC_OUTPUT,
+                         [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_CONTROL)],
+                         [messenger tag:@"messageDict" val:dict],
+                         nil];
+                    }
                     return ;
                 }
             }
@@ -217,7 +222,6 @@
             // antscala error
             // [ant:scalac] /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle/src/main/scala/com/kissaki/TestProject/TestProject_fail.scala:7: error: not found: type Samplaaae2
             {
-                NSLog(@"2013/11/26 18:28:53");
                 NSArray * re = [m_regex_antscalaError matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                 for (NSTextCheckingResult * match in re) {
                     NSString * filePath = [strippedString substringWithRange:[match rangeAtIndex:1]];
@@ -233,7 +237,7 @@
                 }
                 
                 if ([m_stackDict[KEY_STACKTYPE] isEqualToString:STACKTYPE_ERRORLINES]) {
-                    NSLog(@"2013/11/26 18:28:59");
+                   
                     NSArray * re2 = [m_regex_antscala matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                     
                     // 残りの行の数で対応を変える
@@ -254,8 +258,13 @@
                                 [self append:dict];
                                 
                                 NSDictionary * result = [self flush];
-                                NSArray * data = @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), result];
-                                [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:44:14" withLimitSec:10000 withComment:@"dummy2"];
+
+                                if ([messenger hasParent]) {
+                                    [messenger callParent:S2_EMITTER_EXEC_OUTPUT,
+                                     [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_APPENDREGION)],
+                                     [messenger tag:@"messageDict" val:result],
+                                     nil];
+                                }
                                 return;
                             }
                             break;
@@ -270,15 +279,18 @@
             
             // gradleでのコンパイル失敗
             {
-                NSLog(@"2013/11/26 18:29:08");
                 NSArray * re = [m_regex_compileFailed matchesInString:strippedString options:0 range:NSMakeRange(0, [strippedString length])];
                 
                 for (NSTextCheckingResult * match in re) {
                     NSString * message = [[NSString alloc]initWithFormat:@"%@%@", @"S2 compile failed. ", chamberId];
                     NSDictionary * dict = @{@"message":message};
-                    NSArray * data = @[@(EMITTER_MESSAGE_TYPE_MESSAGE), dict];
                     
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:45:11" withLimitSec:10000 withComment:@"dummy3"];
+                    if ([messenger hasParent]) {
+                        [messenger callParent:S2_EMITTER_EXEC_OUTPUT,
+                         [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_CONTROL)],
+                         [messenger tag:@"messageDict" val:dict],
+                         nil];
+                    }
                     return;
                 }
             }
@@ -287,9 +299,8 @@
     
     // zinc series
     {
-        // /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle_zinc/src/main/scala/com/kissaki/TestProject/Sample.scala:1:
+        // /Users/highvision/S2.fcache/S2Tests/TestResource/sampleProject_gradle_zinc/src/main/scala/com/kissaki/TestProject/Sample.scala:1: reason
         {
-            NSLog(@"2013/11/26 18:29:15");
             NSArray * re = [m_regex_zincError matchesInString:message options:0 range:NSMakeRange(0, [strippedString length])];
             for (NSTextCheckingResult * match in re) {
                 NSString * filePath = [strippedString substringWithRange:[match rangeAtIndex:1]];
@@ -299,43 +310,20 @@
                 NSDictionary * dict = @{@"filePath":filePath,
                                         @"line":line,
                                         @"reason":reason};
-                [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 23:39:29" withLimitSec:100000 withComment:@"一時的にstackをやめてみる。"];
-//                [self stack:dict withType:STACKTYPE_ERRORLINES_ZINC withLimit:@3];
-//                return nil;
-                NSArray * data = @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), dict];
-                [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:45:48" withLimitSec:10000 withComment:@"dummy4"];
+                [self stack:dict withType:STACKTYPE_ERRORLINES_ZINC withLimit:@2];
                 return;
             }
             
-            // gradleとは違い、何行出るかは不明確? なのか、MFTask自体が不明確なのか。後者っぺえな、、
             if ([m_stackDict[KEY_STACKTYPE] isEqualToString:STACKTYPE_ERRORLINES_ZINC]) {
                 // 残りの行の数で対応を変える
-                // 変形がありそうだなー。複数エラーが出た場合とか。複数エラーのケースを足そう。
+                
                 
                 switch ([self countdown:STACKTYPE_ERRORLINES_ZINC]) {
-                    case 2:{
+                    case 1:{
+                        NSLog(@"st %@",strippedString);
                         /*
                          Exception executing org.gradle.api.internal.tasks.scala.jdk6.ZincScalaCompiler@2f678f0e in compiler daemon: org.gradle.api.internal.tasks.compile.CompilationFailedException: Compilation failed.
                          
-                         */
-                        return;
-                    }
-                    case 1:{
-                        /*
-                         
-                         val b = new Samplaaae2()// typo here
-                         ^
-                         one error found
-                         
-                         FAILURE: Build failed with an exception.
-                         
-                         * What went wrong:
-                         Execution failed for task ':compileScala'.
-                         > Compilation failed
-                         
-                         * Try:
-                         Run with --stacktrace option to get the stack trace. Run with --debug option to get more log output.
-
                          */
                         return;
                     }
@@ -345,10 +333,15 @@
                         NSUInteger index = range.location;
                         NSDictionary * dict = @{@"index":[[NSString alloc]initWithFormat:@"%lu", (unsigned long)index]};
                         [self append:dict];
-                        
+                        [TimeMine setTimeMineLocalizedFormat:@"2013/11/29 7:45:24" withLimitSec:10000 withComment:@"インデックスが相変わらずおかしい"];
                         NSDictionary * result = [self flush];
-                        NSArray * data = @[@(EMITTER_MESSAGE_TYPE_APPENDREGION), result];
-                        [TimeMine setTimeMineLocalizedFormat:@"2013/11/27 20:46:29" withLimitSec:10000 withComment:@"dummy5"];
+                        
+                        if ([messenger hasParent]) {
+                            [messenger callParent:S2_EMITTER_EXEC_OUTPUT,
+                             [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_APPENDREGION)],
+                             [messenger tag:@"messageDict" val:result],
+                             nil];
+                        }
                         return;
                     }
                         
@@ -469,6 +462,15 @@
  */
 - (NSString * ) combineMessages:(NSArray * )messageArray {
     return [messageArray componentsJoinedByString:@"->"];
+}
+
+
+- (void) close {
+    [messenger closeConnection];
+}
+
+- (void) dealloc {
+    [self close];
 }
 
 @end

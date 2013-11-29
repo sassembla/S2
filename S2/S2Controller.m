@@ -192,11 +192,6 @@
             switch ([messenger execFrom:S2_COMPILECHAMBERCONT viaNotification:notif]) {
                 case S2_COMPILECHAMBERCONT_EXEC_CAHMBERSPINUPPED:{
                     NSAssert(dict[@"id"], @"id required");
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 0:24:48" withLimitSec:10000 withComment:@"スピンアップ完了を伝えてみる=このチャンバーが終了を感知できてないケースがある。なんだろ。"];
-                    NSString * message = [[NSString alloc]initWithFormat:@"id %@ spinupped.", dict[@"id"]];
-                    [messenger call:KS_WEBSOCKETCONNECTIONOPERATION withExec:KS_WEBSOCKETCONNECTIONOPERATION_PUSH,
-                     [messenger tag:@"message" val:message],
-                     nil];
                     
                     [self callToMaster:S2_CONT_EXEC_SPINUPPED withMessageDict:dict];
                     

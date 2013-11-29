@@ -43,6 +43,7 @@
         [settingReceiver connectParent:S2_COMPILERSETTINGCONTROLLER];
         
         statesArray = STATE_STR_ARRAY;
+        
         m_emitterId = [[NSString alloc]initWithString:[KSMessenger generateMID]];
         emitter = [[Emitter alloc]initWithMasterName:[messenger myNameAndMID] as:m_emitterId];
         
@@ -81,6 +82,38 @@
         }
     }
     
+    // emitterからのmessage
+    switch ([messenger execFrom:m_emitterId viaNotification:notif]) {
+        case S2_EMITTER_EXEC_OUTPUT:{
+            NSAssert(dict[@"type"], @"type required");
+            NSAssert(dict[@"messageDict"], @"messageDict required");
+            
+            
+            int type = [dict[@"type"] intValue];
+            if ([messenger hasParent]) {
+                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
+                 [messenger tag:@"id" val:m_chamberId],
+                 [messenger tag:@"type" val:dict[@"type"]],
+                 [messenger tag:@"messageDict" val:dict[@"messageDict"]],
+                 nil];
+            }
+            
+            
+            if (type == EMITTER_MESSAGE_TYPE_CONTROL) {
+                m_state = statesArray[STATE_COMPILED];
+                
+                if ([messenger hasParent]) {
+                    [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
+                     [messenger tag:@"id" val:m_chamberId],
+                     nil];
+                }
+            }
+            return;
+        }
+    }
+
+    
+    
     // 自分以外からのmessageは、chamberIdのチェックを行う
     NSAssert(dict[@"id"], @"id required");
     
@@ -108,49 +141,6 @@
         case S2_COMPILECHAMBER_EXEC_PURGE:{
             [self abort];
             [self close];
-            break;
-        }
-    }
-    
-    
-    // emitterからのmessage
-    switch ([messenger execFrom:m_emitterId viaNotification:notif]) {
-        case S2_EMITTER_EXEC_OUTPUT:{
-            NSAssert(dict[@"type"], @"type required");
-            NSAssert(dict[@"messageDict"], @"messageDict required");
-            
-            
-            int type = [dict[@"type"] intValue];
-            if ([messenger hasParent]) {
-                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-                 [messenger tag:@"id" val:m_chamberId],
-                 [messenger tag:@"type" val:dict[@"type"]],
-                 [messenger tag:@"messageDict" val:dict[@"messageDict"]],
-                 nil];
-            }
-            
-            
-            if (type == EMITTER_MESSAGE_TYPE_CONTROL) {
-                
-                if ([messenger hasParent]) {
-                    [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 0:26:45" withLimitSec:100000 withComment:@"コントロールされた完了をトレースする。理由が特殊そうな気がする。"];
-                    //                NSString * chamberIdAndMessage = [[NSString alloc]initWithFormat:@"%@ : %@", m_chamberId, @", コントロールされたcompiled!がありそう"];
-                    //                [messenger callParent:S2_COMPILECHAMBER_EXEC_TICK,
-                    //                 [messenger tag:@"id" val:m_chamberId],
-                    //                 [messenger tag:@"type" val:@(EMITTER_MESSAGE_TYPE_MESSAGE)],
-                    //                 [messenger tag:@"messageDict" val:@{@"message":chamberIdAndMessage}],
-                    //                 nil];
-                }
-                
-                
-                m_state = statesArray[STATE_COMPILED];
-                
-                if ([messenger hasParent]) {
-                    [messenger callParent:S2_COMPILECHAMBER_EXEC_COMPILED,
-                     [messenger tag:@"id" val:m_chamberId],
-                     nil];
-                }
-            }
             break;
         }
     }
@@ -271,5 +261,7 @@
 - (void) close {
     [settingReceiver closeConnection];
     [messenger closeConnection];
+    [emitter close];
 }
+
 @end

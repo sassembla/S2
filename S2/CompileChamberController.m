@@ -263,15 +263,6 @@
             NSAssert(dict[@"type"], @"type required");
             NSAssert(dict[@"messageDict"], @"messageDict required");
             
-            NSString * chamberId = [[NSString alloc]initWithFormat:@"%@ : %@", @"とりあえずデバッグで全て流す", dict[@"id"]];
-            [TimeMine setTimeMineLocalizedFormat:@"2013/11/30 18:22:31" withLimitSec:10000 withComment:chamberId];
-//            NSString * debugMessage = [[NSString alloc]initWithFormat:@"debug:%@", dict[@"messageDict"]];
-//            NSString * reLineRemoved = [debugMessage stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
-//            NSString * chamberIdAndRelined = [[NSString alloc]initWithFormat:@"%@:%@", chamberId, reLineRemoved];
-//            
-//            [messenger callParent:S2_COMPILECHAMBERCONT_EXEC_OUTPUT,
-//             [messenger tag:@"message" val:chamberIdAndRelined],
-//             nil];
             
             // 最新のみ
             if ([self isFirstPriority:dict[@"id"]]) {

@@ -33,4 +33,6 @@ enum EMITTER_MESSAGE_TYPE {
 - (void) filtering:(NSString * )message withChamberId:(NSString * )chamberId;
 
 - (NSString * ) combineMessages:(NSArray * )messageArray;
+
+- (void) close;
 @end
