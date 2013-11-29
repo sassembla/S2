@@ -419,11 +419,11 @@
             break;
         }
         case 1:{
-            priorityStr = @"keyword";
+            priorityStr = @"test";
             break;
         }
         case 2:{
-            priorityStr = @"keyword";
+            priorityStr = @"test";
             break;
         }
     }
