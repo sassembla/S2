@@ -320,7 +320,6 @@
                 
                 switch ([self countdown:STACKTYPE_ERRORLINES_ZINC]) {
                     case 1:{
-                        NSLog(@"st %@",strippedString);
                         /*
                          Exception executing org.gradle.api.internal.tasks.scala.jdk6.ZincScalaCompiler@2f678f0e in compiler daemon: org.gradle.api.internal.tasks.compile.CompilationFailedException: Compilation failed.
                          
@@ -333,7 +332,7 @@
                         NSUInteger index = range.location;
                         NSDictionary * dict = @{@"index":[[NSString alloc]initWithFormat:@"%lu", (unsigned long)index]};
                         [self append:dict];
-                        [TimeMine setTimeMineLocalizedFormat:@"2013/11/29 7:45:24" withLimitSec:10000 withComment:@"インデックスが相変わらずおかしい"];
+                        
                         NSDictionary * result = [self flush];
                         
                         if ([messenger hasParent]) {
@@ -403,7 +402,7 @@
     NSAssert(messageDict[@"message"], @"message required");
     
     NSString * message = messageDict[@"message"];
-    return [[NSString alloc]initWithFormat:@"%@->showAtLog:{\"message\":\"%@\"}->showStatusMessage:{\"message\":\"%@\"}", S2_SUBLIMESOCKET_API_RESET, message, message];
+    return [[NSString alloc]initWithFormat:@"showAtLog:{\"message\":\"%@\"}->showStatusMessage:{\"message\":\"%@\"}", message, message];
 }
 
 - (NSString * )generateAppendRegionMessage:(NSDictionary * )regionDict withPriority:(int)priority {
